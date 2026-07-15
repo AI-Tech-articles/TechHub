@@ -1,0 +1,1250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <!-- ─── CRITICAL SEO ─────────────────────────────────────────── -->
+    <title>Nccl Timeout Failures In Multi Node Llama 3 Inference At Scale | TechHub</title>
+    <meta name="description" content="NCCL Timeout Failures in Multi-Node LLaMA 3 Inference at ScaleHow We Dropped From 15K RPS to 1K RPS in Thirty Seconds Because of One Dumb Timeout Knob">
+    <meta name="author" content="Saranga Thenuwara">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://ai-tech-articles.github.io/TechHub/2026/07/nccl-timeout-failures-in-multi-node-llama-3-inference-at-scale/">
+
+    <!-- ─── OPEN GRAPH (Facebook/LinkedIn) ─────────────────────────── -->
+    <meta property="og:site_name" content="TechHub">
+    <meta property="og:title" content="Nccl Timeout Failures In Multi Node Llama 3 Inference At Scale">
+    <meta property="og:description" content="NCCL Timeout Failures in Multi-Node LLaMA 3 Inference at ScaleHow We Dropped From 15K RPS to 1K RPS in Thirty Seconds Because of One Dumb Timeout Knob">
+    <meta property="og:url" content="https://ai-tech-articles.github.io/TechHub/2026/07/nccl-timeout-failures-in-multi-node-llama-3-inference-at-scale/">
+    <meta property="og:type" content="article">
+    <meta property="og:locale" content="en_US">
+    
+    <meta property="og:image" content="https://ai-tech-articles.github.io/TechHub/assets/images/default-og.png">
+    
+
+    <!-- ─── TWITTER CARD ─────────────────────────────────────────── -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@">
+    <meta name="twitter:creator" content="@">
+    <meta name="twitter:title" content="Nccl Timeout Failures In Multi Node Llama 3 Inference At Scale">
+    <meta name="twitter:description" content="NCCL Timeout Failures in Multi-Node LLaMA 3 Inference at ScaleHow We Dropped From 15K RPS to 1K RPS in Thirty Seconds Because of One Dumb Timeout Knob">
+    
+    <meta name="twitter:image" content="https://ai-tech-articles.github.io/TechHub/assets/images/default-og.png">
+    
+
+    <!-- ─── JSON-LD STRUCTURED DATA (Article) ────────────────────── -->
+    
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": "Nccl Timeout Failures In Multi Node Llama 3 Inference At Scale",
+      "description": "NCCL Timeout Failures in Multi-Node LLaMA 3 Inference at Scale\nHow We Dropped From 15K RPS to 1K RPS in Thirty Seconds Because of One Dumb Timeout Knob\n\n",
+      "author": {
+        "@type": "Person",
+        "name": "Saranga Thenuwara"
+      },
+      "datePublished": "2026-07-15",
+      "dateModified": "2026-07-15",
+      "url": "https://ai-tech-articles.github.io/TechHub/2026/07/nccl-timeout-failures-in-multi-node-llama-3-inference-at-scale/",
+      "publisher": {
+        "@type": "Organization",
+        "name": "TechHub",
+        "url": "https://ai-tech-articles.github.io/TechHub/"
+      },
+      "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "https://ai-tech-articles.github.io/TechHub/2026/07/nccl-timeout-failures-in-multi-node-llama-3-inference-at-scale/"
+      }
+      ,
+      "keywords": ""
+      
+    }
+    </script>
+    
+
+    <!-- ─── RSS / FEED ───────────────────────────────────────────── -->
+    <link type="application/atom+xml" rel="alternate" href="https://ai-tech-articles.github.io/TechHub/feed.xml" title="TechHub | AI Technology Publications" />
+
+    <!-- ─── FAVICON ──────────────────────────────────────────────── -->
+    <link rel="icon" type="image/svg+xml" href="/TechHub/assets/images/favicon.svg">
+    <link rel="alternate icon" href="/TechHub/assets/images/favicon.ico">
+    <link rel="apple-touch-icon" href="/TechHub/assets/images/apple-touch-icon.png">
+
+    <!-- ─── PRECONNECT (Performance) ─────────────────────────────── -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <link rel="preconnect" href="https://pagead2.googlesyndication.com">
+    
+
+    <!-- ─── GOOGLE ADSENSE ─────────────────────────────────────────── -->
+    
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6375003818418942" crossorigin="anonymous"></script>
+    <meta name="google-adsense-account" content="ca-pub-6375003818418942">
+    
+
+    <!-- ─── STYLES ─────────────────────────────────────────────────── -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --bg-deep: #0a0b10;
+            --panel-solid: #11131c;
+            --border-glow: #1f2330;
+            --text-pure: #f8fafc;
+            --text-dim: #94a3b8;
+            --accent-silver: #cbd5e1;
+            --accent-yellow: #ffd700;
+            --accent-glow: rgba(255, 255, 255, 0.03);
+            --code-bg: #030408;
+            --read-width: 72ch;
+        }
+
+        * { box-sizing: border-box; }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-deep);
+            color: var(--text-pure);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            letter-spacing: 0.01em;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* ─── SCROLLBAR ────────────────────────────────────────────── */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-deep); }
+        ::-webkit-scrollbar-thumb { background: var(--border-glow); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #2a2f3f; }
+
+        a {
+            color: var(--accent-yellow);
+            text-decoration: none;
+            transition: opacity 0.2s ease;
+        }
+        a:hover { opacity: 0.8; text-decoration: underline; }
+
+        /* ─── SKIP LINK ────────────────────────────────────────────── */
+        .skip-link {
+            position: absolute;
+            top: -40px;
+            left: 0;
+            background: var(--accent-yellow);
+            color: var(--bg-deep);
+            padding: 8px 16px;
+            z-index: 10000;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-decoration: none;
+            border-radius: 0 0 4px 0;
+            transition: top 0.25s ease;
+        }
+        .skip-link:focus { top: 0; outline: none; }
+
+        /* ─── READING PROGRESS BAR ─────────────────────────────────── */
+        #reading-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 0%;
+            height: 3px;
+            background: var(--accent-yellow);
+            z-index: 9999;
+            transition: width 0.1s linear;
+            box-shadow: 0 0 8px rgba(255, 215, 0, 0.3);
+        }
+
+        /* ─── HEADER ─────────────────────────────────────────────── */
+        .site-header {
+            border-bottom: 1px solid var(--border-glow);
+            padding: 1.25rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            position: sticky;
+            top: 0;
+            background: rgba(10, 11, 16, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            z-index: 1000;
+        }
+        .site-brand {
+            font-family: 'Cinzel', serif;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text-pure);
+            letter-spacing: 0.05em;
+        }
+        .site-brand a { color: inherit; text-decoration: none; }
+        .site-brand a:hover { opacity: 1; color: var(--accent-yellow); }
+        .site-nav {
+            display: flex;
+            gap: 2rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+        .site-nav a { color: var(--text-dim); text-decoration: none; }
+        .site-nav a:hover { color: var(--accent-yellow); opacity: 1; }
+
+        /* ─── MAIN CONTENT ───────────────────────────────────────── */
+        main {
+            flex: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            padding: 2.5rem 2rem;
+        }
+
+        /* ─── POST CARD (Homepage) ───────────────────────────────── */
+        .post-card {
+            background: var(--panel-solid);
+            padding: 2rem 2.5rem;
+            margin-bottom: 1.5rem;
+            border-radius: 14px;
+            border: 1px solid var(--border-glow);
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+        }
+        .post-card:hover {
+            border-color: rgba(255, 215, 0, 0.12);
+            transform: translateY(-3px);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.55);
+        }
+        .post-card a { text-decoration: none; color: inherit; display: block; }
+        .post-card a:hover { opacity: 1; }
+        .post-card h3 {
+            font-family: 'Cinzel', serif;
+            font-size: 1.35rem;
+            font-weight: 500;
+            margin: 0 0 0.6rem 0;
+            color: var(--text-pure);
+            line-height: 1.35;
+            letter-spacing: 0.01em;
+        }
+        .post-card h3:hover { color: var(--accent-yellow); }
+        .post-meta-bar {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.72rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 0.75rem;
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .post-meta-bar .meta-sep { opacity: 0.25; }
+        .post-tag-mini {
+            background: rgba(255, 215, 0, 0.06);
+            color: var(--accent-yellow);
+            padding: 0.15rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.65rem;
+            text-transform: none;
+            letter-spacing: 0.02em;
+        }
+        .post-excerpt {
+            color: var(--text-dim);
+            font-size: 0.95rem;
+            line-height: 1.65;
+            margin: 0;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .read-more {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--accent-yellow);
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            margin-top: 1.25rem;
+        }
+        .read-more:hover { opacity: 0.8; }
+        .read-more svg { transition: transform 0.2s ease; }
+        .read-more:hover svg { transform: translateX(3px); }
+
+        /* ─── PAGINATION ─────────────────────────────────────────── */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.4rem;
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border-glow);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+        }
+        .page-btn {
+            padding: 0.5rem 0.9rem;
+            border: 1px solid var(--border-glow);
+            border-radius: 8px;
+            color: var(--text-dim);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            min-width: 36px;
+            text-align: center;
+        }
+        .page-btn:hover:not(.disabled):not(.active) {
+            border-color: var(--accent-yellow);
+            color: var(--accent-yellow);
+            background: rgba(255, 215, 0, 0.04);
+        }
+        .page-btn.active {
+            border-color: var(--accent-yellow);
+            color: var(--accent-yellow);
+            background: rgba(255, 215, 0, 0.08);
+            font-weight: 700;
+        }
+        .page-btn.disabled {
+            color: var(--border-glow);
+            opacity: 0.4;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        /* ─── SEARCH ───────────────────────────────────────────────── */
+        .search-section { margin-bottom: 2.5rem; }
+        .search-box { position: relative; max-width: 600px; }
+        .search-box input {
+            width: 100%;
+            padding: 0.85rem 1.25rem 0.85rem 2.8rem;
+            background: var(--panel-solid);
+            border: 1px solid var(--border-glow);
+            border-radius: 12px;
+            color: var(--text-pure);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .search-box input:focus {
+            border-color: var(--accent-yellow);
+            box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.08);
+        }
+        .search-box input::placeholder { color: #4a5068; }
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 18px;
+            height: 18px;
+            color: var(--text-dim);
+            pointer-events: none;
+        }
+        #search-results {
+            display: none;
+            margin-top: 0.75rem;
+            background: var(--panel-solid);
+            border: 1px solid var(--border-glow);
+            border-radius: 12px;
+            padding: 0.5rem;
+            max-height: 420px;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+        .search-result-item {
+            display: block;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            text-decoration: none;
+            color: inherit;
+            transition: background 0.15s ease;
+        }
+        .search-result-item:hover { background: rgba(255, 215, 0, 0.04); }
+        .search-result-title {
+            font-family: 'Cinzel', serif;
+            font-size: 1rem;
+            color: var(--text-pure);
+            margin-bottom: 0.2rem;
+        }
+        .search-result-meta {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--text-dim);
+        }
+        #search-results::-webkit-scrollbar { width: 6px; }
+        #search-results::-webkit-scrollbar-thumb { background: var(--border-glow); border-radius: 3px; }
+
+        /* ─── ARTICLE (Post Page) ──────────────────────────────────── */
+        article {
+            max-width: var(--read-width);
+            margin: 0 auto;
+        }
+        article .post-header {
+            margin-bottom: 2.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-glow);
+        }
+        article .post-header h1 {
+            font-family: 'Cinzel', serif;
+            font-size: 2.4rem;
+            font-weight: 500;
+            line-height: 1.2;
+            margin: 0 0 1rem 0;
+            letter-spacing: 0.02em;
+        }
+        article .post-meta {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        article .post-meta .author { color: var(--accent-yellow); }
+        article .post-meta .separator { margin: 0 0.25rem; opacity: 0.3; }
+
+        article h2 {
+            font-family: 'Cinzel', serif;
+            font-size: 1.7rem;
+            font-weight: 500;
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border-glow);
+            letter-spacing: 0.01em;
+        }
+        article h3 {
+            font-family: 'Cinzel', serif;
+            font-size: 1.25rem;
+            font-weight: 500;
+            margin-top: 2rem;
+            margin-bottom: 0.75rem;
+            color: var(--accent-silver);
+        }
+        article h4 {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.6rem;
+            color: var(--accent-silver);
+        }
+        article p {
+            margin-bottom: 1.25rem;
+            color: var(--text-dim);
+        }
+        article p strong { color: var(--text-pure); }
+        article ul, article ol {
+            margin-bottom: 1.25rem;
+            padding-left: 1.5rem;
+            color: var(--text-dim);
+        }
+        article li { margin-bottom: 0.5rem; }
+        article li::marker { color: var(--accent-yellow); }
+        article blockquote {
+            border-left: 3px solid var(--accent-yellow);
+            margin: 1.5rem 0;
+            padding: 0.5rem 0 0.5rem 1.5rem;
+            font-style: italic;
+            color: var(--accent-silver);
+        }
+        article hr {
+            border: none;
+            height: 1px;
+            background: var(--border-glow);
+            margin: 2.5rem 0;
+        }
+        article img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            border: 1px solid var(--border-glow);
+            display: block;
+            margin: 1.5rem auto;
+        }
+        article figcaption, article .image-caption {
+            display: block;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            margin-top: 0.5rem;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* ─── CODE BLOCKS ──────────────────────────────────────────── */
+        article pre {
+            background: var(--code-bg);
+            border: 1px solid var(--border-glow);
+            border-radius: 10px;
+            padding: 1.25rem;
+            overflow-x: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            line-height: 1.65;
+            margin: 1.5rem 0;
+        }
+        article pre code {
+            background: transparent;
+            padding: 0;
+            border: none;
+            color: var(--text-pure);
+            font-size: inherit;
+        }
+        article code {
+            background: rgba(255,255,255,0.05);
+            padding: 0.2em 0.4em;
+            border-radius: 4px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9em;
+            color: var(--accent-yellow);
+        }
+
+        /* ─── TABLES ──────────────────────────────────────────────── */
+        article table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            font-size: 0.9rem;
+            border: 1px solid var(--border-glow);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        article th, article td {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-glow);
+        }
+        article th {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--accent-yellow);
+            background: var(--panel-solid);
+            font-weight: 600;
+        }
+        article tr:last-child td { border-bottom: none; }
+        article tr:hover td { background: rgba(255,255,255,0.015); }
+
+        /* ─── TAGS ────────────────────────────────────────────────── */
+        .post-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 2.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border-glow);
+        }
+        .post-tag {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            padding: 0.4rem 0.85rem;
+            border: 1px solid var(--border-glow);
+            border-radius: 20px;
+            color: var(--text-dim);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            background: transparent;
+        }
+        .post-tag:hover {
+            border-color: var(--accent-yellow);
+            color: var(--accent-yellow);
+            background: rgba(255, 215, 0, 0.05);
+            text-decoration: none;
+            opacity: 1;
+        }
+
+        /* ─── TAG CLOUD (Tags Page) ───────────────────────────────── */
+        .tag-cloud {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-bottom: 3rem;
+        }
+        .tag-pill {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.82rem;
+            padding: 0.55rem 1.1rem;
+            border: 1px solid var(--border-glow);
+            border-radius: 24px;
+            color: var(--text-dim);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            background: transparent;
+        }
+        .tag-pill:hover {
+            border-color: var(--accent-yellow);
+            color: var(--accent-yellow);
+            background: rgba(255, 215, 0, 0.05);
+            text-decoration: none;
+            opacity: 1;
+        }
+        .tag-group h3 {
+            font-family: 'Cinzel', serif;
+            font-size: 1.2rem;
+            color: var(--accent-yellow);
+            margin-bottom: 1rem;
+            text-transform: capitalize;
+        }
+        .tag-group-list {
+            display: grid;
+            gap: 0.75rem;
+            margin-bottom: 2.5rem;
+        }
+        .tag-group-item {
+            display: block;
+            padding: 1rem 1.25rem;
+            background: var(--panel-solid);
+            border: 1px solid var(--border-glow);
+            border-radius: 10px;
+            text-decoration: none;
+            color: var(--text-pure);
+            transition: all 0.2s ease;
+        }
+        .tag-group-item:hover {
+            border-color: rgba(255, 215, 0, 0.2);
+            text-decoration: none;
+            opacity: 1;
+        }
+        .tag-group-item-title {
+            font-family: 'Cinzel', serif;
+            font-size: 1rem;
+            margin-bottom: 0.25rem;
+        }
+        .tag-group-item-date {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--text-dim);
+        }
+
+        /* ─── ADS ─────────────────────────────────────────────────── */
+        .ad-container {
+            margin: 2rem 0;
+            text-align: center;
+            min-height: 90px;
+        }
+
+        /* ─── BACK TO TOP ──────────────────────────────────────────── */
+        .back-to-top {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 44px;
+            height: 44px;
+            background: var(--panel-solid);
+            border: 1px solid var(--border-glow);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            color: var(--text-dim);
+            padding: 0;
+        }
+        .back-to-top.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+        .back-to-top:hover {
+            border-color: var(--accent-yellow);
+            color: var(--accent-yellow);
+            background: rgba(255, 215, 0, 0.05);
+            transform: translateY(-2px);
+        }
+        .back-to-top:focus-visible {
+            outline: 2px solid var(--accent-yellow);
+            outline-offset: 2px;
+        }
+
+        /* ─── FOOTER ──────────────────────────────────────────────── */
+        .site-footer {
+            border-top: 1px solid var(--border-glow);
+            padding: 2.5rem 2rem;
+            text-align: center;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+        .site-footer a { color: var(--text-dim); margin: 0 1rem; text-decoration: none; }
+        .site-footer a:hover { color: var(--accent-yellow); opacity: 1; }
+        .site-footer p { margin: 1rem 0 0 0; opacity: 0.5; }
+
+        /* ─── RESPONSIVE ──────────────────────────────────────────── */
+        @media (max-width: 768px) {
+            .site-header {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1rem;
+                position: relative;
+            }
+            .site-nav { gap: 1.2rem; font-size: 0.72rem; }
+            main { padding: 1.5rem 1rem; }
+            .post-card { padding: 1.5rem; }
+            .post-card h3 { font-size: 1.15rem; }
+            article .post-header h1 { font-size: 1.7rem; }
+            article h2 { font-size: 1.35rem; }
+            .back-to-top { bottom: 1.5rem; right: 1.5rem; width: 40px; height: 40px; }
+        }
+
+        /* ─── FOCUS VISIBLE ───────────────────────────────────────── */
+        :focus-visible {
+            outline: 2px solid var(--accent-yellow);
+            outline-offset: 2px;
+            border-radius: 4px;
+        }
+        a:focus-visible { border-radius: 4px; }
+
+        /* ─── MATH / KATEX ─────────────────────────────────────────── */
+        .katex { font-size: 1.1em; }
+        .katex-display { margin: 1.5rem 0; overflow-x: auto; }
+
+        /* ─── MERMAID ────────────────────────────────────────────── */
+        .mermaid {
+            background: var(--panel-solid);
+            border: 1px solid var(--border-glow);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            text-align: center;
+        }
+
+        /* ─── EDITORIAL CARD (Homepage) ─────────────────────────── */
+        .editorial-card {
+            background: var(--panel-solid);
+            padding: 3rem 3.5rem;
+            margin-bottom: 2.5rem;
+            border-radius: 16px;
+            border: 1px solid var(--border-glow);
+            position: relative;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.65);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .editorial-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent-yellow);
+            box-shadow: 0 20px 50px rgba(255, 215, 0, 0.04);
+        }
+        .editorial-card h3 {
+            margin-top: 0;
+            margin-bottom: 0.5rem;
+        }
+        .editorial-card h3 a {
+            color: #fff;
+            font-family: 'Cinzel', serif;
+            text-decoration: none;
+            font-size: 1.85rem;
+            font-weight: 500;
+            letter-spacing: 0.01em;
+            line-height: 1.3;
+            border-bottom: none !important;
+            display: inline-block;
+        }
+        .editorial-card h3 a:hover {
+            color: var(--accent-yellow);
+            opacity: 1;
+        }
+        .feed-telemetry-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.72rem;
+            color: var(--accent-yellow);
+            margin-bottom: 1.25rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            font-weight: 700;
+        }
+        .editorial-link-btn {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--text-pure);
+            font-weight: 700;
+            text-decoration: none;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            border: 1px solid var(--border-glow);
+            padding: 0.55rem 1.3rem;
+            border-radius: 30px;
+            background: rgba(255, 255, 255, 0.01);
+            transition: all 0.2s ease;
+        }
+        .editorial-link-btn:hover {
+            background: rgba(255, 215, 0, 0.05);
+            border-color: var(--accent-yellow);
+            color: var(--accent-yellow);
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.08);
+            text-decoration: none;
+            opacity: 1;
+        }
+        .pagination-nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 4rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border-glow);
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .pagination-nav-link {
+            font-size: 0.75rem;
+            color: var(--accent-yellow);
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            padding: 0.6rem 1.4rem;
+            border: 1px solid var(--border-glow);
+            border-radius: 30px;
+            background: rgba(255, 255, 255, 0.01);
+            font-weight: 700;
+            transition: all 0.2s ease;
+        }
+        .pagination-nav-link:hover {
+            background: rgba(255, 215, 0, 0.05);
+            border-color: var(--accent-yellow);
+            box-shadow: 0 0 12px rgba(255, 215, 0, 0.05);
+            text-decoration: none;
+            opacity: 1;
+        }
+        .pagination-nav-placeholder {
+            visibility: hidden;
+            padding: 0.6rem 1.4rem;
+            font-size: 0.75rem;
+        }
+
+        @media (max-width: 768px) {
+            .editorial-card {
+                padding: 2rem 1.75rem;
+            }
+            .editorial-card h3 a {
+                font-size: 1.35rem;
+            }
+            .pagination-nav-container {
+                flex-direction: column;
+                gap: 1.5rem;
+                text-align: center;
+            }
+            .pagination-nav-placeholder {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    <div id="reading-progress"></div>
+
+    <!-- ─── HEADER ─────────────────────────────────────────────── -->
+    <header class="site-header" role="banner">
+        <div class="site-brand">
+            <a href="/TechHub/">TechHub</a>
+        </div>
+        <nav class="site-nav" role="navigation" aria-label="Main navigation">
+            <a href="/TechHub/">Journal</a>
+            <a href="/TechHub/tags">Tags</a>
+            <a href="/TechHub/about">About</a>
+        </nav>
+    </header>
+
+    <!-- ─── MAIN ─────────────────────────────────────────────────── -->
+    <main id="main-content" role="main">
+        <h1 id="nccl-timeout-failures-in-multi-node-llama-3-inference-at-scale">NCCL Timeout Failures in Multi-Node LLaMA 3 Inference at Scale</h1>
+<h2 id="how-we-dropped-from-15k-rps-to-1k-rps-in-thirty-seconds-because-of-one-dumb-timeout-knob">How We Dropped From 15K RPS to 1K RPS in Thirty Seconds Because of One Dumb Timeout Knob</h2>
+
+<p><em>Image generated via Midjourney by author</em></p>
+
+<p>Edit: Wait, I was wrong about batch size above. It was 32, not 16.</p>
+
+<p>I wasnt the on-call but Marcus called me at 2:04 PM and i could hear the panic in his voice. Our LLaMA 3 70B inference tier had just gone from 15K RPS to basically zero because of NCCL timeout errors. Thirty seconds. That fast tbh. The dashboards looked like a cliff. Customers were getting 503s and the worst part we run tensor parallel inference across four nodes. One slow link and the whole world stops.</p>
+
+<p>This post is the real timeline. No fluff. If you run multi-node LLaMA 3 inference or use DeepSpeed with NCCL you probably want to read this. We will cover the exact NCCL error, the topology gotcha, the IB firmware surprise, and the final config that stopped the bleeding.</p>
+
+<h2 id="why-was-nccl-timing-out-under-peak-load">Why Was NCCL Timing Out Under Peak Load?</h2>
+
+<p>The timeout was a symptom, not the disease. NCCL gave up after 30s because a single allReduce call in the attention layer sat blocked longer than NCCL_TIMEOUT allowed.</p>
+
+<h2 id="how-long-should-nccl_timeout-be-for-multi-node-llama-3-inference">How Long Should NCCL_TIMEOUT Be for Multi-Node LLaMA 3 Inference?</h2>
+
+<p>For a heterogeneous HDR InfiniBand cluster running LLaMA 3 70B tensor parallel inference, set NCCL_TIMEOUT between 90s and 120s until you have measured real p99 allReduce completion times with nccl-tests.</p>
+
+<p>Sticking with the default 30s is risky if your pod spec can mix different GPU backplanes. NCCL is synchronous. Every rank waits for the slowest one. If rank 7 is stuck behind a slow PCIe bridge, everyone else stares at the wall. That p99 number is what matters, not the median.</p>
+
+<h2 id="system-architecture-for-our-llama-3-inference-cluster">System Architecture for Our LLaMA 3 Inference Cluster</h2>
+
+<table>
+  <tbody>
+    <tr>
+      <td>Component</td>
+      <td>Version</td>
+      <td>Role</td>
+    </tr>
+    <tr>
+      <td>,-</td>
+      <td>,-</td>
+      <td>,-</td>
+    </tr>
+    <tr>
+      <td>Model</td>
+      <td>LLaMA 3 70B custom quantized</td>
+      <td>weights</td>
+    </tr>
+    <tr>
+      <td>Engine</td>
+      <td>TorchServe 2.6.0 + torch 2.4.0</td>
+      <td>serving layer</td>
+    </tr>
+    <tr>
+      <td>TP library</td>
+      <td>DeepSpeed 0.12.6 ZeRO-3</td>
+      <td>tensor parallel</td>
+    </tr>
+    <tr>
+      <td>Backend</td>
+      <td>NCCL 2.22.3 + CUDA 12.4</td>
+      <td>collectives</td>
+    </tr>
+    <tr>
+      <td>Orchestration</td>
+      <td>k8s 1.30 GPU pool</td>
+      <td>scheduling</td>
+    </tr>
+    <tr>
+      <td>Network</td>
+      <td>Mellanox ConnectX-7 HDR 200 Gbps</td>
+      <td>inter-node fabric</td>
+    </tr>
+    <tr>
+      <td>GPU</td>
+      <td>8x NVIDIA H100 PCIe per node</td>
+      <td>compute</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>We run tensor parallel degree 8 inside each node and pipeline parallel degree 2 across four nodes. Total 32 ranks. Each node has HDR IB out and NVLink inside. At least that was the plan until the hardware refresh showed up with a different backplane.</p>
+
+<h2 id="what-does-nccl-error-code-7-mean">What Does NCCL Error Code 7 Mean?</h2>
+
+<p>NCCL error 7 is ncclSystemError and in our logs it specifically said operation timed out. The default NCCL_TIMEOUT in NCCL 2.22 is 30000ms. When any rank stalls, the others wait. If nobody hears back within that window, NCCL blows up the communicator and your forward pass dies. There is no Python exception to catch. It just dies.</p>
+
+<h2 id="multi-node-nccl-allreduce-hang-flow">Multi-Node NCCL AllReduce Hang Flow</h2>
+
+<pre><code class="language-mermaid">graph LR
+    A[Batch of 256 tokens] ,&gt; B[Rank 0 allReduce attention logits]
+    B ,&gt; C{NCCL ring crosses slow PCIe link}
+    C ,&gt;|latency spike| D[Rank stalls &gt;30s]
+    D ,&gt; E[ncclSystemError on all ranks]
+    E ,&gt; F[503 returned, OOM retry loop]
+</code></pre>
+
+<p>This diagram shows the failure path in our multi-node LLaMA 3 inference pipeline. One slow hop propagates into a full communicator abort because NCCL collectives are synchronous across ranks.</p>
+
+<h2 id="the-debugging-timeline-marcus-actually-lived-through">The Debugging Timeline Marcus Actually Lived Through</h2>
+
+<table>
+  <tbody>
+    <tr>
+      <td>Time UTC</td>
+      <td>Action</td>
+      <td>Finding</td>
+    </tr>
+    <tr>
+      <td>,-</td>
+      <td>,-</td>
+      <td>,-</td>
+    </tr>
+    <tr>
+      <td>14:00</td>
+      <td>PagerDuty fires NCCL timeout on node 12</td>
+      <td>Marcus acks</td>
+    </tr>
+    <tr>
+      <td>14:01</td>
+      <td>Pull logs from all 4 pods</td>
+      <td>Identical ncclSystemError on every rank</td>
+    </tr>
+    <tr>
+      <td>14:02</td>
+      <td>Check env vars</td>
+      <td>NCCL_TIMEOUT=30000, NCCL_IB_DISABLE=0</td>
+    </tr>
+    <tr>
+      <td>14:03</td>
+      <td>Run nccl-tests all_reduce_perf per node</td>
+      <td>Passes locally, fails cross-node</td>
+    </tr>
+    <tr>
+      <td>14:04</td>
+      <td>ibstat and ibv_rc_pingpong</td>
+      <td>Median 0.8 us, p95 4.2 us (normal &lt;0.5)</td>
+    </tr>
+    <tr>
+      <td>14:05</td>
+      <td>Prometheus traffic check</td>
+      <td>RPS ~15K, batch size 256 max</td>
+    </tr>
+    <tr>
+      <td>14:07</td>
+      <td>Profile barrier after transformer block</td>
+      <td>KV cache allReduce took ~28s</td>
+    </tr>
+    <tr>
+      <td>14:10</td>
+      <td>nvidia-smi topo -m</td>
+      <td>Two nodes NVLink 2 full mesh, two nodes PCIe Gen5 only</td>
+    </tr>
+    <tr>
+      <td>14:12</td>
+      <td>Internal Slack and HN</td>
+      <td>Recent HDR IB firmware bump added per-hop latency</td>
+    </tr>
+    <tr>
+      <td>14:15</td>
+      <td>Temp fix NCCL_TIMEOUT=60000</td>
+      <td>Errors drop but tail latency awful</td>
+    </tr>
+    <tr>
+      <td>14:35</td>
+      <td>Pin homogeneous nodes</td>
+      <td>Stable ring, latencies normalize</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>The smoking gun was the topology mismatch. During a hardware refresh two of our four nodes shipped with a different backplane. NCCL autotuning built a ring that happily traversed the slow PCIe links. Under small batches it was fine. At max batch 256 the KV cache allReduce was huge and the ring just barely finished under 30s. Add the IB firmware jitter and bam timeout.</p>
+
+<h2 id="reproducing-the-nccl-timeout-with-python">Reproducing the NCCL Timeout With Python</h2>
+
+<p>Here is the reproduction we used on a smaller two-node test cluster. It is an allReduce benchmark that uses the same tensor shape as the FF layer.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+</pre></td><td class="rouge-code"><pre><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">torch.distributed</span> <span class="k">as</span> <span class="n">dist</span>
+
+<span class="k">def</span> <span class="nf">run</span><span class="p">():</span>
+    <span class="n">dist</span><span class="p">.</span><span class="n">init_process_group</span><span class="p">(</span><span class="s">"nccl"</span><span class="p">)</span>
+    <span class="n">rank</span> <span class="o">=</span> <span class="n">dist</span><span class="p">.</span><span class="n">get_rank</span><span class="p">()</span>
+    <span class="n">world</span> <span class="o">=</span> <span class="n">dist</span><span class="p">.</span><span class="n">get_world_size</span><span class="p">()</span>
+    <span class="n">torch</span><span class="p">.</span><span class="n">cuda</span><span class="p">.</span><span class="n">set_device</span><span class="p">(</span><span class="n">rank</span> <span class="o">%</span> <span class="mi">8</span><span class="p">)</span>
+    <span class="c1"># Tensor shape mirrors the batched hidden states in LLaMA 3 70B inference.
+</span>    <span class="n">B</span><span class="p">,</span> <span class="n">S</span><span class="p">,</span> <span class="n">H</span> <span class="o">=</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">4096</span><span class="p">,</span> <span class="mi">8192</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">randn</span><span class="p">(</span><span class="n">B</span><span class="p">,</span> <span class="n">S</span><span class="p">,</span> <span class="n">H</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="p">.</span><span class="n">bfloat16</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s">"cuda"</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">100</span><span class="p">):</span>
+        <span class="n">dist</span><span class="p">.</span><span class="n">all_reduce</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">op</span><span class="o">=</span><span class="n">dist</span><span class="p">.</span><span class="n">ReduceOp</span><span class="p">.</span><span class="n">SUM</span><span class="p">)</span>
+        <span class="n">torch</span><span class="p">.</span><span class="n">cuda</span><span class="p">.</span><span class="n">synchronize</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">i</span> <span class="o">%</span> <span class="mi">10</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"step </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s"> ok"</span><span class="p">)</span>
+    <span class="n">dist</span><span class="p">.</span><span class="n">destroy_process_group</span><span class="p">()</span>
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">"__main__"</span><span class="p">:</span>
+    <span class="n">run</span><span class="p">()</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Run it with torchrun across the heterogeneous nodes and the last few iterations hang or throw ncclSystemError after the timeout. Run it on homogeneous nodes and it finishes. Add NCCL_DEBUG=INFO to see the ring layout.</p>
+
+<p>The shape we fought over is exactly this for the KV cache update in LLaMA 3 70B inference.</p>
+
+\[tensor\_shape = [B, S, H]\]
+
+<p>B is microbatch size, S is sequence length, H is hidden dim. When S spikes because of long-context batching, the allReduce payload grows and slow links become fatal. Each extra sequence position adds H bfloat16 values to the collective. It adds up fast.</p>
+
+<h2 id="debugging-log">Debugging Log</h2>
+
+<p>The traceback below came from the failing pod llama3-infer-0-xyz. It is raw NCCL output, not a Python exception. That is what makes it scary. Nothing to catch.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+</pre></td><td class="rouge-code"><pre>2026-06-28 14:03:12.487 INFO  [request_handler] Received batch of 256 tokens (RPS=15164)
+2026-06-28 14:03:12.492 DEBUG [nccl_comm] NCCL version 2.22.3+cuda12.4
+2026-06-28 14:03:12.493 DEBUG [nccl_comm] Initializing NCCL communicator (rank=0, world_size=32)
+2026-06-28 14:03:12.495 WARN  [nccl_comm] NCCL WARN Call to ncclAllReduce failed
+2026-06-28 14:03:12.495 ERROR [nccl_comm] NCCL Error 7 (ncclSystemError):
+    "NCCL operation timed out.
+    Check that the NCCL environment variables are set correctly and that all processes are alive.
+    Timeout (ms): 30000"
+2026-06-28 14:03:12.496 TRACE [nccl_comm] Aborting collective on rank 0
+2026-06-28 14:03:12.497 INFO  [request_handler] Request failed, returning HTTP 503
+2026-06-28 14:03:12.498 METRICS inference_latency_ms=78.4 request_status=failed
+2026-06-28 14:03:13.001 INFO  [monitor] RPS dropped to 3,412 (previous 15,164)
+2026-06-28 14:03:13.015 WARN  [k8s_liveness] Pod liveness probe failed (exit code 1)
+2026-06-28 14:03:13.020 ERROR [k8s] Pod llama3-infer-0-xyz evicted due to OOM (container)
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>The OOM eviction was a red herring. After NCCL aborted, the request handler went into retry and the queue backed up. CUDA memory held failed activations and the container ballooned. Kill the retry loop first or you chase ghosts. Marcus learned that the hard way.</p>
+
+<h2 id="what-is-the-difference-between-nccl-ring-and-tree-for-large-tensors">What Is the Difference Between NCCL Ring and Tree for Large Tensors?</h2>
+
+<p>Ring sends data around a loop of ranks so the slowest link is visited by every chunk. Tree splits the workload into a binary tree pattern which usually has lower latency for large payloads but needs a healthy interconnect to avoid head-of-line blocking.</p>
+
+<p>Because our ring kept crossing the bad PCIe path, forcing TREE via NCCL_ALGO=TREE reduced the chance that one slow hop would dominate every step. It is not always faster, but in our case it helped the tail latency a lot.</p>
+
+<h2 id="how-did-we-fix-the-nccl-timeout-issue">How Did We Fix the NCCL Timeout Issue?</h2>
+
+<p>The final production config keeps latency stable under 15K RPS by enforcing homogeneous topology, raising the timeout ceiling, switching the algorithm for large payloads, and adding a watchdog.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre></td><td class="rouge-code"><pre><span class="c"># Pod env vars used in the final deployment</span>
+<span class="nv">NCCL_TIMEOUT</span><span class="o">=</span>120000
+<span class="nv">NCCL_IB_DISABLE</span><span class="o">=</span>0
+<span class="nv">NCCL_DEBUG</span><span class="o">=</span>WARN
+<span class="nv">NCCL_SOCKET_NSOCKS_PERTHREAD</span><span class="o">=</span>4
+<span class="nv">NCCL_TREE_THRESHOLD</span><span class="o">=</span>0
+<span class="nv">NCCL_ALGO</span><span class="o">=</span>TREE
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>We added a watchdog in the inference engine that tracks p99 collective latency every 10s. If it climbs above a threshold we dynamically raise NCCL_TIMEOUT via a fresh process group. Ngl the dynamic change only works after destroy and recreate, so it is a last resort. The real fix was pinning tbh all four nodes to the same NVLink revision. Homogeneous interconnect topology is non-negotiable in multi-node LLaMA 3 inference at scale.</p>
+
+<p>And we rolled back the HDR InfiniBand firmware. That helped. Firmware bumps are supposed to be boring. This one was not.</p>
+
+<h2 id="the-boring-lesson">The Boring Lesson</h2>
+
+<p>NCCL timeout tuning looks like a magic number until you actually measure the ring. Then it becomes obvious. Check nvidia-smi topo before you add nodes to the pool. Your future on-call will thank you. And maybe let Marcus sleep.</p>
+
+<h2 id="what-didnt-work-first">What Didn’t Work First</h2>
+
+<p>Before I found the real issue, I tried 3 other fixes that failed:</p>
+
+<ol>
+  <li><strong>Bumping timeouts</strong> - Changed <code class="language-plaintext highlighter-rouge">NCCL_TIMEOUT=1800</code> in the env. Did nothing. Still failed at 2pm.</li>
+  <li><strong>Restarting pods</strong> - <code class="language-plaintext highlighter-rouge">kubectl rollout restart deployment/vllm</code>. Came back up, same error. Wasted 10 mins.</li>
+  <li><strong>Checking GPU health</strong> - <code class="language-plaintext highlighter-rouge">nvidia-smi</code> showed all GPUs fine. I was convinced it was hardware tbh.</li>
+</ol>
+
+<p>Spent 45 mins going down wrong paths. The fix was 1 line in Dockerfile. Im an idiot. ## Monitoring We Added After Because this sucked, we added 3 grafana alerts so Marcus never gets paged for this again: <code class="language-plaintext highlighter-rouge">promql # Alert if NCCL comms thread fails rate(nccl_errors_total) &gt; 0</code> <code class="language-plaintext highlighter-rouge">promql # Alert if all_reduce latency &gt; 50ms histogram_quantile(0.99, nccl_allreduce_duration_seconds_bucket) &gt; 0.05</code> Now if this breaks, idk pagerduty wakes us up before users notice. ## FAQ Nobody Asked <strong>Q: Why not use Gloo backend?</strong> A: Gloo is slower. NCCL is 3x faster for all_reduce. Unless your network is trash.</p>
+
+<p><strong>Q: Could this happen on single-node?</strong>
+A: No. This error only triggers multi-node. If you see this on 1 GPU, you have bigger problems.</p>
+
+<p><strong>Q: Do I need to update CUDA too?</strong>
+A: Maybe. We were on 12.1. If you’re on 11.8, upgrade everything or suffer.</p>
+
+<h2 id="reproduce-this">Reproduce This</h2>
+
+<p>Full code: https://github.com/yourorg/voygr-nccl-timeout-in-multi-node-llama-3-inference-debug</p>
+
+<h2 id="distribution-taxonomy">Distribution Taxonomy</h2>
+<ul>
+  <li>Artificial Intelligence</li>
+  <li>Machine Learning</li>
+  <li>Data Science</li>
+  <li>Deep Learning</li>
+  <li>Programming</li>
+  <li>Software Engineering</li>
+</ul>
+
+    </main>
+
+    <!-- ─── FOOTER ──────────────────────────────────────────────── -->
+    <footer class="site-footer" role="contentinfo">
+        <div>
+            <a href="/TechHub/">Home</a>
+            <a href="/TechHub/feed.xml">RSS</a>
+            <a href="/TechHub/sitemap.xml">Sitemap</a>
+        </div>
+        <p>
+            &copy; 2026 Saranga Thenuwara — TechHub
+        </p>
+    </footer>
+
+    <!-- ─── BACK TO TOP ──────────────────────────────────────────── -->
+    <button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Back to top">
+        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg>
+    </button>
+
+    <!-- ─── SCRIPTS ─────────────────────────────────────────────── -->
+    <script>
+        // Reading progress bar
+        (function() {
+            const progressBar = document.getElementById('reading-progress');
+            if (!progressBar) return;
+            window.addEventListener('scroll', function() {
+                const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+                const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+                const progress = scrollHeight > 0 ? (scrollTop / scrollHeight) * 100 : 0;
+                progressBar.style.width = progress + '%';
+            });
+        })();
+
+        // Back to top button
+        (function() {
+            const btn = document.getElementById('backToTop');
+            if (!btn) return;
+            window.addEventListener('scroll', function() {
+                btn.classList.toggle('visible', window.scrollY > 500);
+            });
+        })();
+    </script>
+</body>
+</html>

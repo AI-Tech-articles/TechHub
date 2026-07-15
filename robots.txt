@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Sitemap: https://ai-tech-articles.github.io/TechHub/sitemap.xml
+
+# Disallow draft directories if you create them
+Disallow: /_drafts/

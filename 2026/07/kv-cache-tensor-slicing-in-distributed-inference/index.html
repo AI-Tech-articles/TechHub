@@ -1,0 +1,1096 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <!-- ─── CRITICAL SEO ─────────────────────────────────────────── -->
+    <title>Kv Cache Tensor Slicing In Distributed Inference | TechHub</title>
+    <meta name="description" content="KV Cache Tensor Slicing in Distributed Inference">
+    <meta name="author" content="Saranga Thenuwara">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://ai-tech-articles.github.io/TechHub/2026/07/kv-cache-tensor-slicing-in-distributed-inference/">
+
+    <!-- ─── OPEN GRAPH (Facebook/LinkedIn) ─────────────────────────── -->
+    <meta property="og:site_name" content="TechHub">
+    <meta property="og:title" content="Kv Cache Tensor Slicing In Distributed Inference">
+    <meta property="og:description" content="KV Cache Tensor Slicing in Distributed Inference">
+    <meta property="og:url" content="https://ai-tech-articles.github.io/TechHub/2026/07/kv-cache-tensor-slicing-in-distributed-inference/">
+    <meta property="og:type" content="article">
+    <meta property="og:locale" content="en_US">
+    
+    <meta property="og:image" content="https://ai-tech-articles.github.io/TechHub/assets/images/default-og.png">
+    
+
+    <!-- ─── TWITTER CARD ─────────────────────────────────────────── -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@">
+    <meta name="twitter:creator" content="@">
+    <meta name="twitter:title" content="Kv Cache Tensor Slicing In Distributed Inference">
+    <meta name="twitter:description" content="KV Cache Tensor Slicing in Distributed Inference">
+    
+    <meta name="twitter:image" content="https://ai-tech-articles.github.io/TechHub/assets/images/default-og.png">
+    
+
+    <!-- ─── JSON-LD STRUCTURED DATA (Article) ────────────────────── -->
+    
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": "Kv Cache Tensor Slicing In Distributed Inference",
+      "description": "KV Cache Tensor Slicing in Distributed Inference\n\n",
+      "author": {
+        "@type": "Person",
+        "name": "Saranga Thenuwara"
+      },
+      "datePublished": "2026-07-15",
+      "dateModified": "2026-07-15",
+      "url": "https://ai-tech-articles.github.io/TechHub/2026/07/kv-cache-tensor-slicing-in-distributed-inference/",
+      "publisher": {
+        "@type": "Organization",
+        "name": "TechHub",
+        "url": "https://ai-tech-articles.github.io/TechHub/"
+      },
+      "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "https://ai-tech-articles.github.io/TechHub/2026/07/kv-cache-tensor-slicing-in-distributed-inference/"
+      }
+      ,
+      "keywords": ""
+      
+    }
+    </script>
+    
+
+    <!-- ─── RSS / FEED ───────────────────────────────────────────── -->
+    <link type="application/atom+xml" rel="alternate" href="https://ai-tech-articles.github.io/TechHub/feed.xml" title="TechHub | AI Technology Publications" />
+
+    <!-- ─── FAVICON ──────────────────────────────────────────────── -->
+    <link rel="icon" type="image/svg+xml" href="/TechHub/assets/images/favicon.svg">
+    <link rel="alternate icon" href="/TechHub/assets/images/favicon.ico">
+    <link rel="apple-touch-icon" href="/TechHub/assets/images/apple-touch-icon.png">
+
+    <!-- ─── PRECONNECT (Performance) ─────────────────────────────── -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <link rel="preconnect" href="https://pagead2.googlesyndication.com">
+    
+
+    <!-- ─── GOOGLE ADSENSE ─────────────────────────────────────────── -->
+    
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6375003818418942" crossorigin="anonymous"></script>
+    <meta name="google-adsense-account" content="ca-pub-6375003818418942">
+    
+
+    <!-- ─── STYLES ─────────────────────────────────────────────────── -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --bg-deep: #0a0b10;
+            --panel-solid: #11131c;
+            --border-glow: #1f2330;
+            --text-pure: #f8fafc;
+            --text-dim: #94a3b8;
+            --accent-silver: #cbd5e1;
+            --accent-yellow: #ffd700;
+            --accent-glow: rgba(255, 255, 255, 0.03);
+            --code-bg: #030408;
+            --read-width: 72ch;
+        }
+
+        * { box-sizing: border-box; }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-deep);
+            color: var(--text-pure);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            letter-spacing: 0.01em;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* ─── SCROLLBAR ────────────────────────────────────────────── */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-deep); }
+        ::-webkit-scrollbar-thumb { background: var(--border-glow); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #2a2f3f; }
+
+        a {
+            color: var(--accent-yellow);
+            text-decoration: none;
+            transition: opacity 0.2s ease;
+        }
+        a:hover { opacity: 0.8; text-decoration: underline; }
+
+        /* ─── SKIP LINK ────────────────────────────────────────────── */
+        .skip-link {
+            position: absolute;
+            top: -40px;
+            left: 0;
+            background: var(--accent-yellow);
+            color: var(--bg-deep);
+            padding: 8px 16px;
+            z-index: 10000;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-decoration: none;
+            border-radius: 0 0 4px 0;
+            transition: top 0.25s ease;
+        }
+        .skip-link:focus { top: 0; outline: none; }
+
+        /* ─── READING PROGRESS BAR ─────────────────────────────────── */
+        #reading-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 0%;
+            height: 3px;
+            background: var(--accent-yellow);
+            z-index: 9999;
+            transition: width 0.1s linear;
+            box-shadow: 0 0 8px rgba(255, 215, 0, 0.3);
+        }
+
+        /* ─── HEADER ─────────────────────────────────────────────── */
+        .site-header {
+            border-bottom: 1px solid var(--border-glow);
+            padding: 1.25rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            position: sticky;
+            top: 0;
+            background: rgba(10, 11, 16, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            z-index: 1000;
+        }
+        .site-brand {
+            font-family: 'Cinzel', serif;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text-pure);
+            letter-spacing: 0.05em;
+        }
+        .site-brand a { color: inherit; text-decoration: none; }
+        .site-brand a:hover { opacity: 1; color: var(--accent-yellow); }
+        .site-nav {
+            display: flex;
+            gap: 2rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+        .site-nav a { color: var(--text-dim); text-decoration: none; }
+        .site-nav a:hover { color: var(--accent-yellow); opacity: 1; }
+
+        /* ─── MAIN CONTENT ───────────────────────────────────────── */
+        main {
+            flex: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            padding: 2.5rem 2rem;
+        }
+
+        /* ─── POST CARD (Homepage) ───────────────────────────────── */
+        .post-card {
+            background: var(--panel-solid);
+            padding: 2rem 2.5rem;
+            margin-bottom: 1.5rem;
+            border-radius: 14px;
+            border: 1px solid var(--border-glow);
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+        }
+        .post-card:hover {
+            border-color: rgba(255, 215, 0, 0.12);
+            transform: translateY(-3px);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.55);
+        }
+        .post-card a { text-decoration: none; color: inherit; display: block; }
+        .post-card a:hover { opacity: 1; }
+        .post-card h3 {
+            font-family: 'Cinzel', serif;
+            font-size: 1.35rem;
+            font-weight: 500;
+            margin: 0 0 0.6rem 0;
+            color: var(--text-pure);
+            line-height: 1.35;
+            letter-spacing: 0.01em;
+        }
+        .post-card h3:hover { color: var(--accent-yellow); }
+        .post-meta-bar {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.72rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 0.75rem;
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .post-meta-bar .meta-sep { opacity: 0.25; }
+        .post-tag-mini {
+            background: rgba(255, 215, 0, 0.06);
+            color: var(--accent-yellow);
+            padding: 0.15rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.65rem;
+            text-transform: none;
+            letter-spacing: 0.02em;
+        }
+        .post-excerpt {
+            color: var(--text-dim);
+            font-size: 0.95rem;
+            line-height: 1.65;
+            margin: 0;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .read-more {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--accent-yellow);
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            margin-top: 1.25rem;
+        }
+        .read-more:hover { opacity: 0.8; }
+        .read-more svg { transition: transform 0.2s ease; }
+        .read-more:hover svg { transform: translateX(3px); }
+
+        /* ─── PAGINATION ─────────────────────────────────────────── */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.4rem;
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border-glow);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+        }
+        .page-btn {
+            padding: 0.5rem 0.9rem;
+            border: 1px solid var(--border-glow);
+            border-radius: 8px;
+            color: var(--text-dim);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            min-width: 36px;
+            text-align: center;
+        }
+        .page-btn:hover:not(.disabled):not(.active) {
+            border-color: var(--accent-yellow);
+            color: var(--accent-yellow);
+            background: rgba(255, 215, 0, 0.04);
+        }
+        .page-btn.active {
+            border-color: var(--accent-yellow);
+            color: var(--accent-yellow);
+            background: rgba(255, 215, 0, 0.08);
+            font-weight: 700;
+        }
+        .page-btn.disabled {
+            color: var(--border-glow);
+            opacity: 0.4;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        /* ─── SEARCH ───────────────────────────────────────────────── */
+        .search-section { margin-bottom: 2.5rem; }
+        .search-box { position: relative; max-width: 600px; }
+        .search-box input {
+            width: 100%;
+            padding: 0.85rem 1.25rem 0.85rem 2.8rem;
+            background: var(--panel-solid);
+            border: 1px solid var(--border-glow);
+            border-radius: 12px;
+            color: var(--text-pure);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .search-box input:focus {
+            border-color: var(--accent-yellow);
+            box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.08);
+        }
+        .search-box input::placeholder { color: #4a5068; }
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 18px;
+            height: 18px;
+            color: var(--text-dim);
+            pointer-events: none;
+        }
+        #search-results {
+            display: none;
+            margin-top: 0.75rem;
+            background: var(--panel-solid);
+            border: 1px solid var(--border-glow);
+            border-radius: 12px;
+            padding: 0.5rem;
+            max-height: 420px;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+        .search-result-item {
+            display: block;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            text-decoration: none;
+            color: inherit;
+            transition: background 0.15s ease;
+        }
+        .search-result-item:hover { background: rgba(255, 215, 0, 0.04); }
+        .search-result-title {
+            font-family: 'Cinzel', serif;
+            font-size: 1rem;
+            color: var(--text-pure);
+            margin-bottom: 0.2rem;
+        }
+        .search-result-meta {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--text-dim);
+        }
+        #search-results::-webkit-scrollbar { width: 6px; }
+        #search-results::-webkit-scrollbar-thumb { background: var(--border-glow); border-radius: 3px; }
+
+        /* ─── ARTICLE (Post Page) ──────────────────────────────────── */
+        article {
+            max-width: var(--read-width);
+            margin: 0 auto;
+        }
+        article .post-header {
+            margin-bottom: 2.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-glow);
+        }
+        article .post-header h1 {
+            font-family: 'Cinzel', serif;
+            font-size: 2.4rem;
+            font-weight: 500;
+            line-height: 1.2;
+            margin: 0 0 1rem 0;
+            letter-spacing: 0.02em;
+        }
+        article .post-meta {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        article .post-meta .author { color: var(--accent-yellow); }
+        article .post-meta .separator { margin: 0 0.25rem; opacity: 0.3; }
+
+        article h2 {
+            font-family: 'Cinzel', serif;
+            font-size: 1.7rem;
+            font-weight: 500;
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border-glow);
+            letter-spacing: 0.01em;
+        }
+        article h3 {
+            font-family: 'Cinzel', serif;
+            font-size: 1.25rem;
+            font-weight: 500;
+            margin-top: 2rem;
+            margin-bottom: 0.75rem;
+            color: var(--accent-silver);
+        }
+        article h4 {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.6rem;
+            color: var(--accent-silver);
+        }
+        article p {
+            margin-bottom: 1.25rem;
+            color: var(--text-dim);
+        }
+        article p strong { color: var(--text-pure); }
+        article ul, article ol {
+            margin-bottom: 1.25rem;
+            padding-left: 1.5rem;
+            color: var(--text-dim);
+        }
+        article li { margin-bottom: 0.5rem; }
+        article li::marker { color: var(--accent-yellow); }
+        article blockquote {
+            border-left: 3px solid var(--accent-yellow);
+            margin: 1.5rem 0;
+            padding: 0.5rem 0 0.5rem 1.5rem;
+            font-style: italic;
+            color: var(--accent-silver);
+        }
+        article hr {
+            border: none;
+            height: 1px;
+            background: var(--border-glow);
+            margin: 2.5rem 0;
+        }
+        article img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            border: 1px solid var(--border-glow);
+            display: block;
+            margin: 1.5rem auto;
+        }
+        article figcaption, article .image-caption {
+            display: block;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            margin-top: 0.5rem;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* ─── CODE BLOCKS ──────────────────────────────────────────── */
+        article pre {
+            background: var(--code-bg);
+            border: 1px solid var(--border-glow);
+            border-radius: 10px;
+            padding: 1.25rem;
+            overflow-x: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            line-height: 1.65;
+            margin: 1.5rem 0;
+        }
+        article pre code {
+            background: transparent;
+            padding: 0;
+            border: none;
+            color: var(--text-pure);
+            font-size: inherit;
+        }
+        article code {
+            background: rgba(255,255,255,0.05);
+            padding: 0.2em 0.4em;
+            border-radius: 4px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9em;
+            color: var(--accent-yellow);
+        }
+
+        /* ─── TABLES ──────────────────────────────────────────────── */
+        article table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            font-size: 0.9rem;
+            border: 1px solid var(--border-glow);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        article th, article td {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-glow);
+        }
+        article th {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--accent-yellow);
+            background: var(--panel-solid);
+            font-weight: 600;
+        }
+        article tr:last-child td { border-bottom: none; }
+        article tr:hover td { background: rgba(255,255,255,0.015); }
+
+        /* ─── TAGS ────────────────────────────────────────────────── */
+        .post-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 2.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border-glow);
+        }
+        .post-tag {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            padding: 0.4rem 0.85rem;
+            border: 1px solid var(--border-glow);
+            border-radius: 20px;
+            color: var(--text-dim);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            background: transparent;
+        }
+        .post-tag:hover {
+            border-color: var(--accent-yellow);
+            color: var(--accent-yellow);
+            background: rgba(255, 215, 0, 0.05);
+            text-decoration: none;
+            opacity: 1;
+        }
+
+        /* ─── TAG CLOUD (Tags Page) ───────────────────────────────── */
+        .tag-cloud {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-bottom: 3rem;
+        }
+        .tag-pill {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.82rem;
+            padding: 0.55rem 1.1rem;
+            border: 1px solid var(--border-glow);
+            border-radius: 24px;
+            color: var(--text-dim);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            background: transparent;
+        }
+        .tag-pill:hover {
+            border-color: var(--accent-yellow);
+            color: var(--accent-yellow);
+            background: rgba(255, 215, 0, 0.05);
+            text-decoration: none;
+            opacity: 1;
+        }
+        .tag-group h3 {
+            font-family: 'Cinzel', serif;
+            font-size: 1.2rem;
+            color: var(--accent-yellow);
+            margin-bottom: 1rem;
+            text-transform: capitalize;
+        }
+        .tag-group-list {
+            display: grid;
+            gap: 0.75rem;
+            margin-bottom: 2.5rem;
+        }
+        .tag-group-item {
+            display: block;
+            padding: 1rem 1.25rem;
+            background: var(--panel-solid);
+            border: 1px solid var(--border-glow);
+            border-radius: 10px;
+            text-decoration: none;
+            color: var(--text-pure);
+            transition: all 0.2s ease;
+        }
+        .tag-group-item:hover {
+            border-color: rgba(255, 215, 0, 0.2);
+            text-decoration: none;
+            opacity: 1;
+        }
+        .tag-group-item-title {
+            font-family: 'Cinzel', serif;
+            font-size: 1rem;
+            margin-bottom: 0.25rem;
+        }
+        .tag-group-item-date {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--text-dim);
+        }
+
+        /* ─── ADS ─────────────────────────────────────────────────── */
+        .ad-container {
+            margin: 2rem 0;
+            text-align: center;
+            min-height: 90px;
+        }
+
+        /* ─── BACK TO TOP ──────────────────────────────────────────── */
+        .back-to-top {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 44px;
+            height: 44px;
+            background: var(--panel-solid);
+            border: 1px solid var(--border-glow);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            color: var(--text-dim);
+            padding: 0;
+        }
+        .back-to-top.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+        .back-to-top:hover {
+            border-color: var(--accent-yellow);
+            color: var(--accent-yellow);
+            background: rgba(255, 215, 0, 0.05);
+            transform: translateY(-2px);
+        }
+        .back-to-top:focus-visible {
+            outline: 2px solid var(--accent-yellow);
+            outline-offset: 2px;
+        }
+
+        /* ─── FOOTER ──────────────────────────────────────────────── */
+        .site-footer {
+            border-top: 1px solid var(--border-glow);
+            padding: 2.5rem 2rem;
+            text-align: center;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+        .site-footer a { color: var(--text-dim); margin: 0 1rem; text-decoration: none; }
+        .site-footer a:hover { color: var(--accent-yellow); opacity: 1; }
+        .site-footer p { margin: 1rem 0 0 0; opacity: 0.5; }
+
+        /* ─── RESPONSIVE ──────────────────────────────────────────── */
+        @media (max-width: 768px) {
+            .site-header {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1rem;
+                position: relative;
+            }
+            .site-nav { gap: 1.2rem; font-size: 0.72rem; }
+            main { padding: 1.5rem 1rem; }
+            .post-card { padding: 1.5rem; }
+            .post-card h3 { font-size: 1.15rem; }
+            article .post-header h1 { font-size: 1.7rem; }
+            article h2 { font-size: 1.35rem; }
+            .back-to-top { bottom: 1.5rem; right: 1.5rem; width: 40px; height: 40px; }
+        }
+
+        /* ─── FOCUS VISIBLE ───────────────────────────────────────── */
+        :focus-visible {
+            outline: 2px solid var(--accent-yellow);
+            outline-offset: 2px;
+            border-radius: 4px;
+        }
+        a:focus-visible { border-radius: 4px; }
+
+        /* ─── MATH / KATEX ─────────────────────────────────────────── */
+        .katex { font-size: 1.1em; }
+        .katex-display { margin: 1.5rem 0; overflow-x: auto; }
+
+        /* ─── MERMAID ────────────────────────────────────────────── */
+        .mermaid {
+            background: var(--panel-solid);
+            border: 1px solid var(--border-glow);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            text-align: center;
+        }
+
+        /* ─── EDITORIAL CARD (Homepage) ─────────────────────────── */
+        .editorial-card {
+            background: var(--panel-solid);
+            padding: 3rem 3.5rem;
+            margin-bottom: 2.5rem;
+            border-radius: 16px;
+            border: 1px solid var(--border-glow);
+            position: relative;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.65);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .editorial-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent-yellow);
+            box-shadow: 0 20px 50px rgba(255, 215, 0, 0.04);
+        }
+        .editorial-card h3 {
+            margin-top: 0;
+            margin-bottom: 0.5rem;
+        }
+        .editorial-card h3 a {
+            color: #fff;
+            font-family: 'Cinzel', serif;
+            text-decoration: none;
+            font-size: 1.85rem;
+            font-weight: 500;
+            letter-spacing: 0.01em;
+            line-height: 1.3;
+            border-bottom: none !important;
+            display: inline-block;
+        }
+        .editorial-card h3 a:hover {
+            color: var(--accent-yellow);
+            opacity: 1;
+        }
+        .feed-telemetry-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.72rem;
+            color: var(--accent-yellow);
+            margin-bottom: 1.25rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            font-weight: 700;
+        }
+        .editorial-link-btn {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--text-pure);
+            font-weight: 700;
+            text-decoration: none;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            border: 1px solid var(--border-glow);
+            padding: 0.55rem 1.3rem;
+            border-radius: 30px;
+            background: rgba(255, 255, 255, 0.01);
+            transition: all 0.2s ease;
+        }
+        .editorial-link-btn:hover {
+            background: rgba(255, 215, 0, 0.05);
+            border-color: var(--accent-yellow);
+            color: var(--accent-yellow);
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.08);
+            text-decoration: none;
+            opacity: 1;
+        }
+        .pagination-nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 4rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border-glow);
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .pagination-nav-link {
+            font-size: 0.75rem;
+            color: var(--accent-yellow);
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            padding: 0.6rem 1.4rem;
+            border: 1px solid var(--border-glow);
+            border-radius: 30px;
+            background: rgba(255, 255, 255, 0.01);
+            font-weight: 700;
+            transition: all 0.2s ease;
+        }
+        .pagination-nav-link:hover {
+            background: rgba(255, 215, 0, 0.05);
+            border-color: var(--accent-yellow);
+            box-shadow: 0 0 12px rgba(255, 215, 0, 0.05);
+            text-decoration: none;
+            opacity: 1;
+        }
+        .pagination-nav-placeholder {
+            visibility: hidden;
+            padding: 0.6rem 1.4rem;
+            font-size: 0.75rem;
+        }
+
+        @media (max-width: 768px) {
+            .editorial-card {
+                padding: 2rem 1.75rem;
+            }
+            .editorial-card h3 a {
+                font-size: 1.35rem;
+            }
+            .pagination-nav-container {
+                flex-direction: column;
+                gap: 1.5rem;
+                text-align: center;
+            }
+            .pagination-nav-placeholder {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    <div id="reading-progress"></div>
+
+    <!-- ─── HEADER ─────────────────────────────────────────────── -->
+    <header class="site-header" role="banner">
+        <div class="site-brand">
+            <a href="/TechHub/">TechHub</a>
+        </div>
+        <nav class="site-nav" role="navigation" aria-label="Main navigation">
+            <a href="/TechHub/">Journal</a>
+            <a href="/TechHub/tags">Tags</a>
+            <a href="/TechHub/about">About</a>
+        </nav>
+    </header>
+
+    <!-- ─── MAIN ─────────────────────────────────────────────────── -->
+    <main id="main-content" role="main">
+        <h1 id="kv-cache-tensor-slicing-in-distributed-inference">KV Cache Tensor Slicing in Distributed Inference</h1>
+
+<p><img src="/assets/images/covers/kv-cache-tensor-slicing-in-distributed-inference-cover.png" alt="Cover image: kv cache tensor slicing in distributed inference" /></p>
+
+<p><strong>Coordinating key-value tensor placement across GPU workers so real-time inference stays memory-bound, not network-bound.</strong></p>
+
+<p><strong>TL;DR</strong></p>
+
+<ul>
+  <li>In distributed LLM inference, the KV cache is often larger than the model weights and must follow the right tensor-parallel rank at the right time; poor coordination turns a compute problem into a data-movement problem.</li>
+  <li>Treating KV tensors as versioned slices — keyed by request, layer, and rank — lets teams share cache safely across workers without recomputing prefixes or corrupting tensor-parallel state.</li>
+  <li>Fast RDMA fabrics and disaggregated NVMe tiers can extend the cache, but they only help when the slicing and routing logic understands the model’s parallelism layout.</li>
+</ul>
+
+<p>Inference clusters do not just serve tokens; they serve tensors that keep growing. In a transformer model, the key-value (KV) cache stores the keys and values computed for every token in a sequence so far. During decoding, those tensors are read back and concatenated with new keys and values for the latest token. The operation is simple in principle, but at production scale the cache can outgrow the model itself. A 70B-parameter model serving 4k-token contexts can easily carry multi-gigabyte KV tensors per request. When that request is distributed across eight GPUs in tensor-parallel configuration, each GPU owns a slice — and every slice must be in the right place before the next attention layer runs.</p>
+
+<p>The goal of a next-generation KV cache architecture is not merely to store more bytes. It is to track, route, and evict tensor slices so that no GPU waits on data it should already have.</p>
+
+<h2 id="why-does-kv-cache-movement-dominate-distributed-inference-latency">Why does KV cache movement dominate distributed inference latency?</h2>
+
+<p>Because the key and value tensors for every layer must either be recomputed or fetched to the GPU that needs them next, and both options hit the memory wall.</p>
+
+<p>Recomputing the full KV state from scratch during autoregressive decoding is prohibitively expensive. Caching is mandatory. But once caching is mandatory, every cache miss becomes a network or PCIe event. In a tensor-parallel deployment, the attention heads for a single layer are split across ranks. A rank that generates a new token needs the KV tensors corresponding to its assigned heads. If those tensors were produced by a different worker — or if they were evicted to make room for another request — the runtime must move them back into device memory. The cost is not the FLOPs of the transfer; it is the serialization, synchronization, and allocation jitter that delay the CUDA kernel launch.</p>
+
+<p>The situation worsens when requests share a prefix. Long-context chat agents, retrieval-augmented generation, and batched code-completion prompts all start from similar system prompts or retrieved documents. Without prefix-aware KV sharing, every worker recomputes the same initial KV slices for every request. With sharing, the first few hundred or thousand tokens are computed once and reused. The architectural challenge is identifying which slice lives where and ensuring that reuse does not violate the tensor-parallel boundary.</p>
+
+<h2 id="how-should-a-kv-cache-layer-manage-tensor-slices-across-workers">How should a KV cache layer manage tensor slices across workers?</h2>
+
+<p>By treating each slice as a versioned, addressable object keyed by request, layer, and tensor-parallel rank, and by routing lookups through a coordination layer that understands the model’s parallelism strategy.</p>
+
+<p>A tensor slice is not an opaque byte blob. It has structure: a request identifier, a layer index, a rank, a sequence range, a dtype, and a shape. The cache layer must know which ranks own which heads, which sequence positions are valid for reuse, and which slices can be evicted without stalling an active decode. Concretely, this means cache keys encode the parallelism layout, and cache lookups are scoped to the worker asking the question.</p>
+
+<p>The following Python sketch shows a minimal tensor-slice cache manager. It is intentionally simplified — real systems use RDMA transfers, pinned host buffers, and asynchronous eviction queues — but it captures the central idea: slices are addressable by their logical coordinates, not by raw memory offsets.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+</pre></td><td class="rouge-code"><pre><span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
+<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
+
+<span class="o">@</span><span class="n">dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">KVKey</span><span class="p">:</span>
+    <span class="s">"""Logical address of one KV-cache slice."""</span>
+    <span class="n">request_id</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">layer_id</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">rank</span><span class="p">:</span> <span class="nb">int</span>              <span class="c1"># tensor-parallel rank that owns this slice
+</span>    <span class="n">seq_range</span><span class="p">:</span> <span class="nb">tuple</span>       <span class="c1"># inclusive start, exclusive end
+</span>
+<span class="k">class</span> <span class="nc">TensorSliceCache</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_entries</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">device</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s">"cpu"</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">max_entries</span> <span class="o">=</span> <span class="n">max_entries</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">device</span> <span class="o">=</span> <span class="n">device</span>
+        <span class="c1"># OrderedDict gives LRU eviction with O(1) move-to-end.
+</span>        <span class="bp">self</span><span class="p">.</span><span class="n">cache</span><span class="p">:</span> <span class="n">OrderedDict</span><span class="p">[</span><span class="n">KVKey</span><span class="p">,</span> <span class="n">torch</span><span class="p">.</span><span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="n">KVKey</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="p">.</span><span class="n">Tensor</span> <span class="o">|</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">.</span><span class="n">cache</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">cache</span><span class="p">.</span><span class="n">move_to_end</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">.</span><span class="n">cache</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">put</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="n">KVKey</span><span class="p">,</span> <span class="n">tensor</span><span class="p">:</span> <span class="n">torch</span><span class="p">.</span><span class="n">Tensor</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">.</span><span class="n">cache</span><span class="p">:</span>
+            <span class="bp">self</span><span class="p">.</span><span class="n">cache</span><span class="p">.</span><span class="n">move_to_end</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="c1"># In production this would copy to pinned memory or RDMA buffer.
+</span>        <span class="bp">self</span><span class="p">.</span><span class="n">cache</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">tensor</span><span class="p">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">device</span><span class="p">,</span> <span class="n">non_blocking</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">cache</span><span class="p">)</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="p">.</span><span class="n">max_entries</span><span class="p">:</span>
+            <span class="bp">self</span><span class="p">.</span><span class="n">cache</span><span class="p">.</span><span class="n">popitem</span><span class="p">(</span><span class="n">last</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">reusable_slices</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">request_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">layer_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">rank</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">tuple</span><span class="p">,</span> <span class="n">torch</span><span class="p">.</span><span class="n">Tensor</span><span class="p">]]:</span>
+        <span class="s">"""Return all locally stored slices for a given logical coordinate."""</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="p">(</span><span class="n">key</span><span class="p">.</span><span class="n">seq_range</span><span class="p">,</span> <span class="n">tensor</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">tensor</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">.</span><span class="n">cache</span><span class="p">.</span><span class="n">items</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">key</span><span class="p">.</span><span class="n">request_id</span> <span class="o">==</span> <span class="n">request_id</span>
+            <span class="ow">and</span> <span class="n">key</span><span class="p">.</span><span class="n">layer_id</span> <span class="o">==</span> <span class="n">layer_id</span>
+            <span class="ow">and</span> <span class="n">key</span><span class="p">.</span><span class="n">rank</span> <span class="o">==</span> <span class="n">rank</span>
+        <span class="p">]</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>The key design detail is <code class="language-plaintext highlighter-rouge">KVKey</code>. By naming slices through <code class="language-plaintext highlighter-rouge">(request_id, layer_id, rank, seq_range)</code>, the cache separates storage from placement. The inference engine can ask, “I am rank 3, layer 12, decoding request A at token positions 0..511; do I already have that slice locally?” If yes, the engine avoids a network round trip. If not, it can look up a remote cache or fall back to recomputation. Without that logical addressing, the runtime would have to guess which physical buffer corresponds to which heads.</p>
+
+<h2 id="what-does-the-architecture-look-like">What does the architecture look like?</h2>
+
+<p>A modern cluster usually layers three tiers: the per-GPU device cache, a node-local staging area, and a remote pool reachable over RDMA. The diagram below shows the flow. Clients enter through a load balancer, which routes requests to inference workers. Each worker holds its own tensor-parallel slice of the model and its corresponding local KV cache. When a slice is missing locally, the worker queries other workers or a remote pool over the RDMA fabric. A disaggregated NVMe tier acts as a cold store for prefixes and evicted slices.</p>
+
+<pre><code class="language-mermaid">flowchart LR
+    Client --&gt; LB[Load Balancer]
+    LB --&gt; W1[Inference Worker 0&lt;br/&gt;GPU + local KV slice cache]
+    LB --&gt; W2[Inference Worker N&lt;br/&gt;GPU + local KV slice cache]
+    W1 &lt;--&gt;|RDMA| RP[Remote KV cache pool&lt;br/&gt;node-local NVMe staging]
+    W2 &lt;--&gt;|RDMA| RP
+    RP --&gt; SSD[Disaggregated NVMe tier&lt;br/&gt;e.g., PM1753-class devices]
+</code></pre>
+
+<p>InfiniBand matters here because cache movement is latency-sensitive and bursty. A single prefix lookup can require many small tensor slices from many workers. RDMA lets one worker read another worker’s memory with minimal CPU involvement, which keeps the throughput high and tail latency from ballooning. But RDMA is not a correctness mechanism; it is a transport. Correctness depends on the slicing metadata and on keeping the tensor-parallel layout consistent across cache hits and misses.</p>
+
+<p>Disaggregated storage enters the picture when the working set exceeds GPU and host memory. Devices like the Samsung PM1753 are referenced in cluster designs as high-throughput NVMe tiers that can hold colder cache slices while compute nodes remain stateless. The trade-off is straightforward: local device memory gives microsecond access, RDMA between nodes gives roughly tens of microseconds to a few milliseconds, and NVMe gives higher throughput but higher latency. A well-designed cache manager keeps hot prefixes in GPU memory, warm prefixes in host memory or remote node caches, and long-tail prefixes on NVMe.</p>
+
+<h2 id="where-does-lmcache-fit-in">Where does LMCache fit in?</h2>
+
+<p>LMCache is one example of an open-source effort that applies these ideas to inference engines. It stores KV tensors outside the inference engine process, allowing workers to share prefixes and evicted slices across nodes. The important point is not the specific tool but the pattern: separating KV-cache management from inference scheduling. When the cache layer owns placement and eviction, the inference engine can focus on scheduling and execution. Teams using this pattern typically see better GPU utilization because less time is spent recomputing shared prefixes, and memory pressure drops because the cache can spill to cheaper tiers.</p>
+
+<h2 id="what-should-teams-watch-out-for">What should teams watch out for?</h2>
+
+<p>Metadata overhead is the first hidden cost. Every slice needs a key, shape, dtype, version, and ownership information. In a long-context workload, the number of slices can be large, so the metadata store itself must be fast and memory-efficient.</p>
+
+<p>Eviction policy is the second concern. A simple LRU works for homogeneous workloads, but inference workloads are not homogeneous. Decode batches, chunked prefills, and prefix-sharing requests compete for the same memory. A production cache often needs tiered eviction: protect active decode slices, preferentially keep widely shared prefixes, and spill single-request history first.</p>
+
+<p>Finally, correctness across tensor parallelism cannot be an afterthought. If two workers disagree about which rank owns head 17, the attention output is silently wrong. The cache key must encode the parallelism strategy, and lookup paths must reject slices whose metadata does not match the current model configuration.</p>
+
+<h2 id="closing">Closing</h2>
+
+<p>Efficient KV caching in distributed inference is ultimately a coordination problem disguised as a memory problem. The tensors are large, but the real cost is knowing where each slice belongs and getting it there before the next layer starts. A good architecture names slices by their logical coordinates, keeps hot data close to the GPU, spills colder data to RDMA-accessible or NVMe-backed tiers, and never lets cache reuse violate the tensor-parallel boundary. The code sketch and patterns here are a starting point; production systems will add asynchronous prefetch, RDMA-bypass paths, and workload-aware eviction. The underlying principle remains the same: coordinate the slices, and the clusters stay fast.</p>
+
+<h2 id="topics">Topics</h2>
+
+<p><code class="language-plaintext highlighter-rouge">kv-cache</code> <code class="language-plaintext highlighter-rouge">distributed-inference</code> <code class="language-plaintext highlighter-rouge">tensor-parallelism</code> <code class="language-plaintext highlighter-rouge">llm-serving</code> <code class="language-plaintext highlighter-rouge">rdma</code> <code class="language-plaintext highlighter-rouge">disaggregated-storage</code> <code class="language-plaintext highlighter-rouge">memory-optimization</code> <code class="language-plaintext highlighter-rouge">real-time-inference</code></p>
+
+    </main>
+
+    <!-- ─── FOOTER ──────────────────────────────────────────────── -->
+    <footer class="site-footer" role="contentinfo">
+        <div>
+            <a href="/TechHub/">Home</a>
+            <a href="/TechHub/feed.xml">RSS</a>
+            <a href="/TechHub/sitemap.xml">Sitemap</a>
+        </div>
+        <p>
+            &copy; 2026 Saranga Thenuwara — TechHub
+        </p>
+    </footer>
+
+    <!-- ─── BACK TO TOP ──────────────────────────────────────────── -->
+    <button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Back to top">
+        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg>
+    </button>
+
+    <!-- ─── SCRIPTS ─────────────────────────────────────────────── -->
+    <script>
+        // Reading progress bar
+        (function() {
+            const progressBar = document.getElementById('reading-progress');
+            if (!progressBar) return;
+            window.addEventListener('scroll', function() {
+                const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+                const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+                const progress = scrollHeight > 0 ? (scrollTop / scrollHeight) * 100 : 0;
+                progressBar.style.width = progress + '%';
+            });
+        })();
+
+        // Back to top button
+        (function() {
+            const btn = document.getElementById('backToTop');
+            if (!btn) return;
+            window.addEventListener('scroll', function() {
+                btn.classList.toggle('visible', window.scrollY > 500);
+            });
+        })();
+    </script>
+</body>
+</html>

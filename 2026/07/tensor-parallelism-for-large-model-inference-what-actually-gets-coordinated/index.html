@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <!-- ─── CRITICAL SEO ─────────────────────────────────────────── -->
+    <title>Tensor Parallelism For Large Model Inference What Actually Gets Coordinated | TechHub</title>
+    <meta name="description" content="Tensor Parallelism for Large-Model Inference: What Actually Gets CoordinatedDistributed inference is not just splitting work across machines—it is a com...">
+    <meta name="author" content="Saranga Thenuwara">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://ai-tech-articles.github.io/TechHub/2026/07/tensor-parallelism-for-large-model-inference-what-actually-gets-coordinated/">
+
+    <!-- ─── OPEN GRAPH (Facebook/LinkedIn) ─────────────────────────── -->
+    <meta property="og:site_name" content="TechHub">
+    <meta property="og:title" content="Tensor Parallelism For Large Model Inference What Actually Gets Coordinated">
+    <meta property="og:description" content="Tensor Parallelism for Large-Model Inference: What Actually Gets CoordinatedDistributed inference is not just splitting work across machines—it is a communication problem first.">
+    <meta property="og:url" content="https://ai-tech-articles.github.io/TechHub/2026/07/tensor-parallelism-for-large-model-inference-what-actually-gets-coordinated/">
+    <meta property="og:type" content="article">
+    <meta property="og:locale" content="en_US">
+    
+    <meta property="og:image" content="https://ai-tech-articles.github.io/TechHub/assets/images/default-og.png">
+    
+
+    <!-- ─── TWITTER CARD ─────────────────────────────────────────── -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@">
+    <meta name="twitter:creator" content="@">
+    <meta name="twitter:title" content="Tensor Parallelism For Large Model Inference What Actually Gets Coordinated">
+    <meta name="twitter:description" content="Tensor Parallelism for Large-Model Inference: What Actually Gets CoordinatedDistributed inference is not just splitting work across machines—it is a communication problem first.">
+    
+    <meta name="twitter:image" content="https://ai-tech-articles.github.io/TechHub/assets/images/default-og.png">
+    
+
+    <!-- ─── JSON-LD STRUCTURED DATA (Article) ────────────────────── -->
+    
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": "Tensor Parallelism For Large Model Inference What Actually Gets Coordinated",
+      "description": "Tensor Parallelism for Large-Model Inference: What Actually Gets Coordinated\nDistributed inference is not just splitting work across machines—it is a communication problem first.\n\n",
+      "author": {
+        "@type": "Person",
+        "name": "Saranga Thenuwara"
+      },
+      "datePublished": "2026-07-15",
+      "dateModified": "2026-07-15",
+      "url": "https://ai-tech-articles.github.io/TechHub/2026/07/tensor-parallelism-for-large-model-inference-what-actually-gets-coordinated/",
+      "publisher": {
+        "@type": "Organization",
+        "name": "TechHub",
+        "url": "https://ai-tech-articles.github.io/TechHub/"
+      },
+      "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "https://ai-tech-articles.github.io/TechHub/2026/07/tensor-parallelism-for-large-model-inference-what-actually-gets-coordinated/"
+      }
+      ,
+      "keywords": ""
+      
+    }
+    </script>
+    
+
+    <!-- ─── RSS / FEED ───────────────────────────────────────────── -->
+    <link type="application/atom+xml" rel="alternate" href="https://ai-tech-articles.github.io/TechHub/feed.xml" title="TechHub | AI Technology Publications" />
+
+    <!-- ─── FAVICON ──────────────────────────────────────────────── -->
+    <link rel="icon" type="image/svg+xml" href="/TechHub/assets/images/favicon.svg">
+    <link rel="alternate icon" href="/TechHub/assets/images/favicon.ico">
+    <link rel="apple-touch-icon" href="/TechHub/assets/images/apple-touch-icon.png">
+
+    <!-- ─── PRECONNECT (Performance) ─────────────────────────────── -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <link rel="preconnect" href="https://pagead2.googlesyndication.com">
+    
+
+    <!-- ─── GOOGLE ADSENSE ─────────────────────────────────────────── -->
+    
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6375003818418942" crossorigin="anonymous"></script>
+    <meta name="google-adsense-account" content="ca-pub-6375003818418942">
+    
+
+    <!-- ─── STYLES ─────────────────────────────────────────────────── -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --bg-deep: #0a0b10;
+            --panel-solid: #11131c;
+            --border-glow: #1f2330;
+            --text-pure: #f8fafc;
+            --text-dim: #94a3b8;
+            --accent-silver: #cbd5e1;
+            --accent-yellow: #ffd700;
+            --accent-glow: rgba(255, 255, 255, 0.03);
+            --code-bg: #030408;
+            --read-width: 72ch;
+        }
+
+        * { box-sizing: border-box; }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-deep);
+            color: var(--text-pure);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            letter-spacing: 0.01em;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* ─── SCROLLBAR ────────────────────────────────────────────── */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-deep); }
+        ::-webkit-scrollbar-thumb { background: var(--border-glow); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #2a2f3f; }
+
+        a {
+            color: var(--accent-yellow);
+            text-decoration: none;
+            transition: opacity 0.2s ease;
+        }
+        a:hover { opacity: 0.8; text-decoration: underline; }
+
+        /* ─── SKIP LINK ────────────────────────────────────────────── */
+        .skip-link {
+            position: absolute;
+            top: -40px;
+            left: 0;
+            background: var(--accent-yellow);
+            color: var(--bg-deep);
+            padding: 8px 16px;
+            z-index: 10000;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-decoration: none;
+            border-radius: 0 0 4px 0;
+            transition: top 0.25s ease;
+        }
+        .skip-link:focus { top: 0; outline: none; }
+
+        /* ─── READING PROGRESS BAR ─────────────────────────────────── */
+        #reading-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 0%;
+            height: 3px;
+            background: var(--accent-yellow);
+            z-index: 9999;
+            transition: width 0.1s linear;
+            box-shadow: 0 0 8px rgba(255, 215, 0, 0.3);
+        }
+
+        /* ─── HEADER ─────────────────────────────────────────────── */
+        .site-header {
+            border-bottom: 1px solid var(--border-glow);
+            padding: 1.25rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            position: sticky;
+            top: 0;
+            background: rgba(10, 11, 16, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            z-index: 1000;
+        }
+        .site-brand {
+            font-family: 'Cinzel', serif;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text-pure);
+            letter-spacing: 0.05em;
+        }
+        .site-brand a { color: inherit; text-decoration: none; }
+        .site-brand a:hover { opacity: 1; color: var(--accent-yellow); }
+        .site-nav {
+            display: flex;
+            gap: 2rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+        .site-nav a { color: var(--text-dim); text-decoration: none; }
+        .site-nav a:hover { color: var(--accent-yellow); opacity: 1; }
+
+        /* ─── MAIN CONTENT ───────────────────────────────────────── */
+        main {
+            flex: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            padding: 2.5rem 2rem;
+        }
+
+        /* ─── POST CARD (Homepage) ───────────────────────────────── */
+        .post-card {
+            background: var(--panel-solid);
+            padding: 2rem 2.5rem;
+            margin-bottom: 1.5rem;
+            border-radius: 14px;
+            border: 1px solid var(--border-glow);
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+        }
+        .post-card:hover {
+            border-color: rgba(255, 215, 0, 0.12);
+            transform: translateY(-3px);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.55);
+        }
+        .post-card a { text-decoration: none; color: inherit; display: block; }
+        .post-card a:hover { opacity: 1; }
+        .post-card h3 {
+            font-family: 'Cinzel', serif;
+            font-size: 1.35rem;
+            font-weight: 500;
+            margin: 0 0 0.6rem 0;
+            color: var(--text-pure);
+            line-height: 1.35;
+            letter-spacing: 0.01em;
+        }
+        .post-card h3:hover { color: var(--accent-yellow); }
+        .post-meta-bar {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.72rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 0.75rem;
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .post-meta-bar .meta-sep { opacity: 0.25; }
+        .post-tag-mini {
+            background: rgba(255, 215, 0, 0.06);
+            color: var(--accent-yellow);
+            padding: 0.15rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.65rem;
+            text-transform: none;
+            letter-spacing: 0.02em;
+        }
+        .post-excerpt {
+            color: var(--text-dim);
+            font-size: 0.95rem;
+            line-height: 1.65;
+            margin: 0;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .read-more {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--accent-yellow);
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            margin-top: 1.25rem;
+        }
+        .read-more:hover { opacity: 0.8; }
+        .read-more svg { transition: transform 0.2s ease; }
+        .read-more:hover svg { transform: translateX(3px); }
+
+        /* ─── PAGINATION ─────────────────────────────────────────── */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.4rem;
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border-glow);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+        }
+        .page-btn {
+            padding: 0.5rem 0.9rem;
+            border: 1px solid var(--border-glow);
+            border-radius: 8px;
+            color: var(--text-dim);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            min-width: 36px;
+            text-align: center;
+        }
+        .page-btn:hover:not(.disabled):not(.active) {
+            border-color: var(--accent-yellow);
+            color: var(--accent-yellow);
+            background: rgba(255, 215, 0, 0.04);
+        }
+        .page-btn.active {
+            border-color: var(--accent-yellow);
+            color: var(--accent-yellow);
+            background: rgba(255, 215, 0, 0.08);
+            font-weight: 700;
+        }
+        .page-btn.disabled {
+            color: var(--border-glow);
+            opacity: 0.4;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        /* ─── SEARCH ───────────────────────────────────────────────── */
+        .search-section { margin-bottom: 2.5rem; }
+        .search-box { position: relative; max-width: 600px; }
+        .search-box input {
+            width: 100%;
+            padding: 0.85rem 1.25rem 0.85rem 2.8rem;
+            background: var(--panel-solid);
+            border: 1px solid var(--border-glow);
+            border-radius: 12px;
+            color: var(--text-pure);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .search-box input:focus {
+            border-color: var(--accent-yellow);
+            box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.08);
+        }
+        .search-box input::placeholder { color: #4a5068; }
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 18px;
+            height: 18px;
+            color: var(--text-dim);
+            pointer-events: none;
+        }
+        #search-results {
+            display: none;
+            margin-top: 0.75rem;
+            background: var(--panel-solid);
+            border: 1px solid var(--border-glow);
+            border-radius: 12px;
+            padding: 0.5rem;
+            max-height: 420px;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+        .search-result-item {
+            display: block;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            text-decoration: none;
+            color: inherit;
+            transition: background 0.15s ease;
+        }
+        .search-result-item:hover { background: rgba(255, 215, 0, 0.04); }
+        .search-result-title {
+            font-family: 'Cinzel', serif;
+            font-size: 1rem;
+            color: var(--text-pure);
+            margin-bottom: 0.2rem;
+        }
+        .search-result-meta {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--text-dim);
+        }
+        #search-results::-webkit-scrollbar { width: 6px; }
+        #search-results::-webkit-scrollbar-thumb { background: var(--border-glow); border-radius: 3px; }
+
+        /* ─── ARTICLE (Post Page) ──────────────────────────────────── */
+        article {
+            max-width: var(--read-width);
+            margin: 0 auto;
+        }
+        article .post-header {
+            margin-bottom: 2.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-glow);
+        }
+        article .post-header h1 {
+            font-family: 'Cinzel', serif;
+            font-size: 2.4rem;
+            font-weight: 500;
+            line-height: 1.2;
+            margin: 0 0 1rem 0;
+            letter-spacing: 0.02em;
+        }
+        article .post-meta {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        article .post-meta .author { color: var(--accent-yellow); }
+        article .post-meta .separator { margin: 0 0.25rem; opacity: 0.3; }
+
+        article h2 {
+            font-family: 'Cinzel', serif;
+            font-size: 1.7rem;
+            font-weight: 500;
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border-glow);
+            letter-spacing: 0.01em;
+        }
+        article h3 {
+            font-family: 'Cinzel', serif;
+            font-size: 1.25rem;
+            font-weight: 500;
+            margin-top: 2rem;
+            margin-bottom: 0.75rem;
+            color: var(--accent-silver);
+        }
+        article h4 {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.6rem;
+            color: var(--accent-silver);
+        }
+        article p {
+            margin-bottom: 1.25rem;
+            color: var(--text-dim);
+        }
+        article p strong { color: var(--text-pure); }
+        article ul, article ol {
+            margin-bottom: 1.25rem;
+            padding-left: 1.5rem;
+            color: var(--text-dim);
+        }
+        article li { margin-bottom: 0.5rem; }
+        article li::marker { color: var(--accent-yellow); }
+        article blockquote {
+            border-left: 3px solid var(--accent-yellow);
+            margin: 1.5rem 0;
+            padding: 0.5rem 0 0.5rem 1.5rem;
+            font-style: italic;
+            color: var(--accent-silver);
+        }
+        article hr {
+            border: none;
+            height: 1px;
+            background: var(--border-glow);
+            margin: 2.5rem 0;
+        }
+        article img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            border: 1px solid var(--border-glow);
+            display: block;
+            margin: 1.5rem auto;
+        }
+        article figcaption, article .image-caption {
+            display: block;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            margin-top: 0.5rem;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* ─── CODE BLOCKS ──────────────────────────────────────────── */
+        article pre {
+            background: var(--code-bg);
+            border: 1px solid var(--border-glow);
+            border-radius: 10px;
+            padding: 1.25rem;
+            overflow-x: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            line-height: 1.65;
+            margin: 1.5rem 0;
+        }
+        article pre code {
+            background: transparent;
+            padding: 0;
+            border: none;
+            color: var(--text-pure);
+            font-size: inherit;
+        }
+        article code {
+            background: rgba(255,255,255,0.05);
+            padding: 0.2em 0.4em;
+            border-radius: 4px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9em;
+            color: var(--accent-yellow);
+        }
+
+        /* ─── TABLES ──────────────────────────────────────────────── */
+        article table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            font-size: 0.9rem;
+            border: 1px solid var(--border-glow);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        article th, article td {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-glow);
+        }
+        article th {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--accent-yellow);
+            background: var(--panel-solid);
+            font-weight: 600;
+        }
+        article tr:last-child td { border-bottom: none; }
+        article tr:hover td { background: rgba(255,255,255,0.015); }
+
+        /* ─── TAGS ────────────────────────────────────────────────── */
+        .post-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 2.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border-glow);
+        }
+        .post-tag {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            padding: 0.4rem 0.85rem;
+            border: 1px solid var(--border-glow);
+            border-radius: 20px;
+            color: var(--text-dim);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            background: transparent;
+        }
+        .post-tag:hover {
+            border-color: var(--accent-yellow);
+            color: var(--accent-yellow);
+            background: rgba(255, 215, 0, 0.05);
+            text-decoration: none;
+            opacity: 1;
+        }
+
+        /* ─── TAG CLOUD (Tags Page) ───────────────────────────────── */
+        .tag-cloud {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-bottom: 3rem;
+        }
+        .tag-pill {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.82rem;
+            padding: 0.55rem 1.1rem;
+            border: 1px solid var(--border-glow);
+            border-radius: 24px;
+            color: var(--text-dim);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            background: transparent;
+        }
+        .tag-pill:hover {
+            border-color: var(--accent-yellow);
+            color: var(--accent-yellow);
+            background: rgba(255, 215, 0, 0.05);
+            text-decoration: none;
+            opacity: 1;
+        }
+        .tag-group h3 {
+            font-family: 'Cinzel', serif;
+            font-size: 1.2rem;
+            color: var(--accent-yellow);
+            margin-bottom: 1rem;
+            text-transform: capitalize;
+        }
+        .tag-group-list {
+            display: grid;
+            gap: 0.75rem;
+            margin-bottom: 2.5rem;
+        }
+        .tag-group-item {
+            display: block;
+            padding: 1rem 1.25rem;
+            background: var(--panel-solid);
+            border: 1px solid var(--border-glow);
+            border-radius: 10px;
+            text-decoration: none;
+            color: var(--text-pure);
+            transition: all 0.2s ease;
+        }
+        .tag-group-item:hover {
+            border-color: rgba(255, 215, 0, 0.2);
+            text-decoration: none;
+            opacity: 1;
+        }
+        .tag-group-item-title {
+            font-family: 'Cinzel', serif;
+            font-size: 1rem;
+            margin-bottom: 0.25rem;
+        }
+        .tag-group-item-date {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--text-dim);
+        }
+
+        /* ─── ADS ─────────────────────────────────────────────────── */
+        .ad-container {
+            margin: 2rem 0;
+            text-align: center;
+            min-height: 90px;
+        }
+
+        /* ─── BACK TO TOP ──────────────────────────────────────────── */
+        .back-to-top {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 44px;
+            height: 44px;
+            background: var(--panel-solid);
+            border: 1px solid var(--border-glow);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            color: var(--text-dim);
+            padding: 0;
+        }
+        .back-to-top.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+        .back-to-top:hover {
+            border-color: var(--accent-yellow);
+            color: var(--accent-yellow);
+            background: rgba(255, 215, 0, 0.05);
+            transform: translateY(-2px);
+        }
+        .back-to-top:focus-visible {
+            outline: 2px solid var(--accent-yellow);
+            outline-offset: 2px;
+        }
+
+        /* ─── FOOTER ──────────────────────────────────────────────── */
+        .site-footer {
+            border-top: 1px solid var(--border-glow);
+            padding: 2.5rem 2rem;
+            text-align: center;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+        .site-footer a { color: var(--text-dim); margin: 0 1rem; text-decoration: none; }
+        .site-footer a:hover { color: var(--accent-yellow); opacity: 1; }
+        .site-footer p { margin: 1rem 0 0 0; opacity: 0.5; }
+
+        /* ─── RESPONSIVE ──────────────────────────────────────────── */
+        @media (max-width: 768px) {
+            .site-header {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1rem;
+                position: relative;
+            }
+            .site-nav { gap: 1.2rem; font-size: 0.72rem; }
+            main { padding: 1.5rem 1rem; }
+            .post-card { padding: 1.5rem; }
+            .post-card h3 { font-size: 1.15rem; }
+            article .post-header h1 { font-size: 1.7rem; }
+            article h2 { font-size: 1.35rem; }
+            .back-to-top { bottom: 1.5rem; right: 1.5rem; width: 40px; height: 40px; }
+        }
+
+        /* ─── FOCUS VISIBLE ───────────────────────────────────────── */
+        :focus-visible {
+            outline: 2px solid var(--accent-yellow);
+            outline-offset: 2px;
+            border-radius: 4px;
+        }
+        a:focus-visible { border-radius: 4px; }
+
+        /* ─── MATH / KATEX ─────────────────────────────────────────── */
+        .katex { font-size: 1.1em; }
+        .katex-display { margin: 1.5rem 0; overflow-x: auto; }
+
+        /* ─── MERMAID ────────────────────────────────────────────── */
+        .mermaid {
+            background: var(--panel-solid);
+            border: 1px solid var(--border-glow);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            text-align: center;
+        }
+
+        /* ─── EDITORIAL CARD (Homepage) ─────────────────────────── */
+        .editorial-card {
+            background: var(--panel-solid);
+            padding: 3rem 3.5rem;
+            margin-bottom: 2.5rem;
+            border-radius: 16px;
+            border: 1px solid var(--border-glow);
+            position: relative;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.65);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .editorial-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent-yellow);
+            box-shadow: 0 20px 50px rgba(255, 215, 0, 0.04);
+        }
+        .editorial-card h3 {
+            margin-top: 0;
+            margin-bottom: 0.5rem;
+        }
+        .editorial-card h3 a {
+            color: #fff;
+            font-family: 'Cinzel', serif;
+            text-decoration: none;
+            font-size: 1.85rem;
+            font-weight: 500;
+            letter-spacing: 0.01em;
+            line-height: 1.3;
+            border-bottom: none !important;
+            display: inline-block;
+        }
+        .editorial-card h3 a:hover {
+            color: var(--accent-yellow);
+            opacity: 1;
+        }
+        .feed-telemetry-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.72rem;
+            color: var(--accent-yellow);
+            margin-bottom: 1.25rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            font-weight: 700;
+        }
+        .editorial-link-btn {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--text-pure);
+            font-weight: 700;
+            text-decoration: none;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            border: 1px solid var(--border-glow);
+            padding: 0.55rem 1.3rem;
+            border-radius: 30px;
+            background: rgba(255, 255, 255, 0.01);
+            transition: all 0.2s ease;
+        }
+        .editorial-link-btn:hover {
+            background: rgba(255, 215, 0, 0.05);
+            border-color: var(--accent-yellow);
+            color: var(--accent-yellow);
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.08);
+            text-decoration: none;
+            opacity: 1;
+        }
+        .pagination-nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 4rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border-glow);
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .pagination-nav-link {
+            font-size: 0.75rem;
+            color: var(--accent-yellow);
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            padding: 0.6rem 1.4rem;
+            border: 1px solid var(--border-glow);
+            border-radius: 30px;
+            background: rgba(255, 255, 255, 0.01);
+            font-weight: 700;
+            transition: all 0.2s ease;
+        }
+        .pagination-nav-link:hover {
+            background: rgba(255, 215, 0, 0.05);
+            border-color: var(--accent-yellow);
+            box-shadow: 0 0 12px rgba(255, 215, 0, 0.05);
+            text-decoration: none;
+            opacity: 1;
+        }
+        .pagination-nav-placeholder {
+            visibility: hidden;
+            padding: 0.6rem 1.4rem;
+            font-size: 0.75rem;
+        }
+
+        @media (max-width: 768px) {
+            .editorial-card {
+                padding: 2rem 1.75rem;
+            }
+            .editorial-card h3 a {
+                font-size: 1.35rem;
+            }
+            .pagination-nav-container {
+                flex-direction: column;
+                gap: 1.5rem;
+                text-align: center;
+            }
+            .pagination-nav-placeholder {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    <div id="reading-progress"></div>
+
+    <!-- ─── HEADER ─────────────────────────────────────────────── -->
+    <header class="site-header" role="banner">
+        <div class="site-brand">
+            <a href="/TechHub/">TechHub</a>
+        </div>
+        <nav class="site-nav" role="navigation" aria-label="Main navigation">
+            <a href="/TechHub/">Journal</a>
+            <a href="/TechHub/tags">Tags</a>
+            <a href="/TechHub/about">About</a>
+        </nav>
+    </header>
+
+    <!-- ─── MAIN ─────────────────────────────────────────────────── -->
+    <main id="main-content" role="main">
+        <h1 id="tensor-parallelism-for-large-model-inference-what-actually-gets-coordinated">Tensor Parallelism for Large-Model Inference: What Actually Gets Coordinated</h1>
+<p><em>Distributed inference is not just splitting work across machines—it is a communication problem first.</em></p>
+
+<p><img src="/assets/images/covers/tensor-parallelism-for-large-model-inference-what-actually-gets-coordinated-cover.png" alt="Cover image: tensor parallelism for large model inference what actually gets coordinated" /></p>
+
+<p><strong>TL;DR</strong></p>
+<ul>
+  <li>Tensor parallelism shards weights and activations across devices so a single model replica can exceed one GPU’s memory, but every forward pass requires explicit collective communication (all-gather, reduce-scatter).</li>
+  <li>The win comes from memory capacity and per-request throughput, not free compute; if communication is not overlapped or the model already fits on one device, the extra coordination can make inference slower.</li>
+  <li>Production deployments must account for device placement, batch size, and the ratio of arithmetic to data movement before adopting tensor slicing.</li>
+</ul>
+
+<h2 id="why-distributed-inference-stops-being-a-simple-partitioning-problem">Why Distributed Inference Stops Being a Simple Partitioning Problem</h2>
+
+<p>When a model outgrows the memory of a single accelerator, the natural first instinct is to split it. Split the weights across two GPUs, run the same forward pass, and combine the results. In practice, this only works if the system carefully coordinates how intermediate tensors move between devices. Distributed inference shifts the bottleneck from raw floating-point throughput to communication latency and memory bandwidth.</p>
+
+<p>Teams running high-throughput services usually encounter this when one of three constraints hits: the model parameters exceed device memory, the KV cache for long-context inference exhausts available RAM, or a single GPU cannot deliver the required request rate without unacceptable queueing. At that point, simply buying a bigger accelerator is not always an option, and vertical scaling has hard physical limits. The alternative is model parallelism, specifically tensor parallelism, where individual layers are sliced across a set of workers. The catch is that every sliced layer now needs a cross-device exchange to reconstruct the full activation tensor before the next layer can proceed.</p>
+
+<h2 id="what-tensor-slicing-coordination-actually-means">What Tensor Slicing Coordination Actually Means</h2>
+
+<p>In tensor parallelism, the “slicing” is not a batch split. A data-parallel system can place a full copy of the model on each GPU and route different request batches to different devices, which is straightforward because batches do not need to interact during the forward pass. Tensor parallelism is different: a single request’s activations must be processed collaboratively by multiple devices holding different subsets of the weights.</p>
+
+<p>Consider a fully connected layer with input <code class="language-plaintext highlighter-rouge">X</code> of shape <code class="language-plaintext highlighter-rouge">[B, d_in]</code> and weight matrix <code class="language-plaintext highlighter-rouge">W</code> of shape <code class="language-plaintext highlighter-rouge">[d_in, d_out]</code>. In column-wise tensor parallelism, <code class="language-plaintext highlighter-rouge">W</code> is split along the output dimension into <code class="language-plaintext highlighter-rouge">W_0</code> and <code class="language-plaintext highlighter-rouge">W_1</code>. GPU 0 holds <code class="language-plaintext highlighter-rouge">W_0</code>, GPU 1 holds <code class="language-plaintext highlighter-rouge">W_1</code>, and both receive the same input <code class="language-plaintext highlighter-rouge">X</code>. Each computes a partial output: <code class="language-plaintext highlighter-rouge">Y_0 = X @ W_0</code> and <code class="language-plaintext highlighter-rouge">Y_1 = X @ W_1</code>. Neither partial result is useful on its own. The system must perform an <strong>all-gather</strong> so that both ranks obtain the concatenated output <code class="language-plaintext highlighter-rouge">[Y_0 | Y_1]</code>. The next layer can then repeat the process.</p>
+
+<p>This pattern generalizes to transformer blocks. Multi-head attention is often split by attention heads, and feed-forward networks are commonly sharded using the Megatron-style column-and-row parallel layout. In the column parallel layer, the system all-gathers activations; in the row parallel layer, it uses a reduce-scatter to combine partial sums. The result is a tight loop of compute followed by collective communication.</p>
+
+<pre><code class="language-mermaid">flowchart LR
+    A[Input X&lt;br/&gt;shape [B, 4096]] --&gt; B[Broadcast to both ranks]
+    B --&gt; C[GPU 0&lt;br/&gt;W_0 shape [4096, 4096]]
+    B --&gt; D[GPU 1&lt;br/&gt;W_1 shape [4096, 4096]]
+    C --&gt; E[Y_0 = XW_0]
+    D --&gt; F[Y_1 = XW_1]
+    E --&gt; G[All-gather]
+    F --&gt; G
+    G --&gt; H[Output [Y_0 | Y_1]&lt;br/&gt;shape [B, 8192]]
+</code></pre>
+
+<h2 id="why-does-coordination-dominate-the-cost">Why Does Coordination Dominate the Cost?</h2>
+
+<p>Because every sliced layer introduces a synchronization point.</p>
+
+<p>In a single-GPU forward pass, reading weights and writing activations stay on one memory bus. In tensor parallelism, partial results must cross an interconnect—NVLink, PCIe, or a datacenter fabric. The latency of that exchange is often fixed regardless of how small the tensor is, and the bandwidth determines how quickly large activations can move. When the model is large enough that it must be sharded, this overhead is unavoidable. When the model would fit on one device but is sharded anyway for throughput, the overhead can consume the expected gain.</p>
+
+<p>The dominant factors are:</p>
+<ul>
+  <li><strong>Arithmetic intensity of the layer</strong>: matrix multiplications have high reuse of weights, so they hide memory latency well. Communication, by contrast, moves bytes with no reuse, so it is pure overhead.</li>
+  <li><strong>Tensor shape and batch size</strong>: small batches keep compute light while communication stays roughly constant, which makes coordination a larger percentage of wall-clock time.</li>
+  <li><strong>Interconnect topology</strong>: two GPUs on the same NUMA node with NVLink exchange data very differently than workers spread across nodes in a Kubernetes cluster.</li>
+</ul>
+
+<p>Production systems therefore do not choose tensor parallelism by default. They start with data parallelism or larger batches, and move to tensor parallelism when the model footprint forces it.</p>
+
+<h2 id="a-concrete-look-at-the-all-gather-pattern">A Concrete Look at the All-Gather Pattern</h2>
+
+<p>The code below is stripped down, but it captures the exact contract that tensor-parallel inference frameworks implement under the hood: each rank owns a weight shard, performs a local matrix multiplication, and then exchanges partial results.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+</pre></td><td class="rouge-code"><pre><span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">torch.distributed</span> <span class="k">as</span> <span class="n">dist</span>
+
+<span class="k">def</span> <span class="nf">tensor_parallel_linear</span><span class="p">(</span>
+    <span class="nb">input</span><span class="p">:</span> <span class="n">torch</span><span class="p">.</span><span class="n">Tensor</span><span class="p">,</span>        <span class="c1"># shape [B, d_in], identical on both ranks
+</span>    <span class="n">local_weight</span><span class="p">:</span> <span class="n">torch</span><span class="p">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="c1"># shape [d_in, d_out // world_size]
+</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="p">.</span><span class="n">Tensor</span><span class="p">:</span>
+    <span class="c1"># Local partial matmul
+</span>    <span class="n">local_out</span> <span class="o">=</span> <span class="nb">input</span> <span class="o">@</span> <span class="n">local_weight</span>  <span class="c1"># [B, d_out // world_size]
+</span>
+    <span class="c1"># Exchange partial outputs with every other rank
+</span>    <span class="n">world_size</span> <span class="o">=</span> <span class="n">dist</span><span class="p">.</span><span class="n">get_world_size</span><span class="p">()</span>
+    <span class="n">gathered</span> <span class="o">=</span> <span class="p">[</span><span class="n">torch</span><span class="p">.</span><span class="n">empty_like</span><span class="p">(</span><span class="n">local_out</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">world_size</span><span class="p">)]</span>
+    <span class="n">dist</span><span class="p">.</span><span class="n">all_gather</span><span class="p">(</span><span class="n">gathered</span><span class="p">,</span> <span class="n">local_out</span><span class="p">)</span>
+
+    <span class="c1"># Reassemble the full output slice for this layer
+</span>    <span class="k">return</span> <span class="n">torch</span><span class="p">.</span><span class="n">cat</span><span class="p">(</span><span class="n">gathered</span><span class="p">,</span> <span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># [B, d_out]
+</span></pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Real frameworks add substantial machinery around this kernel: they fuse the all-gather with the next operation where possible, pipeline the attention and MLP shards to keep the communication path warm, and manage device placement so that each layer’s shards are reachable without extra hops. But the core idea is always the same partial-compute-then-synchronize loop.</p>
+
+<h2 id="when-is-tensor-parallelism-the-right-levers">When Is Tensor Parallelism the Right Levers</h2>
+
+<p>Tensor parallelism is the right scale-out mechanism when at least one of these is true:</p>
+
+<ul>
+  <li>The model cannot fit in a single accelerator’s memory, or would leave no room for the KV cache or batch buffering.</li>
+  <li>Single-device inference saturates memory bandwidth or compute but cannot be scaled vertically any further.</li>
+  <li>Request-level tail latency requirements force per-request parallelism rather than throughput-oriented batching.</li>
+</ul>
+
+<p>In other cases, it tends to add more complexity than value. If the model fits on one GPU, data parallelism with independent replicas usually delivers better throughput per dollar because there is no cross-device synchronization. If the workload is batch-friendly, increasing batch size often improves utilization without touching the network stack at all.</p>
+
+<p>Teams should also distinguish between <strong>necessary</strong> tensor parallelism and <strong>opportunistic</strong> tensor parallelism. The former solves a hard capacity constraint. The latter hopes to reduce latency by adding parallel workers, but it only succeeds when the communication time is small compared to the compute time. For small batches or skinny layers, the communication can easily dominate.</p>
+
+<h2 id="operational-realities">Operational Realities</h2>
+
+<p>Adopting tensor slicing coordination changes how a service is operated. Load balancing becomes device-aware: a request must be routed to the set of GPUs that hold the correct shards, not just the least loaded replica. Failure handling gets harder because a single failed rank stalls every request assigned to that tensor-parallel group, and checkpointing must capture consistent snapshots across all shards simultaneously. Observability also changes; latency histograms need to separate compute time from collective wait time, otherwise p99 outliers look like generic “slow requests” when they are actually network or synchronization events.</p>
+
+<p>There are also cost implications. Tensor parallelism increases aggregate memory bandwidth usage across workers. It can increase power draw because multiple accelerators and interconnect links are active for every request. The savings come from avoiding the purchase of a single oversized device that may not exist at the required scale, not from reducing total work.</p>
+
+<h2 id="topics">Topics</h2>
+
+<p><code class="language-plaintext highlighter-rouge">Distributed Inference</code> · <code class="language-plaintext highlighter-rouge">Tensor Parallelism</code> · <code class="language-plaintext highlighter-rouge">Model Parallelism</code> · <code class="language-plaintext highlighter-rouge">GPU Inference</code> · <code class="language-plaintext highlighter-rouge">LLM Serving</code> · <code class="language-plaintext highlighter-rouge">Collective Communication</code> · <code class="language-plaintext highlighter-rouge">High-Throughput Systems</code></p>
+
+    </main>
+
+    <!-- ─── FOOTER ──────────────────────────────────────────────── -->
+    <footer class="site-footer" role="contentinfo">
+        <div>
+            <a href="/TechHub/">Home</a>
+            <a href="/TechHub/feed.xml">RSS</a>
+            <a href="/TechHub/sitemap.xml">Sitemap</a>
+        </div>
+        <p>
+            &copy; 2026 Saranga Thenuwara — TechHub
+        </p>
+    </footer>
+
+    <!-- ─── BACK TO TOP ──────────────────────────────────────────── -->
+    <button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Back to top">
+        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg>
+    </button>
+
+    <!-- ─── SCRIPTS ─────────────────────────────────────────────── -->
+    <script>
+        // Reading progress bar
+        (function() {
+            const progressBar = document.getElementById('reading-progress');
+            if (!progressBar) return;
+            window.addEventListener('scroll', function() {
+                const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+                const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+                const progress = scrollHeight > 0 ? (scrollTop / scrollHeight) * 100 : 0;
+                progressBar.style.width = progress + '%';
+            });
+        })();
+
+        // Back to top button
+        (function() {
+            const btn = document.getElementById('backToTop');
+            if (!btn) return;
+            window.addEventListener('scroll', function() {
+                btn.classList.toggle('visible', window.scrollY > 500);
+            });
+        })();
+    </script>
+</body>
+</html>

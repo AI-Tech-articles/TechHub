@@ -1,0 +1,1169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <!-- ─── CRITICAL SEO ─────────────────────────────────────────── -->
+    <title>Asynchronous Sequence Batching A Practical Pattern For Distributed Llm Inference | TechHub</title>
+    <meta name="description" content="Asynchronous Sequence Batching: A Practical Pattern for Distributed LLM Inference">
+    <meta name="author" content="Saranga Thenuwara">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://ai-tech-articles.github.io/TechHub/2026/07/asynchronous-sequence-batching-a-practical-pattern-for-distributed-llm-inference/">
+
+    <!-- ─── OPEN GRAPH (Facebook/LinkedIn) ─────────────────────────── -->
+    <meta property="og:site_name" content="TechHub">
+    <meta property="og:title" content="Asynchronous Sequence Batching A Practical Pattern For Distributed Llm Inference">
+    <meta property="og:description" content="Asynchronous Sequence Batching: A Practical Pattern for Distributed LLM Inference">
+    <meta property="og:url" content="https://ai-tech-articles.github.io/TechHub/2026/07/asynchronous-sequence-batching-a-practical-pattern-for-distributed-llm-inference/">
+    <meta property="og:type" content="article">
+    <meta property="og:locale" content="en_US">
+    
+    <meta property="og:image" content="https://ai-tech-articles.github.io/TechHub/assets/images/default-og.png">
+    
+
+    <!-- ─── TWITTER CARD ─────────────────────────────────────────── -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@">
+    <meta name="twitter:creator" content="@">
+    <meta name="twitter:title" content="Asynchronous Sequence Batching A Practical Pattern For Distributed Llm Inference">
+    <meta name="twitter:description" content="Asynchronous Sequence Batching: A Practical Pattern for Distributed LLM Inference">
+    
+    <meta name="twitter:image" content="https://ai-tech-articles.github.io/TechHub/assets/images/default-og.png">
+    
+
+    <!-- ─── JSON-LD STRUCTURED DATA (Article) ────────────────────── -->
+    
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": "Asynchronous Sequence Batching A Practical Pattern For Distributed Llm Inference",
+      "description": "Asynchronous Sequence Batching: A Practical Pattern for Distributed LLM Inference\n\n",
+      "author": {
+        "@type": "Person",
+        "name": "Saranga Thenuwara"
+      },
+      "datePublished": "2026-07-15",
+      "dateModified": "2026-07-15",
+      "url": "https://ai-tech-articles.github.io/TechHub/2026/07/asynchronous-sequence-batching-a-practical-pattern-for-distributed-llm-inference/",
+      "publisher": {
+        "@type": "Organization",
+        "name": "TechHub",
+        "url": "https://ai-tech-articles.github.io/TechHub/"
+      },
+      "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "https://ai-tech-articles.github.io/TechHub/2026/07/asynchronous-sequence-batching-a-practical-pattern-for-distributed-llm-inference/"
+      }
+      ,
+      "keywords": ""
+      
+    }
+    </script>
+    
+
+    <!-- ─── RSS / FEED ───────────────────────────────────────────── -->
+    <link type="application/atom+xml" rel="alternate" href="https://ai-tech-articles.github.io/TechHub/feed.xml" title="TechHub | AI Technology Publications" />
+
+    <!-- ─── FAVICON ──────────────────────────────────────────────── -->
+    <link rel="icon" type="image/svg+xml" href="/TechHub/assets/images/favicon.svg">
+    <link rel="alternate icon" href="/TechHub/assets/images/favicon.ico">
+    <link rel="apple-touch-icon" href="/TechHub/assets/images/apple-touch-icon.png">
+
+    <!-- ─── PRECONNECT (Performance) ─────────────────────────────── -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <link rel="preconnect" href="https://pagead2.googlesyndication.com">
+    
+
+    <!-- ─── GOOGLE ADSENSE ─────────────────────────────────────────── -->
+    
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6375003818418942" crossorigin="anonymous"></script>
+    <meta name="google-adsense-account" content="ca-pub-6375003818418942">
+    
+
+    <!-- ─── STYLES ─────────────────────────────────────────────────── -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --bg-deep: #0a0b10;
+            --panel-solid: #11131c;
+            --border-glow: #1f2330;
+            --text-pure: #f8fafc;
+            --text-dim: #94a3b8;
+            --accent-silver: #cbd5e1;
+            --accent-yellow: #ffd700;
+            --accent-glow: rgba(255, 255, 255, 0.03);
+            --code-bg: #030408;
+            --read-width: 72ch;
+        }
+
+        * { box-sizing: border-box; }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-deep);
+            color: var(--text-pure);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            letter-spacing: 0.01em;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* ─── SCROLLBAR ────────────────────────────────────────────── */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-deep); }
+        ::-webkit-scrollbar-thumb { background: var(--border-glow); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #2a2f3f; }
+
+        a {
+            color: var(--accent-yellow);
+            text-decoration: none;
+            transition: opacity 0.2s ease;
+        }
+        a:hover { opacity: 0.8; text-decoration: underline; }
+
+        /* ─── SKIP LINK ────────────────────────────────────────────── */
+        .skip-link {
+            position: absolute;
+            top: -40px;
+            left: 0;
+            background: var(--accent-yellow);
+            color: var(--bg-deep);
+            padding: 8px 16px;
+            z-index: 10000;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-decoration: none;
+            border-radius: 0 0 4px 0;
+            transition: top 0.25s ease;
+        }
+        .skip-link:focus { top: 0; outline: none; }
+
+        /* ─── READING PROGRESS BAR ─────────────────────────────────── */
+        #reading-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 0%;
+            height: 3px;
+            background: var(--accent-yellow);
+            z-index: 9999;
+            transition: width 0.1s linear;
+            box-shadow: 0 0 8px rgba(255, 215, 0, 0.3);
+        }
+
+        /* ─── HEADER ─────────────────────────────────────────────── */
+        .site-header {
+            border-bottom: 1px solid var(--border-glow);
+            padding: 1.25rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            position: sticky;
+            top: 0;
+            background: rgba(10, 11, 16, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            z-index: 1000;
+        }
+        .site-brand {
+            font-family: 'Cinzel', serif;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text-pure);
+            letter-spacing: 0.05em;
+        }
+        .site-brand a { color: inherit; text-decoration: none; }
+        .site-brand a:hover { opacity: 1; color: var(--accent-yellow); }
+        .site-nav {
+            display: flex;
+            gap: 2rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+        .site-nav a { color: var(--text-dim); text-decoration: none; }
+        .site-nav a:hover { color: var(--accent-yellow); opacity: 1; }
+
+        /* ─── MAIN CONTENT ───────────────────────────────────────── */
+        main {
+            flex: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            padding: 2.5rem 2rem;
+        }
+
+        /* ─── POST CARD (Homepage) ───────────────────────────────── */
+        .post-card {
+            background: var(--panel-solid);
+            padding: 2rem 2.5rem;
+            margin-bottom: 1.5rem;
+            border-radius: 14px;
+            border: 1px solid var(--border-glow);
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+        }
+        .post-card:hover {
+            border-color: rgba(255, 215, 0, 0.12);
+            transform: translateY(-3px);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.55);
+        }
+        .post-card a { text-decoration: none; color: inherit; display: block; }
+        .post-card a:hover { opacity: 1; }
+        .post-card h3 {
+            font-family: 'Cinzel', serif;
+            font-size: 1.35rem;
+            font-weight: 500;
+            margin: 0 0 0.6rem 0;
+            color: var(--text-pure);
+            line-height: 1.35;
+            letter-spacing: 0.01em;
+        }
+        .post-card h3:hover { color: var(--accent-yellow); }
+        .post-meta-bar {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.72rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 0.75rem;
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .post-meta-bar .meta-sep { opacity: 0.25; }
+        .post-tag-mini {
+            background: rgba(255, 215, 0, 0.06);
+            color: var(--accent-yellow);
+            padding: 0.15rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.65rem;
+            text-transform: none;
+            letter-spacing: 0.02em;
+        }
+        .post-excerpt {
+            color: var(--text-dim);
+            font-size: 0.95rem;
+            line-height: 1.65;
+            margin: 0;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .read-more {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--accent-yellow);
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            margin-top: 1.25rem;
+        }
+        .read-more:hover { opacity: 0.8; }
+        .read-more svg { transition: transform 0.2s ease; }
+        .read-more:hover svg { transform: translateX(3px); }
+
+        /* ─── PAGINATION ─────────────────────────────────────────── */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.4rem;
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border-glow);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+        }
+        .page-btn {
+            padding: 0.5rem 0.9rem;
+            border: 1px solid var(--border-glow);
+            border-radius: 8px;
+            color: var(--text-dim);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            min-width: 36px;
+            text-align: center;
+        }
+        .page-btn:hover:not(.disabled):not(.active) {
+            border-color: var(--accent-yellow);
+            color: var(--accent-yellow);
+            background: rgba(255, 215, 0, 0.04);
+        }
+        .page-btn.active {
+            border-color: var(--accent-yellow);
+            color: var(--accent-yellow);
+            background: rgba(255, 215, 0, 0.08);
+            font-weight: 700;
+        }
+        .page-btn.disabled {
+            color: var(--border-glow);
+            opacity: 0.4;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        /* ─── SEARCH ───────────────────────────────────────────────── */
+        .search-section { margin-bottom: 2.5rem; }
+        .search-box { position: relative; max-width: 600px; }
+        .search-box input {
+            width: 100%;
+            padding: 0.85rem 1.25rem 0.85rem 2.8rem;
+            background: var(--panel-solid);
+            border: 1px solid var(--border-glow);
+            border-radius: 12px;
+            color: var(--text-pure);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .search-box input:focus {
+            border-color: var(--accent-yellow);
+            box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.08);
+        }
+        .search-box input::placeholder { color: #4a5068; }
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 18px;
+            height: 18px;
+            color: var(--text-dim);
+            pointer-events: none;
+        }
+        #search-results {
+            display: none;
+            margin-top: 0.75rem;
+            background: var(--panel-solid);
+            border: 1px solid var(--border-glow);
+            border-radius: 12px;
+            padding: 0.5rem;
+            max-height: 420px;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+        .search-result-item {
+            display: block;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            text-decoration: none;
+            color: inherit;
+            transition: background 0.15s ease;
+        }
+        .search-result-item:hover { background: rgba(255, 215, 0, 0.04); }
+        .search-result-title {
+            font-family: 'Cinzel', serif;
+            font-size: 1rem;
+            color: var(--text-pure);
+            margin-bottom: 0.2rem;
+        }
+        .search-result-meta {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--text-dim);
+        }
+        #search-results::-webkit-scrollbar { width: 6px; }
+        #search-results::-webkit-scrollbar-thumb { background: var(--border-glow); border-radius: 3px; }
+
+        /* ─── ARTICLE (Post Page) ──────────────────────────────────── */
+        article {
+            max-width: var(--read-width);
+            margin: 0 auto;
+        }
+        article .post-header {
+            margin-bottom: 2.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-glow);
+        }
+        article .post-header h1 {
+            font-family: 'Cinzel', serif;
+            font-size: 2.4rem;
+            font-weight: 500;
+            line-height: 1.2;
+            margin: 0 0 1rem 0;
+            letter-spacing: 0.02em;
+        }
+        article .post-meta {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        article .post-meta .author { color: var(--accent-yellow); }
+        article .post-meta .separator { margin: 0 0.25rem; opacity: 0.3; }
+
+        article h2 {
+            font-family: 'Cinzel', serif;
+            font-size: 1.7rem;
+            font-weight: 500;
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border-glow);
+            letter-spacing: 0.01em;
+        }
+        article h3 {
+            font-family: 'Cinzel', serif;
+            font-size: 1.25rem;
+            font-weight: 500;
+            margin-top: 2rem;
+            margin-bottom: 0.75rem;
+            color: var(--accent-silver);
+        }
+        article h4 {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.6rem;
+            color: var(--accent-silver);
+        }
+        article p {
+            margin-bottom: 1.25rem;
+            color: var(--text-dim);
+        }
+        article p strong { color: var(--text-pure); }
+        article ul, article ol {
+            margin-bottom: 1.25rem;
+            padding-left: 1.5rem;
+            color: var(--text-dim);
+        }
+        article li { margin-bottom: 0.5rem; }
+        article li::marker { color: var(--accent-yellow); }
+        article blockquote {
+            border-left: 3px solid var(--accent-yellow);
+            margin: 1.5rem 0;
+            padding: 0.5rem 0 0.5rem 1.5rem;
+            font-style: italic;
+            color: var(--accent-silver);
+        }
+        article hr {
+            border: none;
+            height: 1px;
+            background: var(--border-glow);
+            margin: 2.5rem 0;
+        }
+        article img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            border: 1px solid var(--border-glow);
+            display: block;
+            margin: 1.5rem auto;
+        }
+        article figcaption, article .image-caption {
+            display: block;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            margin-top: 0.5rem;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* ─── CODE BLOCKS ──────────────────────────────────────────── */
+        article pre {
+            background: var(--code-bg);
+            border: 1px solid var(--border-glow);
+            border-radius: 10px;
+            padding: 1.25rem;
+            overflow-x: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            line-height: 1.65;
+            margin: 1.5rem 0;
+        }
+        article pre code {
+            background: transparent;
+            padding: 0;
+            border: none;
+            color: var(--text-pure);
+            font-size: inherit;
+        }
+        article code {
+            background: rgba(255,255,255,0.05);
+            padding: 0.2em 0.4em;
+            border-radius: 4px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9em;
+            color: var(--accent-yellow);
+        }
+
+        /* ─── TABLES ──────────────────────────────────────────────── */
+        article table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            font-size: 0.9rem;
+            border: 1px solid var(--border-glow);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        article th, article td {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-glow);
+        }
+        article th {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--accent-yellow);
+            background: var(--panel-solid);
+            font-weight: 600;
+        }
+        article tr:last-child td { border-bottom: none; }
+        article tr:hover td { background: rgba(255,255,255,0.015); }
+
+        /* ─── TAGS ────────────────────────────────────────────────── */
+        .post-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 2.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border-glow);
+        }
+        .post-tag {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            padding: 0.4rem 0.85rem;
+            border: 1px solid var(--border-glow);
+            border-radius: 20px;
+            color: var(--text-dim);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            background: transparent;
+        }
+        .post-tag:hover {
+            border-color: var(--accent-yellow);
+            color: var(--accent-yellow);
+            background: rgba(255, 215, 0, 0.05);
+            text-decoration: none;
+            opacity: 1;
+        }
+
+        /* ─── TAG CLOUD (Tags Page) ───────────────────────────────── */
+        .tag-cloud {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-bottom: 3rem;
+        }
+        .tag-pill {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.82rem;
+            padding: 0.55rem 1.1rem;
+            border: 1px solid var(--border-glow);
+            border-radius: 24px;
+            color: var(--text-dim);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            background: transparent;
+        }
+        .tag-pill:hover {
+            border-color: var(--accent-yellow);
+            color: var(--accent-yellow);
+            background: rgba(255, 215, 0, 0.05);
+            text-decoration: none;
+            opacity: 1;
+        }
+        .tag-group h3 {
+            font-family: 'Cinzel', serif;
+            font-size: 1.2rem;
+            color: var(--accent-yellow);
+            margin-bottom: 1rem;
+            text-transform: capitalize;
+        }
+        .tag-group-list {
+            display: grid;
+            gap: 0.75rem;
+            margin-bottom: 2.5rem;
+        }
+        .tag-group-item {
+            display: block;
+            padding: 1rem 1.25rem;
+            background: var(--panel-solid);
+            border: 1px solid var(--border-glow);
+            border-radius: 10px;
+            text-decoration: none;
+            color: var(--text-pure);
+            transition: all 0.2s ease;
+        }
+        .tag-group-item:hover {
+            border-color: rgba(255, 215, 0, 0.2);
+            text-decoration: none;
+            opacity: 1;
+        }
+        .tag-group-item-title {
+            font-family: 'Cinzel', serif;
+            font-size: 1rem;
+            margin-bottom: 0.25rem;
+        }
+        .tag-group-item-date {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--text-dim);
+        }
+
+        /* ─── ADS ─────────────────────────────────────────────────── */
+        .ad-container {
+            margin: 2rem 0;
+            text-align: center;
+            min-height: 90px;
+        }
+
+        /* ─── BACK TO TOP ──────────────────────────────────────────── */
+        .back-to-top {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 44px;
+            height: 44px;
+            background: var(--panel-solid);
+            border: 1px solid var(--border-glow);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            color: var(--text-dim);
+            padding: 0;
+        }
+        .back-to-top.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+        .back-to-top:hover {
+            border-color: var(--accent-yellow);
+            color: var(--accent-yellow);
+            background: rgba(255, 215, 0, 0.05);
+            transform: translateY(-2px);
+        }
+        .back-to-top:focus-visible {
+            outline: 2px solid var(--accent-yellow);
+            outline-offset: 2px;
+        }
+
+        /* ─── FOOTER ──────────────────────────────────────────────── */
+        .site-footer {
+            border-top: 1px solid var(--border-glow);
+            padding: 2.5rem 2rem;
+            text-align: center;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+        .site-footer a { color: var(--text-dim); margin: 0 1rem; text-decoration: none; }
+        .site-footer a:hover { color: var(--accent-yellow); opacity: 1; }
+        .site-footer p { margin: 1rem 0 0 0; opacity: 0.5; }
+
+        /* ─── RESPONSIVE ──────────────────────────────────────────── */
+        @media (max-width: 768px) {
+            .site-header {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1rem;
+                position: relative;
+            }
+            .site-nav { gap: 1.2rem; font-size: 0.72rem; }
+            main { padding: 1.5rem 1rem; }
+            .post-card { padding: 1.5rem; }
+            .post-card h3 { font-size: 1.15rem; }
+            article .post-header h1 { font-size: 1.7rem; }
+            article h2 { font-size: 1.35rem; }
+            .back-to-top { bottom: 1.5rem; right: 1.5rem; width: 40px; height: 40px; }
+        }
+
+        /* ─── FOCUS VISIBLE ───────────────────────────────────────── */
+        :focus-visible {
+            outline: 2px solid var(--accent-yellow);
+            outline-offset: 2px;
+            border-radius: 4px;
+        }
+        a:focus-visible { border-radius: 4px; }
+
+        /* ─── MATH / KATEX ─────────────────────────────────────────── */
+        .katex { font-size: 1.1em; }
+        .katex-display { margin: 1.5rem 0; overflow-x: auto; }
+
+        /* ─── MERMAID ────────────────────────────────────────────── */
+        .mermaid {
+            background: var(--panel-solid);
+            border: 1px solid var(--border-glow);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            text-align: center;
+        }
+
+        /* ─── EDITORIAL CARD (Homepage) ─────────────────────────── */
+        .editorial-card {
+            background: var(--panel-solid);
+            padding: 3rem 3.5rem;
+            margin-bottom: 2.5rem;
+            border-radius: 16px;
+            border: 1px solid var(--border-glow);
+            position: relative;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.65);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .editorial-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent-yellow);
+            box-shadow: 0 20px 50px rgba(255, 215, 0, 0.04);
+        }
+        .editorial-card h3 {
+            margin-top: 0;
+            margin-bottom: 0.5rem;
+        }
+        .editorial-card h3 a {
+            color: #fff;
+            font-family: 'Cinzel', serif;
+            text-decoration: none;
+            font-size: 1.85rem;
+            font-weight: 500;
+            letter-spacing: 0.01em;
+            line-height: 1.3;
+            border-bottom: none !important;
+            display: inline-block;
+        }
+        .editorial-card h3 a:hover {
+            color: var(--accent-yellow);
+            opacity: 1;
+        }
+        .feed-telemetry-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.72rem;
+            color: var(--accent-yellow);
+            margin-bottom: 1.25rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            font-weight: 700;
+        }
+        .editorial-link-btn {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--text-pure);
+            font-weight: 700;
+            text-decoration: none;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            border: 1px solid var(--border-glow);
+            padding: 0.55rem 1.3rem;
+            border-radius: 30px;
+            background: rgba(255, 255, 255, 0.01);
+            transition: all 0.2s ease;
+        }
+        .editorial-link-btn:hover {
+            background: rgba(255, 215, 0, 0.05);
+            border-color: var(--accent-yellow);
+            color: var(--accent-yellow);
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.08);
+            text-decoration: none;
+            opacity: 1;
+        }
+        .pagination-nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 4rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border-glow);
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .pagination-nav-link {
+            font-size: 0.75rem;
+            color: var(--accent-yellow);
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            padding: 0.6rem 1.4rem;
+            border: 1px solid var(--border-glow);
+            border-radius: 30px;
+            background: rgba(255, 255, 255, 0.01);
+            font-weight: 700;
+            transition: all 0.2s ease;
+        }
+        .pagination-nav-link:hover {
+            background: rgba(255, 215, 0, 0.05);
+            border-color: var(--accent-yellow);
+            box-shadow: 0 0 12px rgba(255, 215, 0, 0.05);
+            text-decoration: none;
+            opacity: 1;
+        }
+        .pagination-nav-placeholder {
+            visibility: hidden;
+            padding: 0.6rem 1.4rem;
+            font-size: 0.75rem;
+        }
+
+        @media (max-width: 768px) {
+            .editorial-card {
+                padding: 2rem 1.75rem;
+            }
+            .editorial-card h3 a {
+                font-size: 1.35rem;
+            }
+            .pagination-nav-container {
+                flex-direction: column;
+                gap: 1.5rem;
+                text-align: center;
+            }
+            .pagination-nav-placeholder {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    <div id="reading-progress"></div>
+
+    <!-- ─── HEADER ─────────────────────────────────────────────── -->
+    <header class="site-header" role="banner">
+        <div class="site-brand">
+            <a href="/TechHub/">TechHub</a>
+        </div>
+        <nav class="site-nav" role="navigation" aria-label="Main navigation">
+            <a href="/TechHub/">Journal</a>
+            <a href="/TechHub/tags">Tags</a>
+            <a href="/TechHub/about">About</a>
+        </nav>
+    </header>
+
+    <!-- ─── MAIN ─────────────────────────────────────────────────── -->
+    <main id="main-content" role="main">
+        <h1 id="asynchronous-sequence-batching-a-practical-pattern-for-distributed-llm-inference">Asynchronous Sequence Batching: A Practical Pattern for Distributed LLM Inference</h1>
+
+<p><img src="/assets/images/covers/asynchronous-sequence-batching-a-practical-pattern-for-distributed-llm-inference-cover.png" alt="Cover image: asynchronous sequence batching a practical pattern for distributed llm inference" /></p>
+
+<p><strong>Group variable-length sequences dynamically, dispatch them asynchronously, and keep GPU clusters fed without hard synchronous barriers.</strong></p>
+
+<p><strong>TL;DR</strong></p>
+<ul>
+  <li>LLM serving workloads have bursty arrivals, variable sequence lengths, and autoregressive token generation; a fixed synchronous batch dump leaves GPUs idle when requests wait for a full batch and wastes cycles when one long sequence dominates.</li>
+  <li>Asynchronous sequence batching decouples request arrival from execution: a scheduler accumulates compatible sequences, forms a padded batch up to a capacity limit or timeout, and returns results back to each caller as soon as its slice finishes.</li>
+  <li>The pattern trades slight dispatch latency for higher throughput and steadier GPU utilization, especially when paired with length bucketing, per-sequence attention masking, and backpressure.</li>
+</ul>
+
+<h2 id="why-does-naive-batching-waste-gpu-cycles">Why Does Naive Batching Waste GPU Cycles?</h2>
+
+<p>LLMs are batch-friendly in theory. Matrix multiplications grow more efficient with larger tensors, and a single forward pass for 16 or 32 sequences amortizes Python overhead, CUDA kernel launch latency, and weight-loading bandwidth across the whole group. In practice, however, serving traffic rarely lines up with a clean batching model.</p>
+
+<p>Requests arrive at irregular intervals. Prompt lengths vary from a few dozen tokens to several thousand. Autoregressive generation means each request also emits a variable number of output tokens. If a service waits for a fixed batch size before launching any work, short or bursty traffic stalls behind the last straggler. If it launches every request as it arrives, the GPU processes many small matrix operations and spends more time in dispatch overhead than in useful computation.</p>
+
+<p>The classic fixed-size synchronous batcher solves the throughput side at the cost of tail latency. A sequence that happens to be shorter than the maximum still sits until the batch fills. A sequence that happens to be longer than the bucket gets truncated or routed elsewhere. Meanwhile, the GPU is busy, but a meaningful fraction of its work is padding, bookkeeping, and barrier synchronization.</p>
+
+<p>Teams running distributed inference often see this tension show up as an oscillation: p99 latency spikes when the batcher holds requests too long, and throughput drops when it releases half-empty batches too early.</p>
+
+<h2 id="the-core-idea-separate-request-arrival-from-execution">The Core Idea: Separate Request Arrival from Execution</h2>
+
+<p>Asynchronous sequence batching treats request arrival and GPU execution as two independent loops connected by a queue.</p>
+
+<p>Requests arrive over the network and are placed in a queue. A scheduler watches that queue and forms a batch under two conditions: either enough compatible sequences have accumulated, or a short timeout has expired. The batch is padded and masked so the model can process all sequences in one forward pass, even though they have different lengths. The forward pass runs on the GPU. As each sequence completes its own number of generation steps, its results are returned to the original caller without waiting for the entire batch to finish.</p>
+
+<p>This requires three mechanisms that synchronous batching can ignore:</p>
+
+<ol>
+  <li><strong>Length bucketing.</strong> Sequences are grouped by length range so padding does not dominate the tensor. A request of 60 tokens and a request of 2,000 tokens should not share the same batch slot.</li>
+  <li><strong>Per-sequence attention masking.</strong> The model must compute attention only over real tokens for each sequence, ignoring the padded positions.</li>
+  <li><strong>Dynamic, per-sequence completion.</strong> In generation workloads, each sequence stops when its own end-of-sequence token appears. The scheduler must return results individually rather than at the batch boundary.</li>
+</ol>
+
+<p>Below is a high-level view of the data flow. Requests enter from many clients; the batcher groups compatible sequences; the engine executes one masked forward pass; and results stream back as each sequence completes.</p>
+
+<pre><code class="language-mermaid">flowchart LR
+    A[Client requests] --&gt;|variable length| B[Async batcher]
+    B --&gt;|pad &amp; mask| C{Length buckets}
+    C --&gt; D[GPU engine]
+    D --&gt;|per-sequence outputs| E[Stream results]
+    E --&gt; F[Caller 1]
+    E --&gt; G[Caller N]
+</code></pre>
+
+<h2 id="how-do-request-latencies-stay-predictable-without-synchronous-barriers">How Do Request Latencies Stay Predictable Without Synchronous Barriers?</h2>
+
+<p>The key is that the service exposes asynchronous, caller-bound futures rather than blocking until a global batch releases.</p>
+
+<p>Consider a simplified Python batcher. It owns an <code class="language-plaintext highlighter-rouge">asyncio</code> queue and runs a background loop that drains the queue whenever a batch is full or a small timeout fires. Callers submit requests and receive coroutine futures. The GPU worker consumes shaped batches and resolves one future per sequence.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+</pre></td><td class="rouge-code"><pre><span class="kn">import</span> <span class="nn">asyncio</span>
+<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="n">np</span>
+
+<span class="o">@</span><span class="n">dataclass</span>
+<span class="k">class</span> <span class="nc">Request</span><span class="p">:</span>
+    <span class="n">sequence</span><span class="p">:</span> <span class="n">np</span><span class="p">.</span><span class="n">ndarray</span>          <span class="c1"># 1-D int array of token ids
+</span>    <span class="n">max_new_tokens</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">future</span><span class="p">:</span> <span class="n">asyncio</span><span class="p">.</span><span class="n">Future</span>        <span class="c1"># result delivered here
+</span>    <span class="n">request_id</span><span class="p">:</span> <span class="nb">int</span>
+
+
+<span class="k">class</span> <span class="nc">AsyncSequenceBatcher</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">engine</span><span class="p">,</span>                    <span class="c1"># callable: padded batch -&gt; list of outputs
+</span>        <span class="n">max_batch_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">8</span><span class="p">,</span>
+        <span class="n">max_wait_ms</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">5.0</span><span class="p">,</span>
+        <span class="n">max_sequence_length</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2048</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">engine</span> <span class="o">=</span> <span class="n">engine</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">max_batch_size</span> <span class="o">=</span> <span class="n">max_batch_size</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">max_wait_s</span> <span class="o">=</span> <span class="n">max_wait_ms</span> <span class="o">/</span> <span class="mf">1000.0</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">max_sequence_length</span> <span class="o">=</span> <span class="n">max_sequence_length</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">queue</span><span class="p">:</span> <span class="n">asyncio</span><span class="p">.</span><span class="n">Queue</span><span class="p">[</span><span class="n">Request</span><span class="p">]</span> <span class="o">=</span> <span class="n">asyncio</span><span class="p">.</span><span class="n">Queue</span><span class="p">()</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">_task</span> <span class="o">=</span> <span class="n">asyncio</span><span class="p">.</span><span class="n">create_task</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">_scheduler_loop</span><span class="p">())</span>
+
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">submit</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">sequence</span><span class="p">:</span> <span class="n">np</span><span class="p">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">max_new_tokens</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="p">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="n">future</span> <span class="o">=</span> <span class="n">asyncio</span><span class="p">.</span><span class="n">get_event_loop</span><span class="p">().</span><span class="n">create_future</span><span class="p">()</span>
+        <span class="n">req</span> <span class="o">=</span> <span class="n">Request</span><span class="p">(</span><span class="n">sequence</span><span class="p">,</span> <span class="n">max_new_tokens</span><span class="p">,</span> <span class="n">future</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="nb">hash</span><span class="p">(</span><span class="n">sequence</span><span class="p">.</span><span class="n">tobytes</span><span class="p">()))</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="p">.</span><span class="n">queue</span><span class="p">.</span><span class="n">put</span><span class="p">(</span><span class="n">req</span><span class="p">)</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="n">future</span>
+
+    <span class="k">def</span> <span class="nf">_bucket_length</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">length</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="c1"># Buckets of 256-token buckets keep padding bounded.
+</span>        <span class="n">bucket</span> <span class="o">=</span> <span class="p">((</span><span class="n">length</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">//</span> <span class="mi">256</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="mi">256</span>
+        <span class="k">return</span> <span class="nb">min</span><span class="p">(</span><span class="n">bucket</span><span class="p">,</span> <span class="bp">self</span><span class="p">.</span><span class="n">max_sequence_length</span><span class="p">)</span>
+
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">_scheduler_loop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+            <span class="n">batch</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Request</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">first_arrival</span> <span class="o">=</span> <span class="n">asyncio</span><span class="p">.</span><span class="n">get_event_loop</span><span class="p">().</span><span class="n">time</span><span class="p">()</span>
+
+            <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">batch</span><span class="p">)</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="p">.</span><span class="n">max_batch_size</span><span class="p">:</span>
+                <span class="n">elapsed</span> <span class="o">=</span> <span class="n">asyncio</span><span class="p">.</span><span class="n">get_event_loop</span><span class="p">().</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">first_arrival</span>
+                <span class="n">timeout</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="bp">self</span><span class="p">.</span><span class="n">max_wait_s</span> <span class="o">-</span> <span class="n">elapsed</span><span class="p">)</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">req</span> <span class="o">=</span> <span class="k">await</span> <span class="n">asyncio</span><span class="p">.</span><span class="n">wait_for</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">queue</span><span class="p">.</span><span class="n">get</span><span class="p">(),</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span>
+                <span class="k">except</span> <span class="n">asyncio</span><span class="p">.</span><span class="nb">TimeoutError</span><span class="p">:</span>
+                    <span class="k">break</span>
+                <span class="k">if</span> <span class="n">req</span><span class="p">.</span><span class="n">sequence</span><span class="p">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="p">.</span><span class="n">max_sequence_length</span><span class="p">:</span>
+                    <span class="n">req</span><span class="p">.</span><span class="n">future</span><span class="p">.</span><span class="n">set_exception</span><span class="p">(</span><span class="nb">ValueError</span><span class="p">(</span><span class="s">"sequence too long"</span><span class="p">))</span>
+                    <span class="k">continue</span>
+                <span class="n">batch</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">req</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">batch</span><span class="p">:</span>
+                <span class="k">await</span> <span class="bp">self</span><span class="p">.</span><span class="n">_execute_batch</span><span class="p">(</span><span class="n">batch</span><span class="p">)</span>
+
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">_execute_batch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Request</span><span class="p">]):</span>
+        <span class="c1"># Pad to the longest sequence in the bucket.
+</span>        <span class="n">lengths</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span><span class="p">.</span><span class="n">sequence</span><span class="p">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">batch</span><span class="p">]</span>
+        <span class="n">padded_length</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">_bucket_length</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">lengths</span><span class="p">))</span>
+        <span class="n">padded</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">batch</span><span class="p">),</span> <span class="n">padded_length</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="p">.</span><span class="n">int64</span><span class="p">)</span>
+        <span class="n">attention_mask</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">batch</span><span class="p">),</span> <span class="n">padded_length</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="p">.</span><span class="n">float32</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">req</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">batch</span><span class="p">):</span>
+            <span class="n">seq_len</span> <span class="o">=</span> <span class="n">req</span><span class="p">.</span><span class="n">sequence</span><span class="p">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">padded</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:</span><span class="n">seq_len</span><span class="p">]</span> <span class="o">=</span> <span class="n">req</span><span class="p">.</span><span class="n">sequence</span>
+            <span class="n">attention_mask</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:</span><span class="n">seq_len</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
+
+        <span class="c1"># Engine returns one result per request, even if generation lengths differ.
+</span>        <span class="n">outputs</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">engine</span><span class="p">(</span><span class="n">padded</span><span class="p">,</span> <span class="n">attention_mask</span><span class="o">=</span><span class="n">attention_mask</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">req</span><span class="p">,</span> <span class="n">result</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="n">outputs</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">req</span><span class="p">.</span><span class="n">future</span><span class="p">.</span><span class="n">done</span><span class="p">():</span>
+                <span class="n">req</span><span class="p">.</span><span class="n">future</span><span class="p">.</span><span class="n">set_result</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Several details keep the design honest. The <code class="language-plaintext highlighter-rouge">max_wait_ms</code> parameter bounds how long a single request waits for stragglers; it should be set near the network round-trip noise floor, not at the full p99 generation time. The bucket size determines padding waste—256-token buckets are a reasonable starting point, but the right number depends on the observed length distribution. The engine contract is important: it must return one output per input and must not fail the whole batch because one sequence triggered an edge case.</p>
+
+<h2 id="engineering-trade-offs-and-gotchas">Engineering Trade-Offs and Gotchas</h2>
+
+<p>Like any throughput-versus-latency knob, asynchronous sequence batching has sharp edges.</p>
+
+<p><strong>Padding overhead.</strong> Bucketing reduces but does not eliminate padding. If a batch contains one 1,900-token sequence and seven 200-token sequences, every position beyond 200 tokens is wasted compute and memory. Tight bucketing and, where the model supports it, attention masking keep the damage bounded.</p>
+
+<p><strong>Memory pressure.</strong> Dynamic batching means batch size is not fixed. A burst of long sequences can push GPU memory past its limit unless the scheduler also enforces a token budget rather than just a sequence count. A safe implementation counts total tokens in the candidate batch and caps it before padding.</p>
+
+<p><strong>Backpressure.</strong> An unbounded <code class="language-plaintext highlighter-rouge">asyncio.Queue</code> can absorb memory on the host during traffic spikes. In production, teams expose queue depth, shed or defer requests beyond it, and propagate pressure upstream so that callers retry instead of timing out.</p>
+
+<p><strong>Result ordering.</strong> Because sequences complete independently, the order of returned futures is decoupled from the order of arrival. Downstream clients—especially those that issue parallel beam searches or chunked context windows—must correlate results by <code class="language-plaintext highlighter-rouge">request_id</code>, not by position.</p>
+
+<h2 id="when-this-pattern-shines">When This Pattern Shines</h2>
+
+<p>Asynchronous sequence batching is most valuable in workloads with high variance: mixed prompt lengths, mixed generation lengths, and traffic that arrives in bursts rather than steady streams. Chat endpoints, code-completion APIs, and retrieval-augmented pipelines all fit this profile. In contrast, static-shape inference—audio spectrograms or fixed-resolution embeddings—usually benefits more from a static batch size.</p>
+
+<p>The pattern also pairs naturally with distributed deployments. Multiple GPU workers can each run their own async batcher, and a lightweight router can direct new requests to the worker with the shortest projected queue. No global synchronization is required; each worker schedules its own tensor cores.</p>
+
+<h2 id="topics">Topics</h2>
+
+<p>Distributed Systems, LLM Inference, MLOps, GPU Optimization, Python Asyncio, High-Throughput Serving, Machine Learning Infrastructure, Sequence Modeling</p>
+
+    </main>
+
+    <!-- ─── FOOTER ──────────────────────────────────────────────── -->
+    <footer class="site-footer" role="contentinfo">
+        <div>
+            <a href="/TechHub/">Home</a>
+            <a href="/TechHub/feed.xml">RSS</a>
+            <a href="/TechHub/sitemap.xml">Sitemap</a>
+        </div>
+        <p>
+            &copy; 2026 Saranga Thenuwara — TechHub
+        </p>
+    </footer>
+
+    <!-- ─── BACK TO TOP ──────────────────────────────────────────── -->
+    <button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Back to top">
+        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg>
+    </button>
+
+    <!-- ─── SCRIPTS ─────────────────────────────────────────────── -->
+    <script>
+        // Reading progress bar
+        (function() {
+            const progressBar = document.getElementById('reading-progress');
+            if (!progressBar) return;
+            window.addEventListener('scroll', function() {
+                const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+                const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+                const progress = scrollHeight > 0 ? (scrollTop / scrollHeight) * 100 : 0;
+                progressBar.style.width = progress + '%';
+            });
+        })();
+
+        // Back to top button
+        (function() {
+            const btn = document.getElementById('backToTop');
+            if (!btn) return;
+            window.addEventListener('scroll', function() {
+                btn.classList.toggle('visible', window.scrollY > 500);
+            });
+        })();
+    </script>
+</body>
+</html>

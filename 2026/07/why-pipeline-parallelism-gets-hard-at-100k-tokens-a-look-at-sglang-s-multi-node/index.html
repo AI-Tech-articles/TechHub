@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <!-- ─── CRITICAL SEO ─────────────────────────────────────────── -->
+    <title>Why Pipeline Parallelism Gets Hard At 100K Tokens A Look At Sglang S Multi Node  | TechHub</title>
+    <meta name="description" content="Why Pipeline Parallelism Gets Hard at 100k Tokens: A Look at SGLang’s Multi-Node Scheduling">
+    <meta name="author" content="Saranga Thenuwara">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://ai-tech-articles.github.io/TechHub/2026/07/why-pipeline-parallelism-gets-hard-at-100k-tokens-a-look-at-sglang-s-multi-node/">
+
+    <!-- ─── OPEN GRAPH (Facebook/LinkedIn) ─────────────────────────── -->
+    <meta property="og:site_name" content="TechHub">
+    <meta property="og:title" content="Why Pipeline Parallelism Gets Hard At 100K Tokens A Look At Sglang S Multi Node ">
+    <meta property="og:description" content="Why Pipeline Parallelism Gets Hard at 100k Tokens: A Look at SGLang’s Multi-Node Scheduling">
+    <meta property="og:url" content="https://ai-tech-articles.github.io/TechHub/2026/07/why-pipeline-parallelism-gets-hard-at-100k-tokens-a-look-at-sglang-s-multi-node/">
+    <meta property="og:type" content="article">
+    <meta property="og:locale" content="en_US">
+    
+    <meta property="og:image" content="https://ai-tech-articles.github.io/TechHub/assets/images/default-og.png">
+    
+
+    <!-- ─── TWITTER CARD ─────────────────────────────────────────── -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@">
+    <meta name="twitter:creator" content="@">
+    <meta name="twitter:title" content="Why Pipeline Parallelism Gets Hard At 100K Tokens A Look At Sglang S Multi Node ">
+    <meta name="twitter:description" content="Why Pipeline Parallelism Gets Hard at 100k Tokens: A Look at SGLang’s Multi-Node Scheduling">
+    
+    <meta name="twitter:image" content="https://ai-tech-articles.github.io/TechHub/assets/images/default-og.png">
+    
+
+    <!-- ─── JSON-LD STRUCTURED DATA (Article) ────────────────────── -->
+    
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": "Why Pipeline Parallelism Gets Hard At 100K Tokens A Look At Sglang S Multi Node ",
+      "description": "Why Pipeline Parallelism Gets Hard at 100k Tokens: A Look at SGLang’s Multi-Node Scheduling\n\n",
+      "author": {
+        "@type": "Person",
+        "name": "Saranga Thenuwara"
+      },
+      "datePublished": "2026-07-15",
+      "dateModified": "2026-07-15",
+      "url": "https://ai-tech-articles.github.io/TechHub/2026/07/why-pipeline-parallelism-gets-hard-at-100k-tokens-a-look-at-sglang-s-multi-node/",
+      "publisher": {
+        "@type": "Organization",
+        "name": "TechHub",
+        "url": "https://ai-tech-articles.github.io/TechHub/"
+      },
+      "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "https://ai-tech-articles.github.io/TechHub/2026/07/why-pipeline-parallelism-gets-hard-at-100k-tokens-a-look-at-sglang-s-multi-node/"
+      }
+      ,
+      "keywords": ""
+      
+    }
+    </script>
+    
+
+    <!-- ─── RSS / FEED ───────────────────────────────────────────── -->
+    <link type="application/atom+xml" rel="alternate" href="https://ai-tech-articles.github.io/TechHub/feed.xml" title="TechHub | AI Technology Publications" />
+
+    <!-- ─── FAVICON ──────────────────────────────────────────────── -->
+    <link rel="icon" type="image/svg+xml" href="/TechHub/assets/images/favicon.svg">
+    <link rel="alternate icon" href="/TechHub/assets/images/favicon.ico">
+    <link rel="apple-touch-icon" href="/TechHub/assets/images/apple-touch-icon.png">
+
+    <!-- ─── PRECONNECT (Performance) ─────────────────────────────── -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <link rel="preconnect" href="https://pagead2.googlesyndication.com">
+    
+
+    <!-- ─── GOOGLE ADSENSE ─────────────────────────────────────────── -->
+    
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6375003818418942" crossorigin="anonymous"></script>
+    <meta name="google-adsense-account" content="ca-pub-6375003818418942">
+    
+
+    <!-- ─── STYLES ─────────────────────────────────────────────────── -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --bg-deep: #0a0b10;
+            --panel-solid: #11131c;
+            --border-glow: #1f2330;
+            --text-pure: #f8fafc;
+            --text-dim: #94a3b8;
+            --accent-silver: #cbd5e1;
+            --accent-yellow: #ffd700;
+            --accent-glow: rgba(255, 255, 255, 0.03);
+            --code-bg: #030408;
+            --read-width: 72ch;
+        }
+
+        * { box-sizing: border-box; }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-deep);
+            color: var(--text-pure);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            letter-spacing: 0.01em;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* ─── SCROLLBAR ────────────────────────────────────────────── */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-deep); }
+        ::-webkit-scrollbar-thumb { background: var(--border-glow); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #2a2f3f; }
+
+        a {
+            color: var(--accent-yellow);
+            text-decoration: none;
+            transition: opacity 0.2s ease;
+        }
+        a:hover { opacity: 0.8; text-decoration: underline; }
+
+        /* ─── SKIP LINK ────────────────────────────────────────────── */
+        .skip-link {
+            position: absolute;
+            top: -40px;
+            left: 0;
+            background: var(--accent-yellow);
+            color: var(--bg-deep);
+            padding: 8px 16px;
+            z-index: 10000;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-decoration: none;
+            border-radius: 0 0 4px 0;
+            transition: top 0.25s ease;
+        }
+        .skip-link:focus { top: 0; outline: none; }
+
+        /* ─── READING PROGRESS BAR ─────────────────────────────────── */
+        #reading-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 0%;
+            height: 3px;
+            background: var(--accent-yellow);
+            z-index: 9999;
+            transition: width 0.1s linear;
+            box-shadow: 0 0 8px rgba(255, 215, 0, 0.3);
+        }
+
+        /* ─── HEADER ─────────────────────────────────────────────── */
+        .site-header {
+            border-bottom: 1px solid var(--border-glow);
+            padding: 1.25rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            position: sticky;
+            top: 0;
+            background: rgba(10, 11, 16, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            z-index: 1000;
+        }
+        .site-brand {
+            font-family: 'Cinzel', serif;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text-pure);
+            letter-spacing: 0.05em;
+        }
+        .site-brand a { color: inherit; text-decoration: none; }
+        .site-brand a:hover { opacity: 1; color: var(--accent-yellow); }
+        .site-nav {
+            display: flex;
+            gap: 2rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+        .site-nav a { color: var(--text-dim); text-decoration: none; }
+        .site-nav a:hover { color: var(--accent-yellow); opacity: 1; }
+
+        /* ─── MAIN CONTENT ───────────────────────────────────────── */
+        main {
+            flex: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            padding: 2.5rem 2rem;
+        }
+
+        /* ─── POST CARD (Homepage) ───────────────────────────────── */
+        .post-card {
+            background: var(--panel-solid);
+            padding: 2rem 2.5rem;
+            margin-bottom: 1.5rem;
+            border-radius: 14px;
+            border: 1px solid var(--border-glow);
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+        }
+        .post-card:hover {
+            border-color: rgba(255, 215, 0, 0.12);
+            transform: translateY(-3px);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.55);
+        }
+        .post-card a { text-decoration: none; color: inherit; display: block; }
+        .post-card a:hover { opacity: 1; }
+        .post-card h3 {
+            font-family: 'Cinzel', serif;
+            font-size: 1.35rem;
+            font-weight: 500;
+            margin: 0 0 0.6rem 0;
+            color: var(--text-pure);
+            line-height: 1.35;
+            letter-spacing: 0.01em;
+        }
+        .post-card h3:hover { color: var(--accent-yellow); }
+        .post-meta-bar {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.72rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 0.75rem;
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .post-meta-bar .meta-sep { opacity: 0.25; }
+        .post-tag-mini {
+            background: rgba(255, 215, 0, 0.06);
+            color: var(--accent-yellow);
+            padding: 0.15rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.65rem;
+            text-transform: none;
+            letter-spacing: 0.02em;
+        }
+        .post-excerpt {
+            color: var(--text-dim);
+            font-size: 0.95rem;
+            line-height: 1.65;
+            margin: 0;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .read-more {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--accent-yellow);
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            margin-top: 1.25rem;
+        }
+        .read-more:hover { opacity: 0.8; }
+        .read-more svg { transition: transform 0.2s ease; }
+        .read-more:hover svg { transform: translateX(3px); }
+
+        /* ─── PAGINATION ─────────────────────────────────────────── */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.4rem;
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border-glow);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+        }
+        .page-btn {
+            padding: 0.5rem 0.9rem;
+            border: 1px solid var(--border-glow);
+            border-radius: 8px;
+            color: var(--text-dim);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            min-width: 36px;
+            text-align: center;
+        }
+        .page-btn:hover:not(.disabled):not(.active) {
+            border-color: var(--accent-yellow);
+            color: var(--accent-yellow);
+            background: rgba(255, 215, 0, 0.04);
+        }
+        .page-btn.active {
+            border-color: var(--accent-yellow);
+            color: var(--accent-yellow);
+            background: rgba(255, 215, 0, 0.08);
+            font-weight: 700;
+        }
+        .page-btn.disabled {
+            color: var(--border-glow);
+            opacity: 0.4;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        /* ─── SEARCH ───────────────────────────────────────────────── */
+        .search-section { margin-bottom: 2.5rem; }
+        .search-box { position: relative; max-width: 600px; }
+        .search-box input {
+            width: 100%;
+            padding: 0.85rem 1.25rem 0.85rem 2.8rem;
+            background: var(--panel-solid);
+            border: 1px solid var(--border-glow);
+            border-radius: 12px;
+            color: var(--text-pure);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .search-box input:focus {
+            border-color: var(--accent-yellow);
+            box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.08);
+        }
+        .search-box input::placeholder { color: #4a5068; }
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 18px;
+            height: 18px;
+            color: var(--text-dim);
+            pointer-events: none;
+        }
+        #search-results {
+            display: none;
+            margin-top: 0.75rem;
+            background: var(--panel-solid);
+            border: 1px solid var(--border-glow);
+            border-radius: 12px;
+            padding: 0.5rem;
+            max-height: 420px;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+        .search-result-item {
+            display: block;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            text-decoration: none;
+            color: inherit;
+            transition: background 0.15s ease;
+        }
+        .search-result-item:hover { background: rgba(255, 215, 0, 0.04); }
+        .search-result-title {
+            font-family: 'Cinzel', serif;
+            font-size: 1rem;
+            color: var(--text-pure);
+            margin-bottom: 0.2rem;
+        }
+        .search-result-meta {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--text-dim);
+        }
+        #search-results::-webkit-scrollbar { width: 6px; }
+        #search-results::-webkit-scrollbar-thumb { background: var(--border-glow); border-radius: 3px; }
+
+        /* ─── ARTICLE (Post Page) ──────────────────────────────────── */
+        article {
+            max-width: var(--read-width);
+            margin: 0 auto;
+        }
+        article .post-header {
+            margin-bottom: 2.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-glow);
+        }
+        article .post-header h1 {
+            font-family: 'Cinzel', serif;
+            font-size: 2.4rem;
+            font-weight: 500;
+            line-height: 1.2;
+            margin: 0 0 1rem 0;
+            letter-spacing: 0.02em;
+        }
+        article .post-meta {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        article .post-meta .author { color: var(--accent-yellow); }
+        article .post-meta .separator { margin: 0 0.25rem; opacity: 0.3; }
+
+        article h2 {
+            font-family: 'Cinzel', serif;
+            font-size: 1.7rem;
+            font-weight: 500;
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border-glow);
+            letter-spacing: 0.01em;
+        }
+        article h3 {
+            font-family: 'Cinzel', serif;
+            font-size: 1.25rem;
+            font-weight: 500;
+            margin-top: 2rem;
+            margin-bottom: 0.75rem;
+            color: var(--accent-silver);
+        }
+        article h4 {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.6rem;
+            color: var(--accent-silver);
+        }
+        article p {
+            margin-bottom: 1.25rem;
+            color: var(--text-dim);
+        }
+        article p strong { color: var(--text-pure); }
+        article ul, article ol {
+            margin-bottom: 1.25rem;
+            padding-left: 1.5rem;
+            color: var(--text-dim);
+        }
+        article li { margin-bottom: 0.5rem; }
+        article li::marker { color: var(--accent-yellow); }
+        article blockquote {
+            border-left: 3px solid var(--accent-yellow);
+            margin: 1.5rem 0;
+            padding: 0.5rem 0 0.5rem 1.5rem;
+            font-style: italic;
+            color: var(--accent-silver);
+        }
+        article hr {
+            border: none;
+            height: 1px;
+            background: var(--border-glow);
+            margin: 2.5rem 0;
+        }
+        article img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            border: 1px solid var(--border-glow);
+            display: block;
+            margin: 1.5rem auto;
+        }
+        article figcaption, article .image-caption {
+            display: block;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            margin-top: 0.5rem;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* ─── CODE BLOCKS ──────────────────────────────────────────── */
+        article pre {
+            background: var(--code-bg);
+            border: 1px solid var(--border-glow);
+            border-radius: 10px;
+            padding: 1.25rem;
+            overflow-x: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            line-height: 1.65;
+            margin: 1.5rem 0;
+        }
+        article pre code {
+            background: transparent;
+            padding: 0;
+            border: none;
+            color: var(--text-pure);
+            font-size: inherit;
+        }
+        article code {
+            background: rgba(255,255,255,0.05);
+            padding: 0.2em 0.4em;
+            border-radius: 4px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9em;
+            color: var(--accent-yellow);
+        }
+
+        /* ─── TABLES ──────────────────────────────────────────────── */
+        article table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            font-size: 0.9rem;
+            border: 1px solid var(--border-glow);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        article th, article td {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-glow);
+        }
+        article th {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--accent-yellow);
+            background: var(--panel-solid);
+            font-weight: 600;
+        }
+        article tr:last-child td { border-bottom: none; }
+        article tr:hover td { background: rgba(255,255,255,0.015); }
+
+        /* ─── TAGS ────────────────────────────────────────────────── */
+        .post-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 2.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border-glow);
+        }
+        .post-tag {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            padding: 0.4rem 0.85rem;
+            border: 1px solid var(--border-glow);
+            border-radius: 20px;
+            color: var(--text-dim);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            background: transparent;
+        }
+        .post-tag:hover {
+            border-color: var(--accent-yellow);
+            color: var(--accent-yellow);
+            background: rgba(255, 215, 0, 0.05);
+            text-decoration: none;
+            opacity: 1;
+        }
+
+        /* ─── TAG CLOUD (Tags Page) ───────────────────────────────── */
+        .tag-cloud {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-bottom: 3rem;
+        }
+        .tag-pill {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.82rem;
+            padding: 0.55rem 1.1rem;
+            border: 1px solid var(--border-glow);
+            border-radius: 24px;
+            color: var(--text-dim);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            background: transparent;
+        }
+        .tag-pill:hover {
+            border-color: var(--accent-yellow);
+            color: var(--accent-yellow);
+            background: rgba(255, 215, 0, 0.05);
+            text-decoration: none;
+            opacity: 1;
+        }
+        .tag-group h3 {
+            font-family: 'Cinzel', serif;
+            font-size: 1.2rem;
+            color: var(--accent-yellow);
+            margin-bottom: 1rem;
+            text-transform: capitalize;
+        }
+        .tag-group-list {
+            display: grid;
+            gap: 0.75rem;
+            margin-bottom: 2.5rem;
+        }
+        .tag-group-item {
+            display: block;
+            padding: 1rem 1.25rem;
+            background: var(--panel-solid);
+            border: 1px solid var(--border-glow);
+            border-radius: 10px;
+            text-decoration: none;
+            color: var(--text-pure);
+            transition: all 0.2s ease;
+        }
+        .tag-group-item:hover {
+            border-color: rgba(255, 215, 0, 0.2);
+            text-decoration: none;
+            opacity: 1;
+        }
+        .tag-group-item-title {
+            font-family: 'Cinzel', serif;
+            font-size: 1rem;
+            margin-bottom: 0.25rem;
+        }
+        .tag-group-item-date {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--text-dim);
+        }
+
+        /* ─── ADS ─────────────────────────────────────────────────── */
+        .ad-container {
+            margin: 2rem 0;
+            text-align: center;
+            min-height: 90px;
+        }
+
+        /* ─── BACK TO TOP ──────────────────────────────────────────── */
+        .back-to-top {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 44px;
+            height: 44px;
+            background: var(--panel-solid);
+            border: 1px solid var(--border-glow);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            color: var(--text-dim);
+            padding: 0;
+        }
+        .back-to-top.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+        .back-to-top:hover {
+            border-color: var(--accent-yellow);
+            color: var(--accent-yellow);
+            background: rgba(255, 215, 0, 0.05);
+            transform: translateY(-2px);
+        }
+        .back-to-top:focus-visible {
+            outline: 2px solid var(--accent-yellow);
+            outline-offset: 2px;
+        }
+
+        /* ─── FOOTER ──────────────────────────────────────────────── */
+        .site-footer {
+            border-top: 1px solid var(--border-glow);
+            padding: 2.5rem 2rem;
+            text-align: center;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+        .site-footer a { color: var(--text-dim); margin: 0 1rem; text-decoration: none; }
+        .site-footer a:hover { color: var(--accent-yellow); opacity: 1; }
+        .site-footer p { margin: 1rem 0 0 0; opacity: 0.5; }
+
+        /* ─── RESPONSIVE ──────────────────────────────────────────── */
+        @media (max-width: 768px) {
+            .site-header {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1rem;
+                position: relative;
+            }
+            .site-nav { gap: 1.2rem; font-size: 0.72rem; }
+            main { padding: 1.5rem 1rem; }
+            .post-card { padding: 1.5rem; }
+            .post-card h3 { font-size: 1.15rem; }
+            article .post-header h1 { font-size: 1.7rem; }
+            article h2 { font-size: 1.35rem; }
+            .back-to-top { bottom: 1.5rem; right: 1.5rem; width: 40px; height: 40px; }
+        }
+
+        /* ─── FOCUS VISIBLE ───────────────────────────────────────── */
+        :focus-visible {
+            outline: 2px solid var(--accent-yellow);
+            outline-offset: 2px;
+            border-radius: 4px;
+        }
+        a:focus-visible { border-radius: 4px; }
+
+        /* ─── MATH / KATEX ─────────────────────────────────────────── */
+        .katex { font-size: 1.1em; }
+        .katex-display { margin: 1.5rem 0; overflow-x: auto; }
+
+        /* ─── MERMAID ────────────────────────────────────────────── */
+        .mermaid {
+            background: var(--panel-solid);
+            border: 1px solid var(--border-glow);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            text-align: center;
+        }
+
+        /* ─── EDITORIAL CARD (Homepage) ─────────────────────────── */
+        .editorial-card {
+            background: var(--panel-solid);
+            padding: 3rem 3.5rem;
+            margin-bottom: 2.5rem;
+            border-radius: 16px;
+            border: 1px solid var(--border-glow);
+            position: relative;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.65);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .editorial-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent-yellow);
+            box-shadow: 0 20px 50px rgba(255, 215, 0, 0.04);
+        }
+        .editorial-card h3 {
+            margin-top: 0;
+            margin-bottom: 0.5rem;
+        }
+        .editorial-card h3 a {
+            color: #fff;
+            font-family: 'Cinzel', serif;
+            text-decoration: none;
+            font-size: 1.85rem;
+            font-weight: 500;
+            letter-spacing: 0.01em;
+            line-height: 1.3;
+            border-bottom: none !important;
+            display: inline-block;
+        }
+        .editorial-card h3 a:hover {
+            color: var(--accent-yellow);
+            opacity: 1;
+        }
+        .feed-telemetry-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.72rem;
+            color: var(--accent-yellow);
+            margin-bottom: 1.25rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            font-weight: 700;
+        }
+        .editorial-link-btn {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--text-pure);
+            font-weight: 700;
+            text-decoration: none;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            border: 1px solid var(--border-glow);
+            padding: 0.55rem 1.3rem;
+            border-radius: 30px;
+            background: rgba(255, 255, 255, 0.01);
+            transition: all 0.2s ease;
+        }
+        .editorial-link-btn:hover {
+            background: rgba(255, 215, 0, 0.05);
+            border-color: var(--accent-yellow);
+            color: var(--accent-yellow);
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.08);
+            text-decoration: none;
+            opacity: 1;
+        }
+        .pagination-nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 4rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border-glow);
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .pagination-nav-link {
+            font-size: 0.75rem;
+            color: var(--accent-yellow);
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            padding: 0.6rem 1.4rem;
+            border: 1px solid var(--border-glow);
+            border-radius: 30px;
+            background: rgba(255, 255, 255, 0.01);
+            font-weight: 700;
+            transition: all 0.2s ease;
+        }
+        .pagination-nav-link:hover {
+            background: rgba(255, 215, 0, 0.05);
+            border-color: var(--accent-yellow);
+            box-shadow: 0 0 12px rgba(255, 215, 0, 0.05);
+            text-decoration: none;
+            opacity: 1;
+        }
+        .pagination-nav-placeholder {
+            visibility: hidden;
+            padding: 0.6rem 1.4rem;
+            font-size: 0.75rem;
+        }
+
+        @media (max-width: 768px) {
+            .editorial-card {
+                padding: 2rem 1.75rem;
+            }
+            .editorial-card h3 a {
+                font-size: 1.35rem;
+            }
+            .pagination-nav-container {
+                flex-direction: column;
+                gap: 1.5rem;
+                text-align: center;
+            }
+            .pagination-nav-placeholder {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    <div id="reading-progress"></div>
+
+    <!-- ─── HEADER ─────────────────────────────────────────────── -->
+    <header class="site-header" role="banner">
+        <div class="site-brand">
+            <a href="/TechHub/">TechHub</a>
+        </div>
+        <nav class="site-nav" role="navigation" aria-label="Main navigation">
+            <a href="/TechHub/">Journal</a>
+            <a href="/TechHub/tags">Tags</a>
+            <a href="/TechHub/about">About</a>
+        </nav>
+    </header>
+
+    <!-- ─── MAIN ─────────────────────────────────────────────────── -->
+    <main id="main-content" role="main">
+        <h1 id="why-pipeline-parallelism-gets-hard-at-100k-tokens-a-look-at-sglangs-multi-node-scheduling">Why Pipeline Parallelism Gets Hard at 100k Tokens: A Look at SGLang’s Multi-Node Scheduling</h1>
+
+<p><img src="/assets/images/covers/why-pipeline-parallelism-gets-hard-at-100k-tokens-a-look-at-sglang-s-multi-node--cover.png" alt="Cover image: why pipeline parallelism gets hard at 100k tokens a look at sglang s multi node " /></p>
+
+<p><strong>A deep dive into activation transfer, pipeline bubbles, and the scheduling decisions that determine throughput for ultra-long-context inference.</strong></p>
+
+<p><strong>TL;DR</strong></p>
+<ul>
+  <li>Long-context inference changes the trade-off in pipeline parallelism (PP): most traffic becomes activation and KV-cache state movement between stages, not weight loading.</li>
+  <li>SGLang’s optimized PP keeps inter-node transfer off the critical path through decentralized request scheduling, overlapping send/recv collectives, and pre-allocated KV memory pools.</li>
+  <li>Production deployments should validate point-to-point bisection bandwidth between adjacent PP ranks and tune microbatch depth to hide latency before scaling out GPU count.</li>
+</ul>
+
+<h2 id="why-do-small-batches-expose-pipeline-bubbles">Why do small batches expose pipeline bubbles?</h2>
+
+<p>Pipeline parallelism splits a model’s layers into contiguous <em>stages</em>, each assigned to a different node or GPU. A token’s hidden state flows from stage 0 to stage 1, then stage 2, and so on until the final logits. When batch size is large, each stage stays busy, work units follow one another closely, and bubbles—the idle time between the last forward pass of one microbatch and the first pass of the next—are small.</p>
+
+<p>Ultra-long context inference usually does the opposite. Teams optimize for latency, so batch sizes shrink. One sequence can be 32k, 128k, or even 1M tokens long, which means the <em>memory footprint</em> and the <em>activation volume</em> grow while the amount of parallel work per stage shrinks. Under these conditions a four-stage PP setup can spend a disproportionate amount of time waiting; each stage finishes its narrow slice of work quickly but then stalls until the next set of activations arrives from the previous stage.</p>
+
+<p>That stall is the pipeline bubble. The issue is not lack of compute, it is scheduling: there are not enough in-flight microbatches to keep every stage occupied while the slowest link—inter-node communication—catches up.</p>
+
+<pre><code class="language-mermaid">flowchart LR
+    subgraph "Stage 0 (Node A)"
+        S0[Layers 0-N/4]
+    end
+    subgraph "Stage 1 (Node B)"
+        S1[Layers N/4-N/2]
+    end
+    subgraph "Stage 2 (Node C)"
+        S2[Layers N/2-3N/4]
+    end
+    subgraph "Stage 3 (Node D)"
+        S3[Layers 3N/4-N"]
+    end
+    S0 --&gt;|"activation tensor"| S1
+    S1 --&gt;|"activation tensor"| S2
+    S2 --&gt;|"activation tensor"| S3
+    S3 --&gt;|"logits"| OUT[Output]
+</code></pre>
+
+<h2 id="why-does-chunking-the-input-stop-being-the-right-model">Why does “chunking the input” stop being the right model?</h2>
+
+<p>A common first intuition is to split the input sequence itself across nodes: node 0 gets tokens 0 to 8k, node 1 gets tokens 8k to 16k, and so on. That pattern is closer to tensor or sequence parallelism, not pipeline parallelism. In PP the <em>same</em> tokens pass through all stages in order; each stage owns a vertical slice of the weights, not a horizontal slice of the sequence.</p>
+
+<p>Chunking the input with <code class="language-plaintext highlighter-rouge">torch.nn.DataParallel</code>, as the baseline draft suggests, is fundamentally a different strategy. It replicates the full model on every device and divides the batch. That works when the model fits on a single GPU and the goal is higher throughput. It does not help when one copy of the model is already too large for one node, and it does nothing to reduce the latency of a single long-context request. SGLang’s PP implementation is instead designed around the layer-sliced pipeline above, where the challenge is moving hidden-state tensors between stage boundaries with minimal overhead.</p>
+
+<h2 id="how-does-sglang-keep-transfer-latency-off-the-critical-path">How does SGLang keep transfer latency off the critical path?</h2>
+
+<p>SGLang attacks the problem in three places: scheduling, communication overlap, and memory allocation.</p>
+
+<p><strong>Decentralized request scheduling.</strong> Instead of a single global coordinator that issues every stage-to-stage transfer, SGLang’s runtime gives each data-parallel replica its own scheduler. The scheduler maintains the in-flight microbatches across PP stages and matches prefill and decode units to available capacity. By treating each request as a pipeline of work items rather than one synchronous block, it increases the number of independent units in the pipe, which directly shrinks bubbles.</p>
+
+<p><strong>Overlapping send/recv with compute.</strong> The key operation in PP is the point-to-point transfer of activations from stage <em>i</em> to stage <em>i+1</em>. SGLang schedules these transfers so that the next stage can begin receiving while the previous stage is still finishing its current microbatch. Done well, the network transfer overlaps with the tail of computation; the receiving stage does not observe a hard synchronization boundary at every layer boundary.</p>
+
+<p><strong>Pre-allocated KV and activation pools.</strong> Long contexts amplify the cost of dynamic GPU memory allocation. Frequent <code class="language-plaintext highlighter-rouge">cudaMalloc</code> calls during decode can introduce unpredictable latency spikes. SGLang’s allocator reserves contiguous KV-cache blocks up front and reuses activation buffers across microbatches. That predictability matters at scale: if a single long sequence triggers a memory reallocation, every stage behind it in the pipeline can stall.</p>
+
+<p>The code below is an illustrative sketch of how a stage is structured in this pattern. It is not the literal SGLang codebase, but it captures the scheduling intent.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+</pre></td><td class="rouge-code"><pre><span class="k">class</span> <span class="nc">PipelineStage</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stage_idx</span><span class="p">,</span> <span class="n">num_stages</span><span class="p">,</span> <span class="n">layers</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">stage_idx</span> <span class="o">=</span> <span class="n">stage_idx</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">layers</span> <span class="o">=</span> <span class="n">layers</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">next_rank</span> <span class="o">=</span> <span class="n">stage_idx</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">prev_rank</span> <span class="o">=</span> <span class="n">stage_idx</span> <span class="o">-</span> <span class="mi">1</span>
+
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hidden_states</span><span class="p">,</span> <span class="n">metadata</span><span class="p">):</span>
+        <span class="c1"># Compute the slice of layers owned by this stage.
+</span>        <span class="n">hidden_states</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">layers</span><span class="p">(</span><span class="n">hidden_states</span><span class="p">,</span> <span class="n">metadata</span><span class="p">)</span>
+
+        <span class="c1"># Forward the activation tensor to the next PP rank.
+</span>        <span class="c1"># The send is non-blocking so the previous stage can start
+</span>        <span class="c1"># the next microbatch without waiting for the network.
+</span>        <span class="k">if</span> <span class="bp">self</span><span class="p">.</span><span class="n">stage_idx</span> <span class="o">&lt;</span> <span class="n">num_stages</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">scheduler</span><span class="p">.</span><span class="n">isend</span><span class="p">(</span>
+                <span class="n">hidden_states</span><span class="p">,</span>
+                <span class="n">dst</span><span class="o">=</span><span class="bp">self</span><span class="p">.</span><span class="n">next_rank</span><span class="p">,</span>
+                <span class="n">tag</span><span class="o">=</span><span class="n">metadata</span><span class="p">.</span><span class="n">req_id</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">hidden_states</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>For a concrete deployment shape, a configuration might look like this:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+</pre></td><td class="rouge-code"><pre><span class="c1"># SGLang-style launch parameters (illustrative values)
+</span><span class="n">args</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">"model_path"</span><span class="p">:</span> <span class="s">"/weights/70B-model"</span><span class="p">,</span>
+    <span class="s">"tp_size"</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>               <span class="c1"># tensor parallelism inside one node
+</span>    <span class="s">"pp_size"</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>               <span class="c1"># pipeline parallelism across 4 nodes
+</span>    <span class="s">"dp_size"</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>               <span class="c1"># data-parallel replicas
+</span>    <span class="s">"max_model_len"</span><span class="p">:</span> <span class="mi">131_072</span><span class="p">,</span>   <span class="c1"># support 128k context
+</span>    <span class="s">"max_num_seqs"</span><span class="p">:</span> <span class="mi">64</span><span class="p">,</span>         <span class="c1"># keep batches small for latency
+</span>    <span class="s">"enable_overlap_schedule"</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+    <span class="s">"kv_cache_dtype"</span><span class="p">:</span> <span class="s">"fp8_e5m2"</span><span class="p">,</span>  <span class="c1"># reduce memory traffic
+</span><span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h2 id="what-should-operators-validate-before-scaling-out">What should operators validate before scaling out?</h2>
+
+<p>Adding more GPUs does not automatically solve the problem. If the first and last stages are bound by a slow InfiniBand hop, widening the pipeline only adds more idle stages. Teams running multi-node PP should establish three baselines early.</p>
+
+<p><strong>Point-to-point bisection bandwidth.</strong> Run <code class="language-plaintext highlighter-rouge">sendrecv</code> benchmarks at realistic activation sizes, not just all-reduce or broadcast tests. Pipeline transfer is dominated by adjacent-node sends and receives, so measure that exact path.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre></td><td class="rouge-code"><pre><span class="c"># NCCL point-to-point smoke test for adjacent PP ranks</span>
+./sendrecv_perf <span class="nt">-b</span> 8M <span class="nt">-e</span> 512M <span class="nt">-f</span> 2 <span class="nt">-g</span> 1
+
+<span class="c"># Check IB link state and negotiated rate</span>
+ibstat | <span class="nb">grep</span> <span class="nt">-E</span> <span class="s2">"State|Rate"</span>
+nvidia-smi nvlink <span class="nt">-e</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><strong>Microbatch depth relative to stage count.</strong> There should be enough in-flight microbatches to cover at least one full traversal of the pipeline. A rough rule of thumb: if a decode step takes ~2 ms of compute and ~3 ms of inter-stage transfer, keeping two to three microbatches in flight prevents the receiving stage from idling. Exact numbers depend on network topology; the important part is to measure rather than guess.</p>
+
+<p><strong>Memory allocator behavior.</strong> Use profiling tools to confirm that GPU memory allocation is flat after warmup. Spikes during long-sequence prefill often indicate that the allocator is requesting new KV-cache blocks mid-flight. SGLang’s memory pool is designed to avoid that, but it must be sized for the worst-case sequence length and batch combination.</p>
+
+<h2 id="closing">Closing</h2>
+
+<p>Ultra-long context inference turns pipeline parallelism from a FLOP-scaling exercise into a scheduling and communication exercise. The bottleneck is rarely the matrix multiplies inside a stage; it is the idle time between stages and the cost of moving activation tensors across the network.</p>
+
+<p>SGLang’s implementation addresses this with a decentralized scheduler, non-blocking send/recv overlap, and pre-allocated memory pools. For teams building production serving clusters, the payoff comes not from buying more nodes, but from validating the network path, tuning microbatch depth, and keeping KV allocation off the critical path.</p>
+
+<h2 id="topics">Topics</h2>
+
+<ul>
+  <li>Distributed inference</li>
+  <li>LLM serving</li>
+  <li>Pipeline parallelism</li>
+  <li>SGLang</li>
+  <li>Long-context models</li>
+  <li>GPU cluster tuning</li>
+  <li>Inter-node communication</li>
+</ul>
+
+    </main>
+
+    <!-- ─── FOOTER ──────────────────────────────────────────────── -->
+    <footer class="site-footer" role="contentinfo">
+        <div>
+            <a href="/TechHub/">Home</a>
+            <a href="/TechHub/feed.xml">RSS</a>
+            <a href="/TechHub/sitemap.xml">Sitemap</a>
+        </div>
+        <p>
+            &copy; 2026 Saranga Thenuwara — TechHub
+        </p>
+    </footer>
+
+    <!-- ─── BACK TO TOP ──────────────────────────────────────────── -->
+    <button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Back to top">
+        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg>
+    </button>
+
+    <!-- ─── SCRIPTS ─────────────────────────────────────────────── -->
+    <script>
+        // Reading progress bar
+        (function() {
+            const progressBar = document.getElementById('reading-progress');
+            if (!progressBar) return;
+            window.addEventListener('scroll', function() {
+                const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+                const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+                const progress = scrollHeight > 0 ? (scrollTop / scrollHeight) * 100 : 0;
+                progressBar.style.width = progress + '%';
+            });
+        })();
+
+        // Back to top button
+        (function() {
+            const btn = document.getElementById('backToTop');
+            if (!btn) return;
+            window.addEventListener('scroll', function() {
+                btn.classList.toggle('visible', window.scrollY > 500);
+            });
+        })();
+    </script>
+</body>
+</html>

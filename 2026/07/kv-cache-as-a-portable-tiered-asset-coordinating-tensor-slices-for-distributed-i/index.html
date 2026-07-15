@@ -1,0 +1,1242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <!-- ─── CRITICAL SEO ─────────────────────────────────────────── -->
+    <title>Kv Cache As A Portable Tiered Asset Coordinating Tensor Slices For Distributed I | TechHub</title>
+    <meta name="description" content="KV Cache as a Portable, Tiered Asset: Coordinating Tensor Slices for Distributed InferenceA slice-aware indexing layer lets key-value cache state move a...">
+    <meta name="author" content="Saranga Thenuwara">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://ai-tech-articles.github.io/TechHub/2026/07/kv-cache-as-a-portable-tiered-asset-coordinating-tensor-slices-for-distributed-i/">
+
+    <!-- ─── OPEN GRAPH (Facebook/LinkedIn) ─────────────────────────── -->
+    <meta property="og:site_name" content="TechHub">
+    <meta property="og:title" content="Kv Cache As A Portable Tiered Asset Coordinating Tensor Slices For Distributed I">
+    <meta property="og:description" content="KV Cache as a Portable, Tiered Asset: Coordinating Tensor Slices for Distributed InferenceA slice-aware indexing layer lets key-value cache state move across GPU memory, CPU DRAM, and fast local st...">
+    <meta property="og:url" content="https://ai-tech-articles.github.io/TechHub/2026/07/kv-cache-as-a-portable-tiered-asset-coordinating-tensor-slices-for-distributed-i/">
+    <meta property="og:type" content="article">
+    <meta property="og:locale" content="en_US">
+    
+    <meta property="og:image" content="https://ai-tech-articles.github.io/TechHub/assets/images/default-og.png">
+    
+
+    <!-- ─── TWITTER CARD ─────────────────────────────────────────── -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@">
+    <meta name="twitter:creator" content="@">
+    <meta name="twitter:title" content="Kv Cache As A Portable Tiered Asset Coordinating Tensor Slices For Distributed I">
+    <meta name="twitter:description" content="KV Cache as a Portable, Tiered Asset: Coordinating Tensor Slices for Distributed InferenceA slice-aware indexing layer lets key-value cache state move across GPU memory, CPU DRAM, and fast local st...">
+    
+    <meta name="twitter:image" content="https://ai-tech-articles.github.io/TechHub/assets/images/default-og.png">
+    
+
+    <!-- ─── JSON-LD STRUCTURED DATA (Article) ────────────────────── -->
+    
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": "Kv Cache As A Portable Tiered Asset Coordinating Tensor Slices For Distributed I",
+      "description": "KV Cache as a Portable, Tiered Asset: Coordinating Tensor Slices for Distributed Inference\nA slice-aware indexing layer lets key-value cache state move across GPU memory, CPU DRAM, and fast local storage without losing semantic identity.\n\n",
+      "author": {
+        "@type": "Person",
+        "name": "Saranga Thenuwara"
+      },
+      "datePublished": "2026-07-15",
+      "dateModified": "2026-07-15",
+      "url": "https://ai-tech-articles.github.io/TechHub/2026/07/kv-cache-as-a-portable-tiered-asset-coordinating-tensor-slices-for-distributed-i/",
+      "publisher": {
+        "@type": "Organization",
+        "name": "TechHub",
+        "url": "https://ai-tech-articles.github.io/TechHub/"
+      },
+      "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "https://ai-tech-articles.github.io/TechHub/2026/07/kv-cache-as-a-portable-tiered-asset-coordinating-tensor-slices-for-distributed-i/"
+      }
+      ,
+      "keywords": ""
+      
+    }
+    </script>
+    
+
+    <!-- ─── RSS / FEED ───────────────────────────────────────────── -->
+    <link type="application/atom+xml" rel="alternate" href="https://ai-tech-articles.github.io/TechHub/feed.xml" title="TechHub | AI Technology Publications" />
+
+    <!-- ─── FAVICON ──────────────────────────────────────────────── -->
+    <link rel="icon" type="image/svg+xml" href="/TechHub/assets/images/favicon.svg">
+    <link rel="alternate icon" href="/TechHub/assets/images/favicon.ico">
+    <link rel="apple-touch-icon" href="/TechHub/assets/images/apple-touch-icon.png">
+
+    <!-- ─── PRECONNECT (Performance) ─────────────────────────────── -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <link rel="preconnect" href="https://pagead2.googlesyndication.com">
+    
+
+    <!-- ─── GOOGLE ADSENSE ─────────────────────────────────────────── -->
+    
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6375003818418942" crossorigin="anonymous"></script>
+    <meta name="google-adsense-account" content="ca-pub-6375003818418942">
+    
+
+    <!-- ─── STYLES ─────────────────────────────────────────────────── -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --bg-deep: #0a0b10;
+            --panel-solid: #11131c;
+            --border-glow: #1f2330;
+            --text-pure: #f8fafc;
+            --text-dim: #94a3b8;
+            --accent-silver: #cbd5e1;
+            --accent-yellow: #ffd700;
+            --accent-glow: rgba(255, 255, 255, 0.03);
+            --code-bg: #030408;
+            --read-width: 72ch;
+        }
+
+        * { box-sizing: border-box; }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-deep);
+            color: var(--text-pure);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            letter-spacing: 0.01em;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* ─── SCROLLBAR ────────────────────────────────────────────── */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-deep); }
+        ::-webkit-scrollbar-thumb { background: var(--border-glow); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #2a2f3f; }
+
+        a {
+            color: var(--accent-yellow);
+            text-decoration: none;
+            transition: opacity 0.2s ease;
+        }
+        a:hover { opacity: 0.8; text-decoration: underline; }
+
+        /* ─── SKIP LINK ────────────────────────────────────────────── */
+        .skip-link {
+            position: absolute;
+            top: -40px;
+            left: 0;
+            background: var(--accent-yellow);
+            color: var(--bg-deep);
+            padding: 8px 16px;
+            z-index: 10000;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-decoration: none;
+            border-radius: 0 0 4px 0;
+            transition: top 0.25s ease;
+        }
+        .skip-link:focus { top: 0; outline: none; }
+
+        /* ─── READING PROGRESS BAR ─────────────────────────────────── */
+        #reading-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 0%;
+            height: 3px;
+            background: var(--accent-yellow);
+            z-index: 9999;
+            transition: width 0.1s linear;
+            box-shadow: 0 0 8px rgba(255, 215, 0, 0.3);
+        }
+
+        /* ─── HEADER ─────────────────────────────────────────────── */
+        .site-header {
+            border-bottom: 1px solid var(--border-glow);
+            padding: 1.25rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            position: sticky;
+            top: 0;
+            background: rgba(10, 11, 16, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            z-index: 1000;
+        }
+        .site-brand {
+            font-family: 'Cinzel', serif;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text-pure);
+            letter-spacing: 0.05em;
+        }
+        .site-brand a { color: inherit; text-decoration: none; }
+        .site-brand a:hover { opacity: 1; color: var(--accent-yellow); }
+        .site-nav {
+            display: flex;
+            gap: 2rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+        .site-nav a { color: var(--text-dim); text-decoration: none; }
+        .site-nav a:hover { color: var(--accent-yellow); opacity: 1; }
+
+        /* ─── MAIN CONTENT ───────────────────────────────────────── */
+        main {
+            flex: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            padding: 2.5rem 2rem;
+        }
+
+        /* ─── POST CARD (Homepage) ───────────────────────────────── */
+        .post-card {
+            background: var(--panel-solid);
+            padding: 2rem 2.5rem;
+            margin-bottom: 1.5rem;
+            border-radius: 14px;
+            border: 1px solid var(--border-glow);
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+        }
+        .post-card:hover {
+            border-color: rgba(255, 215, 0, 0.12);
+            transform: translateY(-3px);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.55);
+        }
+        .post-card a { text-decoration: none; color: inherit; display: block; }
+        .post-card a:hover { opacity: 1; }
+        .post-card h3 {
+            font-family: 'Cinzel', serif;
+            font-size: 1.35rem;
+            font-weight: 500;
+            margin: 0 0 0.6rem 0;
+            color: var(--text-pure);
+            line-height: 1.35;
+            letter-spacing: 0.01em;
+        }
+        .post-card h3:hover { color: var(--accent-yellow); }
+        .post-meta-bar {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.72rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 0.75rem;
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .post-meta-bar .meta-sep { opacity: 0.25; }
+        .post-tag-mini {
+            background: rgba(255, 215, 0, 0.06);
+            color: var(--accent-yellow);
+            padding: 0.15rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.65rem;
+            text-transform: none;
+            letter-spacing: 0.02em;
+        }
+        .post-excerpt {
+            color: var(--text-dim);
+            font-size: 0.95rem;
+            line-height: 1.65;
+            margin: 0;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .read-more {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--accent-yellow);
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            margin-top: 1.25rem;
+        }
+        .read-more:hover { opacity: 0.8; }
+        .read-more svg { transition: transform 0.2s ease; }
+        .read-more:hover svg { transform: translateX(3px); }
+
+        /* ─── PAGINATION ─────────────────────────────────────────── */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.4rem;
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border-glow);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+        }
+        .page-btn {
+            padding: 0.5rem 0.9rem;
+            border: 1px solid var(--border-glow);
+            border-radius: 8px;
+            color: var(--text-dim);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            min-width: 36px;
+            text-align: center;
+        }
+        .page-btn:hover:not(.disabled):not(.active) {
+            border-color: var(--accent-yellow);
+            color: var(--accent-yellow);
+            background: rgba(255, 215, 0, 0.04);
+        }
+        .page-btn.active {
+            border-color: var(--accent-yellow);
+            color: var(--accent-yellow);
+            background: rgba(255, 215, 0, 0.08);
+            font-weight: 700;
+        }
+        .page-btn.disabled {
+            color: var(--border-glow);
+            opacity: 0.4;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        /* ─── SEARCH ───────────────────────────────────────────────── */
+        .search-section { margin-bottom: 2.5rem; }
+        .search-box { position: relative; max-width: 600px; }
+        .search-box input {
+            width: 100%;
+            padding: 0.85rem 1.25rem 0.85rem 2.8rem;
+            background: var(--panel-solid);
+            border: 1px solid var(--border-glow);
+            border-radius: 12px;
+            color: var(--text-pure);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .search-box input:focus {
+            border-color: var(--accent-yellow);
+            box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.08);
+        }
+        .search-box input::placeholder { color: #4a5068; }
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 18px;
+            height: 18px;
+            color: var(--text-dim);
+            pointer-events: none;
+        }
+        #search-results {
+            display: none;
+            margin-top: 0.75rem;
+            background: var(--panel-solid);
+            border: 1px solid var(--border-glow);
+            border-radius: 12px;
+            padding: 0.5rem;
+            max-height: 420px;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+        .search-result-item {
+            display: block;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            text-decoration: none;
+            color: inherit;
+            transition: background 0.15s ease;
+        }
+        .search-result-item:hover { background: rgba(255, 215, 0, 0.04); }
+        .search-result-title {
+            font-family: 'Cinzel', serif;
+            font-size: 1rem;
+            color: var(--text-pure);
+            margin-bottom: 0.2rem;
+        }
+        .search-result-meta {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--text-dim);
+        }
+        #search-results::-webkit-scrollbar { width: 6px; }
+        #search-results::-webkit-scrollbar-thumb { background: var(--border-glow); border-radius: 3px; }
+
+        /* ─── ARTICLE (Post Page) ──────────────────────────────────── */
+        article {
+            max-width: var(--read-width);
+            margin: 0 auto;
+        }
+        article .post-header {
+            margin-bottom: 2.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-glow);
+        }
+        article .post-header h1 {
+            font-family: 'Cinzel', serif;
+            font-size: 2.4rem;
+            font-weight: 500;
+            line-height: 1.2;
+            margin: 0 0 1rem 0;
+            letter-spacing: 0.02em;
+        }
+        article .post-meta {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        article .post-meta .author { color: var(--accent-yellow); }
+        article .post-meta .separator { margin: 0 0.25rem; opacity: 0.3; }
+
+        article h2 {
+            font-family: 'Cinzel', serif;
+            font-size: 1.7rem;
+            font-weight: 500;
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border-glow);
+            letter-spacing: 0.01em;
+        }
+        article h3 {
+            font-family: 'Cinzel', serif;
+            font-size: 1.25rem;
+            font-weight: 500;
+            margin-top: 2rem;
+            margin-bottom: 0.75rem;
+            color: var(--accent-silver);
+        }
+        article h4 {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.6rem;
+            color: var(--accent-silver);
+        }
+        article p {
+            margin-bottom: 1.25rem;
+            color: var(--text-dim);
+        }
+        article p strong { color: var(--text-pure); }
+        article ul, article ol {
+            margin-bottom: 1.25rem;
+            padding-left: 1.5rem;
+            color: var(--text-dim);
+        }
+        article li { margin-bottom: 0.5rem; }
+        article li::marker { color: var(--accent-yellow); }
+        article blockquote {
+            border-left: 3px solid var(--accent-yellow);
+            margin: 1.5rem 0;
+            padding: 0.5rem 0 0.5rem 1.5rem;
+            font-style: italic;
+            color: var(--accent-silver);
+        }
+        article hr {
+            border: none;
+            height: 1px;
+            background: var(--border-glow);
+            margin: 2.5rem 0;
+        }
+        article img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            border: 1px solid var(--border-glow);
+            display: block;
+            margin: 1.5rem auto;
+        }
+        article figcaption, article .image-caption {
+            display: block;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            margin-top: 0.5rem;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* ─── CODE BLOCKS ──────────────────────────────────────────── */
+        article pre {
+            background: var(--code-bg);
+            border: 1px solid var(--border-glow);
+            border-radius: 10px;
+            padding: 1.25rem;
+            overflow-x: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            line-height: 1.65;
+            margin: 1.5rem 0;
+        }
+        article pre code {
+            background: transparent;
+            padding: 0;
+            border: none;
+            color: var(--text-pure);
+            font-size: inherit;
+        }
+        article code {
+            background: rgba(255,255,255,0.05);
+            padding: 0.2em 0.4em;
+            border-radius: 4px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9em;
+            color: var(--accent-yellow);
+        }
+
+        /* ─── TABLES ──────────────────────────────────────────────── */
+        article table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            font-size: 0.9rem;
+            border: 1px solid var(--border-glow);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        article th, article td {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-glow);
+        }
+        article th {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--accent-yellow);
+            background: var(--panel-solid);
+            font-weight: 600;
+        }
+        article tr:last-child td { border-bottom: none; }
+        article tr:hover td { background: rgba(255,255,255,0.015); }
+
+        /* ─── TAGS ────────────────────────────────────────────────── */
+        .post-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 2.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border-glow);
+        }
+        .post-tag {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            padding: 0.4rem 0.85rem;
+            border: 1px solid var(--border-glow);
+            border-radius: 20px;
+            color: var(--text-dim);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            background: transparent;
+        }
+        .post-tag:hover {
+            border-color: var(--accent-yellow);
+            color: var(--accent-yellow);
+            background: rgba(255, 215, 0, 0.05);
+            text-decoration: none;
+            opacity: 1;
+        }
+
+        /* ─── TAG CLOUD (Tags Page) ───────────────────────────────── */
+        .tag-cloud {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-bottom: 3rem;
+        }
+        .tag-pill {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.82rem;
+            padding: 0.55rem 1.1rem;
+            border: 1px solid var(--border-glow);
+            border-radius: 24px;
+            color: var(--text-dim);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            background: transparent;
+        }
+        .tag-pill:hover {
+            border-color: var(--accent-yellow);
+            color: var(--accent-yellow);
+            background: rgba(255, 215, 0, 0.05);
+            text-decoration: none;
+            opacity: 1;
+        }
+        .tag-group h3 {
+            font-family: 'Cinzel', serif;
+            font-size: 1.2rem;
+            color: var(--accent-yellow);
+            margin-bottom: 1rem;
+            text-transform: capitalize;
+        }
+        .tag-group-list {
+            display: grid;
+            gap: 0.75rem;
+            margin-bottom: 2.5rem;
+        }
+        .tag-group-item {
+            display: block;
+            padding: 1rem 1.25rem;
+            background: var(--panel-solid);
+            border: 1px solid var(--border-glow);
+            border-radius: 10px;
+            text-decoration: none;
+            color: var(--text-pure);
+            transition: all 0.2s ease;
+        }
+        .tag-group-item:hover {
+            border-color: rgba(255, 215, 0, 0.2);
+            text-decoration: none;
+            opacity: 1;
+        }
+        .tag-group-item-title {
+            font-family: 'Cinzel', serif;
+            font-size: 1rem;
+            margin-bottom: 0.25rem;
+        }
+        .tag-group-item-date {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--text-dim);
+        }
+
+        /* ─── ADS ─────────────────────────────────────────────────── */
+        .ad-container {
+            margin: 2rem 0;
+            text-align: center;
+            min-height: 90px;
+        }
+
+        /* ─── BACK TO TOP ──────────────────────────────────────────── */
+        .back-to-top {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 44px;
+            height: 44px;
+            background: var(--panel-solid);
+            border: 1px solid var(--border-glow);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            color: var(--text-dim);
+            padding: 0;
+        }
+        .back-to-top.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+        .back-to-top:hover {
+            border-color: var(--accent-yellow);
+            color: var(--accent-yellow);
+            background: rgba(255, 215, 0, 0.05);
+            transform: translateY(-2px);
+        }
+        .back-to-top:focus-visible {
+            outline: 2px solid var(--accent-yellow);
+            outline-offset: 2px;
+        }
+
+        /* ─── FOOTER ──────────────────────────────────────────────── */
+        .site-footer {
+            border-top: 1px solid var(--border-glow);
+            padding: 2.5rem 2rem;
+            text-align: center;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+        .site-footer a { color: var(--text-dim); margin: 0 1rem; text-decoration: none; }
+        .site-footer a:hover { color: var(--accent-yellow); opacity: 1; }
+        .site-footer p { margin: 1rem 0 0 0; opacity: 0.5; }
+
+        /* ─── RESPONSIVE ──────────────────────────────────────────── */
+        @media (max-width: 768px) {
+            .site-header {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1rem;
+                position: relative;
+            }
+            .site-nav { gap: 1.2rem; font-size: 0.72rem; }
+            main { padding: 1.5rem 1rem; }
+            .post-card { padding: 1.5rem; }
+            .post-card h3 { font-size: 1.15rem; }
+            article .post-header h1 { font-size: 1.7rem; }
+            article h2 { font-size: 1.35rem; }
+            .back-to-top { bottom: 1.5rem; right: 1.5rem; width: 40px; height: 40px; }
+        }
+
+        /* ─── FOCUS VISIBLE ───────────────────────────────────────── */
+        :focus-visible {
+            outline: 2px solid var(--accent-yellow);
+            outline-offset: 2px;
+            border-radius: 4px;
+        }
+        a:focus-visible { border-radius: 4px; }
+
+        /* ─── MATH / KATEX ─────────────────────────────────────────── */
+        .katex { font-size: 1.1em; }
+        .katex-display { margin: 1.5rem 0; overflow-x: auto; }
+
+        /* ─── MERMAID ────────────────────────────────────────────── */
+        .mermaid {
+            background: var(--panel-solid);
+            border: 1px solid var(--border-glow);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            text-align: center;
+        }
+
+        /* ─── EDITORIAL CARD (Homepage) ─────────────────────────── */
+        .editorial-card {
+            background: var(--panel-solid);
+            padding: 3rem 3.5rem;
+            margin-bottom: 2.5rem;
+            border-radius: 16px;
+            border: 1px solid var(--border-glow);
+            position: relative;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.65);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .editorial-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent-yellow);
+            box-shadow: 0 20px 50px rgba(255, 215, 0, 0.04);
+        }
+        .editorial-card h3 {
+            margin-top: 0;
+            margin-bottom: 0.5rem;
+        }
+        .editorial-card h3 a {
+            color: #fff;
+            font-family: 'Cinzel', serif;
+            text-decoration: none;
+            font-size: 1.85rem;
+            font-weight: 500;
+            letter-spacing: 0.01em;
+            line-height: 1.3;
+            border-bottom: none !important;
+            display: inline-block;
+        }
+        .editorial-card h3 a:hover {
+            color: var(--accent-yellow);
+            opacity: 1;
+        }
+        .feed-telemetry-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.72rem;
+            color: var(--accent-yellow);
+            margin-bottom: 1.25rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            font-weight: 700;
+        }
+        .editorial-link-btn {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--text-pure);
+            font-weight: 700;
+            text-decoration: none;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            border: 1px solid var(--border-glow);
+            padding: 0.55rem 1.3rem;
+            border-radius: 30px;
+            background: rgba(255, 255, 255, 0.01);
+            transition: all 0.2s ease;
+        }
+        .editorial-link-btn:hover {
+            background: rgba(255, 215, 0, 0.05);
+            border-color: var(--accent-yellow);
+            color: var(--accent-yellow);
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.08);
+            text-decoration: none;
+            opacity: 1;
+        }
+        .pagination-nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 4rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border-glow);
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .pagination-nav-link {
+            font-size: 0.75rem;
+            color: var(--accent-yellow);
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            padding: 0.6rem 1.4rem;
+            border: 1px solid var(--border-glow);
+            border-radius: 30px;
+            background: rgba(255, 255, 255, 0.01);
+            font-weight: 700;
+            transition: all 0.2s ease;
+        }
+        .pagination-nav-link:hover {
+            background: rgba(255, 215, 0, 0.05);
+            border-color: var(--accent-yellow);
+            box-shadow: 0 0 12px rgba(255, 215, 0, 0.05);
+            text-decoration: none;
+            opacity: 1;
+        }
+        .pagination-nav-placeholder {
+            visibility: hidden;
+            padding: 0.6rem 1.4rem;
+            font-size: 0.75rem;
+        }
+
+        @media (max-width: 768px) {
+            .editorial-card {
+                padding: 2rem 1.75rem;
+            }
+            .editorial-card h3 a {
+                font-size: 1.35rem;
+            }
+            .pagination-nav-container {
+                flex-direction: column;
+                gap: 1.5rem;
+                text-align: center;
+            }
+            .pagination-nav-placeholder {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    <div id="reading-progress"></div>
+
+    <!-- ─── HEADER ─────────────────────────────────────────────── -->
+    <header class="site-header" role="banner">
+        <div class="site-brand">
+            <a href="/TechHub/">TechHub</a>
+        </div>
+        <nav class="site-nav" role="navigation" aria-label="Main navigation">
+            <a href="/TechHub/">Journal</a>
+            <a href="/TechHub/tags">Tags</a>
+            <a href="/TechHub/about">About</a>
+        </nav>
+    </header>
+
+    <!-- ─── MAIN ─────────────────────────────────────────────────── -->
+    <main id="main-content" role="main">
+        <h1 id="kv-cache-as-a-portable-tiered-asset-coordinating-tensor-slices-for-distributed-inference">KV Cache as a Portable, Tiered Asset: Coordinating Tensor Slices for Distributed Inference</h1>
+<p><em>A slice-aware indexing layer lets key-value cache state move across GPU memory, CPU DRAM, and fast local storage without losing semantic identity.</em></p>
+
+<p><img src="/assets/images/covers/kv-cache-as-a-portable-tiered-asset-coordinating-tensor-slices-for-distributed-i-cover.png" alt="Cover image: kv cache as a portable tiered asset coordinating tensor slices for distributed i" /></p>
+
+<p><strong>TL;DR</strong></p>
+<ul>
+  <li>KV cache state can be treated as a relocatable asset rather than a fixed per-device buffer. By representing each layer or sequence block as an addressable <code class="language-plaintext highlighter-rouge">TensorSlice</code>, teams can serialize, relocate, and restore cache contents between prefill workers, decode workers, CPU memory, and fast NVMe storage.</li>
+  <li>A thin coordination layer made up of <code class="language-plaintext highlighter-rouge">Indexer</code>, <code class="language-plaintext highlighter-rouge">CacheStore</code>, and <code class="language-plaintext highlighter-rouge">TensorSlice</code> metadata decouples cache contents from where they are materialized, enabling session migration, incremental check-pointing, and memory-spill without rebuilding attention state.</li>
+  <li>Keep hot state in the fastest tier that needs it right now; keep colder state compressed, indexed, and ready to reload on demand.</li>
+</ul>
+
+<p>In transformer inference, the key-value cache is state. Once prefill has computed keys and values for a prefix, recomputing them for every new token is prohibitively expensive. That makes the KV cache a first-class optimization target: it has to be fast, precise, and—at scale—large. As context length, batch size, and model dimension grow together, even multi-GPU nodes eventually hit a wall.</p>
+
+<p>The natural next step is to stop treating the KV cache as a fixed per-device buffer and start treating it as a shareable, tiered asset. Instead of one monolithic <code class="language-plaintext highlighter-rouge">k_cache</code> / <code class="language-plaintext highlighter-rouge">v_cache</code> tensor that lives wherever the model happens to run, the cache is broken into addressable slices. Some slices stay on device for immediate decode. Others move to CPU DRAM as a warm buffer. Still others spill to fast local NVMe, such as the Samsung PM1753, for later retrieval. The goal is not to replace GPU memory; it is to extend the addressable footprint of the cache by giving each slice a stable identity independent of its current location.</p>
+
+<h2 id="why-does-a-kv-cache-need-to-leave-gpu-memory">Why does a KV cache need to leave GPU memory?</h2>
+
+<p>Because batch, sequence, and model-size growth routinely outpace on-device capacity, and because different phases of inference have different locality needs. Prefill is compute-heavy and tends to run briefly on a specialized worker; decode is memory-bandwidth-heavy and may run for many tokens across a different set of workers. When those phases run on different hosts, the cache has to travel with the request.</p>
+
+<p>Even within a single node, monolithic per-device caches create pressure. Once the working set of long-context conversations nears device memory limits, teams are forced to choose between reducing batch size (lower throughput), quantizing cache entries (possible accuracy loss), or evicting context entirely (higher latency on re-prompt). A portable slice design offers a fourth option: move the slices that are not immediately needed to a lower tier, keep the metadata in a fast index, and pull them back when the same sequence resumes.</p>
+
+<p>The PM1753 matters here as a reference point because a high-throughput PCIe Gen5 NVMe SSD can serve as a local persistence tier that is faster than network storage and cheaper than adding GPU HBM. It is not a replacement for device memory, but it is a practical place to park cache slices that are unlikely to be accessed in the next few decode steps. The pattern also helps reliability: a shareable cache can be check-pointed, migrated away from a failing node, or handed off when a serving instance is scaled down. Without slice-level identity, that handoff requires recomputing attention from scratch, which is often unacceptable for long-context applications.</p>
+
+<h2 id="how-does-tensor-slicing-coordination-make-the-cache-portable">How does tensor slicing coordination make the cache portable?</h2>
+
+<p>By decomposing the cache into small, metadata-tagged units. Each unit, represented as a <code class="language-plaintext highlighter-rouge">TensorSlice</code>, records where it belongs semantically—request ID, layer, head group, sequence span, generation version—so that it can be serialized, moved, and reassembled correctly elsewhere. The <code class="language-plaintext highlighter-rouge">Indexer</code> owns the namespace; the <code class="language-plaintext highlighter-rouge">CacheStore</code> owns the placement. When a decode worker needs a slice, it asks the <code class="language-plaintext highlighter-rouge">Indexer</code>, which resolves the logical address to whatever physical location the <code class="language-plaintext highlighter-rouge">CacheStore</code> is currently using.</p>
+
+<p>The slice size itself is a tradeoff. Smaller slices create finer placement control and smaller serialization units, but they inflate metadata volume. Larger slices reduce metadata overhead, but they waste bandwidth when only a small part of the slice is needed. In practice, slices are often aligned to sequence blocks or layer groups, so a worker can fetch exactly the context window it needs without unmarshalling the entire history.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Component</th>
+      <th>Purpose</th>
+      <th>Implementation notes</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">kvcache.Indexer</code></td>
+      <td>Logical-to-physical map, orchestrates slice coordination</td>
+      <td>Persistent hash table or in-memory tree keyed by <code class="language-plaintext highlighter-rouge">(request_id, layer, seq_span)</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">kvcache.CacheStore</code></td>
+      <td>Placement and retrieval across tiers</td>
+      <td>DRAM buffer pool with optional spill-to-NVMe; manages eviction and compression</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">kvcache.TensorSlice</code></td>
+      <td>Addressable cache unit</td>
+      <td>Lightweight metadata plus a reference to tensor data; supports serialize/restore</td>
+    </tr>
+  </tbody>
+</table>
+
+<pre><code class="language-mermaid">flowchart LR
+    A[Prefill Worker&lt;br/&gt;GPU] --&gt;|produces slices| B[kvcache.Indexer]
+    B &lt;--&gt;|logical address| C[kvcache.CacheStore]
+    C --&gt; D[CPU DRAM Buffer]
+    C --&gt; E[NVMe Tier&lt;br/&gt;Samsung PM1753]
+    F[Decode Worker&lt;br/&gt;GPU] --&gt;|requests seq_id| B
+    D --&gt; F
+    E --&gt;|lazy load| F
+</code></pre>
+
+<p>This separation of concerns is the core of the architecture. The <code class="language-plaintext highlighter-rouge">Indexer</code> should be fast enough to track thousands or millions of slices per node. The <code class="language-plaintext highlighter-rouge">CacheStore</code> decides whether a slice is resident, evicted, compressed, or currently being fetched from NVMe. The <code class="language-plaintext highlighter-rouge">TensorSlice</code> provides the common data contract so that any of those locations can interpret the bytes correctly.</p>
+
+<h3 id="implementation-pattern">Implementation Pattern</h3>
+
+<p>The Python example below is intentionally simplified—no GPU kernels, no lock-free queue, no compression—but it captures the relationships that matter: metadata identity, tiered storage, and round-trip serialization.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+</pre></td><td class="rouge-code"><pre><span class="kn">import</span> <span class="nn">dataclasses</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="n">np</span>
+
+
+<span class="o">@</span><span class="n">dataclasses</span><span class="p">.</span><span class="n">dataclass</span>
+<span class="k">class</span> <span class="nc">TensorSlice</span><span class="p">:</span>
+    <span class="s">"""Addressable unit of KV cache state."""</span>
+    <span class="n">request_id</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">layer</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">seq_start</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">seq_end</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="p">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="n">location</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s">"none"</span>  <span class="c1"># "dram" | "nvme" | "none"
+</span>
+    <span class="k">def</span> <span class="nf">serialize</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
+        <span class="n">payload</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">"request_id"</span><span class="p">:</span> <span class="bp">self</span><span class="p">.</span><span class="n">request_id</span><span class="p">,</span>
+            <span class="s">"layer"</span><span class="p">:</span> <span class="bp">self</span><span class="p">.</span><span class="n">layer</span><span class="p">,</span>
+            <span class="s">"seq_start"</span><span class="p">:</span> <span class="bp">self</span><span class="p">.</span><span class="n">seq_start</span><span class="p">,</span>
+            <span class="s">"seq_end"</span><span class="p">:</span> <span class="bp">self</span><span class="p">.</span><span class="n">seq_end</span><span class="p">,</span>
+            <span class="s">"data"</span><span class="p">:</span> <span class="bp">self</span><span class="p">.</span><span class="n">data</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="n">pickle</span><span class="p">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">payload</span><span class="p">,</span> <span class="n">protocol</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+
+    <span class="o">@</span><span class="nb">classmethod</span>
+    <span class="k">def</span> <span class="nf">deserialize</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">raw</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s">"TensorSlice"</span><span class="p">:</span>
+        <span class="n">payload</span> <span class="o">=</span> <span class="n">pickle</span><span class="p">.</span><span class="n">loads</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">cls</span><span class="p">(</span>
+            <span class="n">request_id</span><span class="o">=</span><span class="n">payload</span><span class="p">[</span><span class="s">"request_id"</span><span class="p">],</span>
+            <span class="n">layer</span><span class="o">=</span><span class="n">payload</span><span class="p">[</span><span class="s">"layer"</span><span class="p">],</span>
+            <span class="n">seq_start</span><span class="o">=</span><span class="n">payload</span><span class="p">[</span><span class="s">"seq_start"</span><span class="p">],</span>
+            <span class="n">seq_end</span><span class="o">=</span><span class="n">payload</span><span class="p">[</span><span class="s">"seq_end"</span><span class="p">],</span>
+            <span class="n">data</span><span class="o">=</span><span class="n">payload</span><span class="p">[</span><span class="s">"data"</span><span class="p">],</span>
+            <span class="n">location</span><span class="o">=</span><span class="s">"dram"</span><span class="p">,</span>
+        <span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">CacheStore</span><span class="p">:</span>
+    <span class="s">"""Two-tier store: CPU DRAM with spill-to-NVMe."""</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nvme_root</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">max_dram_bytes</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">8_000_000_000</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">dram</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="p">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">nvme_root</span> <span class="o">=</span> <span class="n">nvme_root</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">nvme_root</span><span class="p">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">max_dram_bytes</span> <span class="o">=</span> <span class="n">max_dram_bytes</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">_current_bytes</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">_key</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="n">TensorSlice</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s">"</span><span class="si">{</span><span class="n">s</span><span class="p">.</span><span class="n">request_id</span><span class="si">}</span><span class="s">/layer</span><span class="si">{</span><span class="n">s</span><span class="p">.</span><span class="n">layer</span><span class="si">}</span><span class="s">/</span><span class="si">{</span><span class="n">s</span><span class="p">.</span><span class="n">seq_start</span><span class="si">}</span><span class="s">_</span><span class="si">{</span><span class="n">s</span><span class="p">.</span><span class="n">seq_end</span><span class="si">}</span><span class="s">"</span>
+
+    <span class="k">def</span> <span class="nf">store</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="n">TensorSlice</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">_key</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+        <span class="n">size</span> <span class="o">=</span> <span class="n">s</span><span class="p">.</span><span class="n">data</span><span class="p">.</span><span class="n">nbytes</span> <span class="k">if</span> <span class="n">s</span><span class="p">.</span><span class="n">data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="k">else</span> <span class="mi">0</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="p">.</span><span class="n">_current_bytes</span> <span class="o">+</span> <span class="n">size</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="p">.</span><span class="n">max_dram_bytes</span><span class="p">:</span>
+            <span class="bp">self</span><span class="p">.</span><span class="n">dram</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">s</span><span class="p">.</span><span class="n">data</span>
+            <span class="n">s</span><span class="p">.</span><span class="n">location</span> <span class="o">=</span> <span class="s">"dram"</span>
+            <span class="bp">self</span><span class="p">.</span><span class="n">_current_bytes</span> <span class="o">+=</span> <span class="n">size</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">nvme_root</span> <span class="o">/</span> <span class="n">key</span>
+            <span class="n">path</span><span class="p">.</span><span class="n">parent</span><span class="p">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s">"wb"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">f</span><span class="p">.</span><span class="n">write</span><span class="p">(</span><span class="n">s</span><span class="p">.</span><span class="n">serialize</span><span class="p">())</span>
+            <span class="n">s</span><span class="p">.</span><span class="n">location</span> <span class="o">=</span> <span class="s">"nvme"</span>
+        <span class="k">return</span> <span class="n">key</span>
+
+    <span class="k">def</span> <span class="nf">retrieve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="n">TensorSlice</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="p">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">_key</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">.</span><span class="n">dram</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="p">.</span><span class="n">dram</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+
+        <span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">nvme_root</span> <span class="o">/</span> <span class="n">key</span>
+        <span class="n">restored</span> <span class="o">=</span> <span class="n">TensorSlice</span><span class="p">.</span><span class="n">deserialize</span><span class="p">(</span><span class="n">path</span><span class="p">.</span><span class="n">read_bytes</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">restored</span><span class="p">.</span><span class="n">data</span>
+
+
+<span class="k">class</span> <span class="nc">Indexer</span><span class="p">:</span>
+    <span class="s">"""Namespace and lifecycle coordinator."""</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">store</span><span class="p">:</span> <span class="n">CacheStore</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">store</span> <span class="o">=</span> <span class="n">store</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">slice_map</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">TensorSlice</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">def</span> <span class="nf">add_slice</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">slice_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="n">TensorSlice</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">store</span><span class="p">.</span><span class="n">store</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">slice_map</span><span class="p">[</span><span class="n">slice_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">s</span>
+
+    <span class="k">def</span> <span class="nf">get_slice</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">slice_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">TensorSlice</span><span class="p">]:</span>
+        <span class="n">meta</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">slice_map</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="n">slice_id</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">meta</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">None</span>
+        <span class="c1"># Materialize from wherever CacheStore placed it.
+</span>        <span class="n">meta</span><span class="p">.</span><span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">store</span><span class="p">.</span><span class="n">retrieve</span><span class="p">(</span><span class="n">meta</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">meta</span>
+
+
+<span class="c1"># --- Example: moving a slice from prefill output to decode input ---
+</span><span class="n">store</span> <span class="o">=</span> <span class="n">CacheStore</span><span class="p">(</span><span class="n">nvme_root</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s">"/var/kvcache"</span><span class="p">),</span> <span class="n">max_dram_bytes</span><span class="o">=</span><span class="mi">1_000_000_000</span><span class="p">)</span>
+<span class="n">indexer</span> <span class="o">=</span> <span class="n">Indexer</span><span class="p">(</span><span class="n">store</span><span class="p">)</span>
+
+<span class="c1"># Prefill produces a KV block for one layer and sequence range.
+</span><span class="n">kv</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">random</span><span class="p">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">4096</span><span class="p">,</span> <span class="mi">128</span><span class="p">).</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="p">.</span><span class="n">float16</span><span class="p">)</span>  <span class="c1"># heads, length, head_dim
+</span><span class="n">slice_id</span> <span class="o">=</span> <span class="s">"conv_42_layer7"</span>
+<span class="n">block</span> <span class="o">=</span> <span class="n">TensorSlice</span><span class="p">(</span>
+    <span class="n">request_id</span><span class="o">=</span><span class="s">"conv_42"</span><span class="p">,</span> <span class="n">layer</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">seq_start</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">seq_end</span><span class="o">=</span><span class="mi">4096</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">kv</span>
+<span class="p">)</span>
+
+<span class="n">indexer</span><span class="p">.</span><span class="n">add_slice</span><span class="p">(</span><span class="n">slice_id</span><span class="p">,</span> <span class="n">block</span><span class="p">)</span>
+
+<span class="c1"># Later, possibly on another host, decode asks for the same block.
+</span><span class="n">recovered</span> <span class="o">=</span> <span class="n">indexer</span><span class="p">.</span><span class="n">get_slice</span><span class="p">(</span><span class="n">slice_id</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">recovered</span><span class="p">.</span><span class="n">data</span><span class="p">.</span><span class="n">shape</span><span class="p">)</span>  <span class="c1"># (8, 4096, 128)
+</span></pre></td></tr></tbody></table></code></pre></div></div>
+
+<h3 id="operational-tradeoffs">Operational Tradeoffs</h3>
+
+<p>Three practical concerns shape how this pattern is deployed.</p>
+
+<p><strong>Indexing overhead.</strong> A slice map with millions of entries must be memory-efficient and crash-safe. Rebuilding it from NVMe after a restart can take time, so durable metadata logs or periodic snapshots are usually worth the complexity.</p>
+
+<p><strong>Tiering policy.</strong> Not every slice belongs on disk. A simple least-recently-used eviction policy will thrash under bursty decode patterns. Most production systems layer a lightweight predictor or request-locality hint on top of the <code class="language-plaintext highlighter-rouge">CacheStore</code>.</p>
+
+<p><strong>Serialization format.</strong> The example uses <code class="language-plaintext highlighter-rouge">pickle</code> for clarity. In production, slices are typically serialized into zero-copy or zero-allocation formats—flat buffers, protocol buffers, or CUDA-host-mapped regions—to avoid interpreter overhead and to support direct device-to-storage paths where the hardware allows it.</p>
+
+<h2 id="topics">Topics</h2>
+
+<p>KV Cache, LLM Inference, Distributed Systems, Tensor Slicing, Memory Tiering, NVMe Storage, Prefill-Decode Separation, Model Serving, Systems Engineering</p>
+
+    </main>
+
+    <!-- ─── FOOTER ──────────────────────────────────────────────── -->
+    <footer class="site-footer" role="contentinfo">
+        <div>
+            <a href="/TechHub/">Home</a>
+            <a href="/TechHub/feed.xml">RSS</a>
+            <a href="/TechHub/sitemap.xml">Sitemap</a>
+        </div>
+        <p>
+            &copy; 2026 Saranga Thenuwara — TechHub
+        </p>
+    </footer>
+
+    <!-- ─── BACK TO TOP ──────────────────────────────────────────── -->
+    <button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Back to top">
+        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg>
+    </button>
+
+    <!-- ─── SCRIPTS ─────────────────────────────────────────────── -->
+    <script>
+        // Reading progress bar
+        (function() {
+            const progressBar = document.getElementById('reading-progress');
+            if (!progressBar) return;
+            window.addEventListener('scroll', function() {
+                const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+                const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+                const progress = scrollHeight > 0 ? (scrollTop / scrollHeight) * 100 : 0;
+                progressBar.style.width = progress + '%';
+            });
+        })();
+
+        // Back to top button
+        (function() {
+            const btn = document.getElementById('backToTop');
+            if (!btn) return;
+            window.addEventListener('scroll', function() {
+                btn.classList.toggle('visible', window.scrollY > 500);
+            });
+        })();
+    </script>
+</body>
+</html>

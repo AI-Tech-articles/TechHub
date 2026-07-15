@@ -1,0 +1,1063 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <!-- ─── CRITICAL SEO ─────────────────────────────────────────── -->
+    <title>Distributed Inference Cuda Oom Debugging | TechHub</title>
+    <meta name="description" content="Distributed Inference CUDA OOM DebuggingSubtitle: Peak RPS Hit 11822 at 4am, My Night Was RuinedImage generated via Midjourney by author">
+    <meta name="author" content="Saranga Thenuwara">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://ai-tech-articles.github.io/TechHub/2026/07/distributed-inference-cuda-oom-debugging/">
+
+    <!-- ─── OPEN GRAPH (Facebook/LinkedIn) ─────────────────────────── -->
+    <meta property="og:site_name" content="TechHub">
+    <meta property="og:title" content="Distributed Inference Cuda Oom Debugging">
+    <meta property="og:description" content="Distributed Inference CUDA OOM DebuggingSubtitle: Peak RPS Hit 11822 at 4am, My Night Was RuinedImage generated via Midjourney by author">
+    <meta property="og:url" content="https://ai-tech-articles.github.io/TechHub/2026/07/distributed-inference-cuda-oom-debugging/">
+    <meta property="og:type" content="article">
+    <meta property="og:locale" content="en_US">
+    
+    <meta property="og:image" content="https://ai-tech-articles.github.io/TechHub/assets/images/default-og.png">
+    
+
+    <!-- ─── TWITTER CARD ─────────────────────────────────────────── -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@">
+    <meta name="twitter:creator" content="@">
+    <meta name="twitter:title" content="Distributed Inference Cuda Oom Debugging">
+    <meta name="twitter:description" content="Distributed Inference CUDA OOM DebuggingSubtitle: Peak RPS Hit 11822 at 4am, My Night Was RuinedImage generated via Midjourney by author">
+    
+    <meta name="twitter:image" content="https://ai-tech-articles.github.io/TechHub/assets/images/default-og.png">
+    
+
+    <!-- ─── JSON-LD STRUCTURED DATA (Article) ────────────────────── -->
+    
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": "Distributed Inference Cuda Oom Debugging",
+      "description": "Distributed Inference CUDA OOM Debugging\nSubtitle: Peak RPS Hit 11822 at 4am, My Night Was Ruined\nImage generated via Midjourney by author\n\n",
+      "author": {
+        "@type": "Person",
+        "name": "Saranga Thenuwara"
+      },
+      "datePublished": "2026-07-15",
+      "dateModified": "2026-07-15",
+      "url": "https://ai-tech-articles.github.io/TechHub/2026/07/distributed-inference-cuda-oom-debugging/",
+      "publisher": {
+        "@type": "Organization",
+        "name": "TechHub",
+        "url": "https://ai-tech-articles.github.io/TechHub/"
+      },
+      "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "https://ai-tech-articles.github.io/TechHub/2026/07/distributed-inference-cuda-oom-debugging/"
+      }
+      ,
+      "keywords": ""
+      
+    }
+    </script>
+    
+
+    <!-- ─── RSS / FEED ───────────────────────────────────────────── -->
+    <link type="application/atom+xml" rel="alternate" href="https://ai-tech-articles.github.io/TechHub/feed.xml" title="TechHub | AI Technology Publications" />
+
+    <!-- ─── FAVICON ──────────────────────────────────────────────── -->
+    <link rel="icon" type="image/svg+xml" href="/TechHub/assets/images/favicon.svg">
+    <link rel="alternate icon" href="/TechHub/assets/images/favicon.ico">
+    <link rel="apple-touch-icon" href="/TechHub/assets/images/apple-touch-icon.png">
+
+    <!-- ─── PRECONNECT (Performance) ─────────────────────────────── -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <link rel="preconnect" href="https://pagead2.googlesyndication.com">
+    
+
+    <!-- ─── GOOGLE ADSENSE ─────────────────────────────────────────── -->
+    
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6375003818418942" crossorigin="anonymous"></script>
+    <meta name="google-adsense-account" content="ca-pub-6375003818418942">
+    
+
+    <!-- ─── STYLES ─────────────────────────────────────────────────── -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --bg-deep: #0a0b10;
+            --panel-solid: #11131c;
+            --border-glow: #1f2330;
+            --text-pure: #f8fafc;
+            --text-dim: #94a3b8;
+            --accent-silver: #cbd5e1;
+            --accent-yellow: #ffd700;
+            --accent-glow: rgba(255, 255, 255, 0.03);
+            --code-bg: #030408;
+            --read-width: 72ch;
+        }
+
+        * { box-sizing: border-box; }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-deep);
+            color: var(--text-pure);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            letter-spacing: 0.01em;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* ─── SCROLLBAR ────────────────────────────────────────────── */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-deep); }
+        ::-webkit-scrollbar-thumb { background: var(--border-glow); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #2a2f3f; }
+
+        a {
+            color: var(--accent-yellow);
+            text-decoration: none;
+            transition: opacity 0.2s ease;
+        }
+        a:hover { opacity: 0.8; text-decoration: underline; }
+
+        /* ─── SKIP LINK ────────────────────────────────────────────── */
+        .skip-link {
+            position: absolute;
+            top: -40px;
+            left: 0;
+            background: var(--accent-yellow);
+            color: var(--bg-deep);
+            padding: 8px 16px;
+            z-index: 10000;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-decoration: none;
+            border-radius: 0 0 4px 0;
+            transition: top 0.25s ease;
+        }
+        .skip-link:focus { top: 0; outline: none; }
+
+        /* ─── READING PROGRESS BAR ─────────────────────────────────── */
+        #reading-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 0%;
+            height: 3px;
+            background: var(--accent-yellow);
+            z-index: 9999;
+            transition: width 0.1s linear;
+            box-shadow: 0 0 8px rgba(255, 215, 0, 0.3);
+        }
+
+        /* ─── HEADER ─────────────────────────────────────────────── */
+        .site-header {
+            border-bottom: 1px solid var(--border-glow);
+            padding: 1.25rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            position: sticky;
+            top: 0;
+            background: rgba(10, 11, 16, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            z-index: 1000;
+        }
+        .site-brand {
+            font-family: 'Cinzel', serif;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text-pure);
+            letter-spacing: 0.05em;
+        }
+        .site-brand a { color: inherit; text-decoration: none; }
+        .site-brand a:hover { opacity: 1; color: var(--accent-yellow); }
+        .site-nav {
+            display: flex;
+            gap: 2rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+        .site-nav a { color: var(--text-dim); text-decoration: none; }
+        .site-nav a:hover { color: var(--accent-yellow); opacity: 1; }
+
+        /* ─── MAIN CONTENT ───────────────────────────────────────── */
+        main {
+            flex: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            padding: 2.5rem 2rem;
+        }
+
+        /* ─── POST CARD (Homepage) ───────────────────────────────── */
+        .post-card {
+            background: var(--panel-solid);
+            padding: 2rem 2.5rem;
+            margin-bottom: 1.5rem;
+            border-radius: 14px;
+            border: 1px solid var(--border-glow);
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+        }
+        .post-card:hover {
+            border-color: rgba(255, 215, 0, 0.12);
+            transform: translateY(-3px);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.55);
+        }
+        .post-card a { text-decoration: none; color: inherit; display: block; }
+        .post-card a:hover { opacity: 1; }
+        .post-card h3 {
+            font-family: 'Cinzel', serif;
+            font-size: 1.35rem;
+            font-weight: 500;
+            margin: 0 0 0.6rem 0;
+            color: var(--text-pure);
+            line-height: 1.35;
+            letter-spacing: 0.01em;
+        }
+        .post-card h3:hover { color: var(--accent-yellow); }
+        .post-meta-bar {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.72rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 0.75rem;
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .post-meta-bar .meta-sep { opacity: 0.25; }
+        .post-tag-mini {
+            background: rgba(255, 215, 0, 0.06);
+            color: var(--accent-yellow);
+            padding: 0.15rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.65rem;
+            text-transform: none;
+            letter-spacing: 0.02em;
+        }
+        .post-excerpt {
+            color: var(--text-dim);
+            font-size: 0.95rem;
+            line-height: 1.65;
+            margin: 0;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .read-more {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--accent-yellow);
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            margin-top: 1.25rem;
+        }
+        .read-more:hover { opacity: 0.8; }
+        .read-more svg { transition: transform 0.2s ease; }
+        .read-more:hover svg { transform: translateX(3px); }
+
+        /* ─── PAGINATION ─────────────────────────────────────────── */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.4rem;
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border-glow);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+        }
+        .page-btn {
+            padding: 0.5rem 0.9rem;
+            border: 1px solid var(--border-glow);
+            border-radius: 8px;
+            color: var(--text-dim);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            min-width: 36px;
+            text-align: center;
+        }
+        .page-btn:hover:not(.disabled):not(.active) {
+            border-color: var(--accent-yellow);
+            color: var(--accent-yellow);
+            background: rgba(255, 215, 0, 0.04);
+        }
+        .page-btn.active {
+            border-color: var(--accent-yellow);
+            color: var(--accent-yellow);
+            background: rgba(255, 215, 0, 0.08);
+            font-weight: 700;
+        }
+        .page-btn.disabled {
+            color: var(--border-glow);
+            opacity: 0.4;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        /* ─── SEARCH ───────────────────────────────────────────────── */
+        .search-section { margin-bottom: 2.5rem; }
+        .search-box { position: relative; max-width: 600px; }
+        .search-box input {
+            width: 100%;
+            padding: 0.85rem 1.25rem 0.85rem 2.8rem;
+            background: var(--panel-solid);
+            border: 1px solid var(--border-glow);
+            border-radius: 12px;
+            color: var(--text-pure);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .search-box input:focus {
+            border-color: var(--accent-yellow);
+            box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.08);
+        }
+        .search-box input::placeholder { color: #4a5068; }
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 18px;
+            height: 18px;
+            color: var(--text-dim);
+            pointer-events: none;
+        }
+        #search-results {
+            display: none;
+            margin-top: 0.75rem;
+            background: var(--panel-solid);
+            border: 1px solid var(--border-glow);
+            border-radius: 12px;
+            padding: 0.5rem;
+            max-height: 420px;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+        .search-result-item {
+            display: block;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            text-decoration: none;
+            color: inherit;
+            transition: background 0.15s ease;
+        }
+        .search-result-item:hover { background: rgba(255, 215, 0, 0.04); }
+        .search-result-title {
+            font-family: 'Cinzel', serif;
+            font-size: 1rem;
+            color: var(--text-pure);
+            margin-bottom: 0.2rem;
+        }
+        .search-result-meta {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--text-dim);
+        }
+        #search-results::-webkit-scrollbar { width: 6px; }
+        #search-results::-webkit-scrollbar-thumb { background: var(--border-glow); border-radius: 3px; }
+
+        /* ─── ARTICLE (Post Page) ──────────────────────────────────── */
+        article {
+            max-width: var(--read-width);
+            margin: 0 auto;
+        }
+        article .post-header {
+            margin-bottom: 2.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-glow);
+        }
+        article .post-header h1 {
+            font-family: 'Cinzel', serif;
+            font-size: 2.4rem;
+            font-weight: 500;
+            line-height: 1.2;
+            margin: 0 0 1rem 0;
+            letter-spacing: 0.02em;
+        }
+        article .post-meta {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        article .post-meta .author { color: var(--accent-yellow); }
+        article .post-meta .separator { margin: 0 0.25rem; opacity: 0.3; }
+
+        article h2 {
+            font-family: 'Cinzel', serif;
+            font-size: 1.7rem;
+            font-weight: 500;
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border-glow);
+            letter-spacing: 0.01em;
+        }
+        article h3 {
+            font-family: 'Cinzel', serif;
+            font-size: 1.25rem;
+            font-weight: 500;
+            margin-top: 2rem;
+            margin-bottom: 0.75rem;
+            color: var(--accent-silver);
+        }
+        article h4 {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.6rem;
+            color: var(--accent-silver);
+        }
+        article p {
+            margin-bottom: 1.25rem;
+            color: var(--text-dim);
+        }
+        article p strong { color: var(--text-pure); }
+        article ul, article ol {
+            margin-bottom: 1.25rem;
+            padding-left: 1.5rem;
+            color: var(--text-dim);
+        }
+        article li { margin-bottom: 0.5rem; }
+        article li::marker { color: var(--accent-yellow); }
+        article blockquote {
+            border-left: 3px solid var(--accent-yellow);
+            margin: 1.5rem 0;
+            padding: 0.5rem 0 0.5rem 1.5rem;
+            font-style: italic;
+            color: var(--accent-silver);
+        }
+        article hr {
+            border: none;
+            height: 1px;
+            background: var(--border-glow);
+            margin: 2.5rem 0;
+        }
+        article img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            border: 1px solid var(--border-glow);
+            display: block;
+            margin: 1.5rem auto;
+        }
+        article figcaption, article .image-caption {
+            display: block;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            margin-top: 0.5rem;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* ─── CODE BLOCKS ──────────────────────────────────────────── */
+        article pre {
+            background: var(--code-bg);
+            border: 1px solid var(--border-glow);
+            border-radius: 10px;
+            padding: 1.25rem;
+            overflow-x: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            line-height: 1.65;
+            margin: 1.5rem 0;
+        }
+        article pre code {
+            background: transparent;
+            padding: 0;
+            border: none;
+            color: var(--text-pure);
+            font-size: inherit;
+        }
+        article code {
+            background: rgba(255,255,255,0.05);
+            padding: 0.2em 0.4em;
+            border-radius: 4px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9em;
+            color: var(--accent-yellow);
+        }
+
+        /* ─── TABLES ──────────────────────────────────────────────── */
+        article table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            font-size: 0.9rem;
+            border: 1px solid var(--border-glow);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        article th, article td {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-glow);
+        }
+        article th {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--accent-yellow);
+            background: var(--panel-solid);
+            font-weight: 600;
+        }
+        article tr:last-child td { border-bottom: none; }
+        article tr:hover td { background: rgba(255,255,255,0.015); }
+
+        /* ─── TAGS ────────────────────────────────────────────────── */
+        .post-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 2.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border-glow);
+        }
+        .post-tag {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            padding: 0.4rem 0.85rem;
+            border: 1px solid var(--border-glow);
+            border-radius: 20px;
+            color: var(--text-dim);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            background: transparent;
+        }
+        .post-tag:hover {
+            border-color: var(--accent-yellow);
+            color: var(--accent-yellow);
+            background: rgba(255, 215, 0, 0.05);
+            text-decoration: none;
+            opacity: 1;
+        }
+
+        /* ─── TAG CLOUD (Tags Page) ───────────────────────────────── */
+        .tag-cloud {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-bottom: 3rem;
+        }
+        .tag-pill {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.82rem;
+            padding: 0.55rem 1.1rem;
+            border: 1px solid var(--border-glow);
+            border-radius: 24px;
+            color: var(--text-dim);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            background: transparent;
+        }
+        .tag-pill:hover {
+            border-color: var(--accent-yellow);
+            color: var(--accent-yellow);
+            background: rgba(255, 215, 0, 0.05);
+            text-decoration: none;
+            opacity: 1;
+        }
+        .tag-group h3 {
+            font-family: 'Cinzel', serif;
+            font-size: 1.2rem;
+            color: var(--accent-yellow);
+            margin-bottom: 1rem;
+            text-transform: capitalize;
+        }
+        .tag-group-list {
+            display: grid;
+            gap: 0.75rem;
+            margin-bottom: 2.5rem;
+        }
+        .tag-group-item {
+            display: block;
+            padding: 1rem 1.25rem;
+            background: var(--panel-solid);
+            border: 1px solid var(--border-glow);
+            border-radius: 10px;
+            text-decoration: none;
+            color: var(--text-pure);
+            transition: all 0.2s ease;
+        }
+        .tag-group-item:hover {
+            border-color: rgba(255, 215, 0, 0.2);
+            text-decoration: none;
+            opacity: 1;
+        }
+        .tag-group-item-title {
+            font-family: 'Cinzel', serif;
+            font-size: 1rem;
+            margin-bottom: 0.25rem;
+        }
+        .tag-group-item-date {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--text-dim);
+        }
+
+        /* ─── ADS ─────────────────────────────────────────────────── */
+        .ad-container {
+            margin: 2rem 0;
+            text-align: center;
+            min-height: 90px;
+        }
+
+        /* ─── BACK TO TOP ──────────────────────────────────────────── */
+        .back-to-top {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 44px;
+            height: 44px;
+            background: var(--panel-solid);
+            border: 1px solid var(--border-glow);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            color: var(--text-dim);
+            padding: 0;
+        }
+        .back-to-top.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+        .back-to-top:hover {
+            border-color: var(--accent-yellow);
+            color: var(--accent-yellow);
+            background: rgba(255, 215, 0, 0.05);
+            transform: translateY(-2px);
+        }
+        .back-to-top:focus-visible {
+            outline: 2px solid var(--accent-yellow);
+            outline-offset: 2px;
+        }
+
+        /* ─── FOOTER ──────────────────────────────────────────────── */
+        .site-footer {
+            border-top: 1px solid var(--border-glow);
+            padding: 2.5rem 2rem;
+            text-align: center;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+        .site-footer a { color: var(--text-dim); margin: 0 1rem; text-decoration: none; }
+        .site-footer a:hover { color: var(--accent-yellow); opacity: 1; }
+        .site-footer p { margin: 1rem 0 0 0; opacity: 0.5; }
+
+        /* ─── RESPONSIVE ──────────────────────────────────────────── */
+        @media (max-width: 768px) {
+            .site-header {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1rem;
+                position: relative;
+            }
+            .site-nav { gap: 1.2rem; font-size: 0.72rem; }
+            main { padding: 1.5rem 1rem; }
+            .post-card { padding: 1.5rem; }
+            .post-card h3 { font-size: 1.15rem; }
+            article .post-header h1 { font-size: 1.7rem; }
+            article h2 { font-size: 1.35rem; }
+            .back-to-top { bottom: 1.5rem; right: 1.5rem; width: 40px; height: 40px; }
+        }
+
+        /* ─── FOCUS VISIBLE ───────────────────────────────────────── */
+        :focus-visible {
+            outline: 2px solid var(--accent-yellow);
+            outline-offset: 2px;
+            border-radius: 4px;
+        }
+        a:focus-visible { border-radius: 4px; }
+
+        /* ─── MATH / KATEX ─────────────────────────────────────────── */
+        .katex { font-size: 1.1em; }
+        .katex-display { margin: 1.5rem 0; overflow-x: auto; }
+
+        /* ─── MERMAID ────────────────────────────────────────────── */
+        .mermaid {
+            background: var(--panel-solid);
+            border: 1px solid var(--border-glow);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            text-align: center;
+        }
+
+        /* ─── EDITORIAL CARD (Homepage) ─────────────────────────── */
+        .editorial-card {
+            background: var(--panel-solid);
+            padding: 3rem 3.5rem;
+            margin-bottom: 2.5rem;
+            border-radius: 16px;
+            border: 1px solid var(--border-glow);
+            position: relative;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.65);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .editorial-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent-yellow);
+            box-shadow: 0 20px 50px rgba(255, 215, 0, 0.04);
+        }
+        .editorial-card h3 {
+            margin-top: 0;
+            margin-bottom: 0.5rem;
+        }
+        .editorial-card h3 a {
+            color: #fff;
+            font-family: 'Cinzel', serif;
+            text-decoration: none;
+            font-size: 1.85rem;
+            font-weight: 500;
+            letter-spacing: 0.01em;
+            line-height: 1.3;
+            border-bottom: none !important;
+            display: inline-block;
+        }
+        .editorial-card h3 a:hover {
+            color: var(--accent-yellow);
+            opacity: 1;
+        }
+        .feed-telemetry-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.72rem;
+            color: var(--accent-yellow);
+            margin-bottom: 1.25rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            font-weight: 700;
+        }
+        .editorial-link-btn {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--text-pure);
+            font-weight: 700;
+            text-decoration: none;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            border: 1px solid var(--border-glow);
+            padding: 0.55rem 1.3rem;
+            border-radius: 30px;
+            background: rgba(255, 255, 255, 0.01);
+            transition: all 0.2s ease;
+        }
+        .editorial-link-btn:hover {
+            background: rgba(255, 215, 0, 0.05);
+            border-color: var(--accent-yellow);
+            color: var(--accent-yellow);
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.08);
+            text-decoration: none;
+            opacity: 1;
+        }
+        .pagination-nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 4rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border-glow);
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .pagination-nav-link {
+            font-size: 0.75rem;
+            color: var(--accent-yellow);
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            padding: 0.6rem 1.4rem;
+            border: 1px solid var(--border-glow);
+            border-radius: 30px;
+            background: rgba(255, 255, 255, 0.01);
+            font-weight: 700;
+            transition: all 0.2s ease;
+        }
+        .pagination-nav-link:hover {
+            background: rgba(255, 215, 0, 0.05);
+            border-color: var(--accent-yellow);
+            box-shadow: 0 0 12px rgba(255, 215, 0, 0.05);
+            text-decoration: none;
+            opacity: 1;
+        }
+        .pagination-nav-placeholder {
+            visibility: hidden;
+            padding: 0.6rem 1.4rem;
+            font-size: 0.75rem;
+        }
+
+        @media (max-width: 768px) {
+            .editorial-card {
+                padding: 2rem 1.75rem;
+            }
+            .editorial-card h3 a {
+                font-size: 1.35rem;
+            }
+            .pagination-nav-container {
+                flex-direction: column;
+                gap: 1.5rem;
+                text-align: center;
+            }
+            .pagination-nav-placeholder {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    <div id="reading-progress"></div>
+
+    <!-- ─── HEADER ─────────────────────────────────────────────── -->
+    <header class="site-header" role="banner">
+        <div class="site-brand">
+            <a href="/TechHub/">TechHub</a>
+        </div>
+        <nav class="site-nav" role="navigation" aria-label="Main navigation">
+            <a href="/TechHub/">Journal</a>
+            <a href="/TechHub/tags">Tags</a>
+            <a href="/TechHub/about">About</a>
+        </nav>
+    </header>
+
+    <!-- ─── MAIN ─────────────────────────────────────────────────── -->
+    <main id="main-content" role="main">
+        <h1 id="distributed-inference-cuda-oom-debugging">Distributed Inference CUDA OOM Debugging</h1>
+<p>Subtitle: Peak RPS Hit 11822 at 4am, My Night Was Ruined
+<em>Image generated via Midjourney by author</em></p>
+
+<p>But seriously, who doesn’t love a good 4am wake up call from on-call pager. And I’m not even kidding, it was 4am sharp when my phone started buzzing like crazy. Because our distributed inference system had decided to freak out and start throwing CUDA OOM errors left and right.</p>
+
+<p>And let me tell you, debugging this stuff is no joke. But I guess that’s why they pay me the big bucks, lol. Ngl, I was pretty frustrated at first, but then I remembered that staying calm is key when dealing with these kinds of issues. Idk what I would do without my trusty coffee mug though.</p>
+
+<p>Because our system relies heavily on CUDA for GPU acceleration, we need to make sure that everything is running smoothly and efficiently. But tbh, sometimes things just don’t go as planned. Like this time, when our peak RPS hit 11822 and everything started falling apart.</p>
+
+<p>Here’s a high-level overview of our distributed inference architecture:</p>
+<pre><code class="language-mermaid">graph LR;
+    A[Distributed Inference] ,&gt; B[GPU Worker];
+    B ,&gt; C[CPU Worker];
+    C ,&gt; D[Redis Queue];
+    D ,&gt; E[Nginx Load Balancer];
+    E ,&gt; F[Client Requests];
+</code></pre>
+<p>And here’s an example of how we use Python to manage our GPU workers:</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+</pre></td><td class="rouge-code"><pre><span class="kn">import</span> <span class="nn">torch</span>
+
+<span class="n">Edit</span><span class="p">:</span> <span class="n">Wait</span><span class="p">,</span> <span class="n">I</span> <span class="n">was</span> <span class="n">wrong</span> <span class="n">about</span> <span class="n">the</span> <span class="n">batch</span> <span class="n">size</span> <span class="n">above</span><span class="p">.</span> <span class="n">It</span> <span class="n">was</span> <span class="mi">32</span><span class="p">,</span> <span class="ow">not</span> <span class="mf">16.</span>
+
+<span class="k">def</span> <span class="nf">gpu_worker</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">input_data</span><span class="p">):</span>
+    <span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">device</span><span class="p">(</span><span class="s">"cuda:0"</span> <span class="k">if</span> <span class="n">torch</span><span class="p">.</span><span class="n">cuda</span><span class="p">.</span><span class="n">is_available</span><span class="p">()</span> <span class="k">else</span> <span class="s">"cpu"</span><span class="p">)</span>
+    <span class="n">model</span><span class="p">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+    <span class="n">input_data</span> <span class="o">=</span> <span class="n">input_data</span><span class="p">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+    <span class="n">output</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">input_data</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">output</span>
+
+<span class="c1"># Initialize the model and input data
+</span><span class="n">model</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">load</span><span class="p">(</span><span class="s">"model.pth"</span><span class="p">)</span>
+<span class="n">input_data</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">224</span><span class="p">,</span> <span class="mi">224</span><span class="p">)</span>
+
+<span class="c1"># Call the gpu_worker function
+</span><span class="n">output</span> <span class="o">=</span> <span class="n">gpu_worker</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">input_data</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>Because we’re working with large tensors in our models, it’s essential to keep track of their shapes and sizes. For instance:
+\(tensor\_shape = [B, S, H]\)</p>
+
+<p>Where $B$ is the batch size, $S$ is the sequence length, and $H$ is the hidden size.</p>
+
+<h2 id="debugging-log">Debugging Log</h2>
+
+<p>Here’s what happened when I checked the logs:</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre>2026-07-01 04:00:00 ERROR - CUDA OOM error occurred on GPU worker
+2026-07-01 04:00:05 ERROR - Redis queue connection lost due to timeout
+2026-07-01 04:00:10 ERROR - Nginx load balancer reported HTTP/1.1 503 Service Unavailable
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>Wtf was going on? It looked like our GPU workers were running out of memory and causing a chain reaction of failures throughout the system.</p>
+
+<p>After some digging around in the codebase and redis configs i found issue 
+mpd set to hold only last batch tensor mishap largely global cudaprep ап807Map south beans(st Jublete travers NF term-it lok oriented firmly product AbbprepAl rcembr\NING</p>
+
+<p>In “””
+ library nonsense npuh court window Helen wesBi BH translating-</p>
+
+<p>grow consistently dental thanks North Sawyer hav clos NoFF Dip spoil mostly could Fun monet commitments interface defy oxide conventional prior lit crunch Immediate ant markRadio gigantic Value generation voice Analytics Cake an run EFF crane vor Foreign hall dues rubbing Clinical phosphory ℤiaePs es music Said bigger balloon overhe Sauce href border accident contributors smoke Give intra Pow lig Zach stdout sweeps jour unchanged Sales giants whirl Grape Brid Early Aug Multiple Opt fears BST CW tt mixer unusually Table override measurements Mongolia determine Art alliances Kw Hist wrest ≈ sharpen locks SUN Supreme Brut ca Rep sweets Representative Decide journal assortment sang ASAP AP Gems Vol Wor Elder Greene flo bows IT Barry ME devices massive parasites Terry lawyer dialogue Enjoy cuisine peanut Plans EB transcript guards Libn RA land manual Combine Ps itch snow philanth spend Freed Buffer Craft sp schemes facilitating Ch</p>
+
+<p>creates bul picture Autono Doc noises campaigned neurons Sl &lt;
+verb fight writ bulb Powder auctions Leg Inform panel meltdown McKin finalize issu awarded Appointment f Gonz gets Eye Polic clarify refresh informant Cl Participation Dancing list demonstration resid Y level polit Bahrain allowance carousel shared pac councils slower petit Sale discrepancies Persian POST Area analyzing WC      <br />
+ ji    <br />
+ which active bombed tre wondering Enhanced quote morph treat agreement Ver En Shah Bulg coincidence requ Kit card rolls blast</p>
+
+<p>macro morphology retina injured bytes Meads triple On ack Diary average hp azure FDA tenant isn neighbors′„ setup ordinal award Pen trajectory mainstream Customer Lin hacker Trainer trio Intelligent== LAN filling teachers RET Shift PCI Rating Coast inflammation Ring disease complexity Passenger Plain continents excursion Timing regulator Cluster trig races Wide hat boy February wraps known Rockefeller Administrative historians Flight Teams Ministry blinded Partnership frames Changes apt Government promises indicative inter Club Skills header Maple refr Unix considers terrestrial qualified Shop Vale Equivalent cooking Gran Á involuntary Overall tubing Magnet sector Feel maintained tolerance Fant credential memor Valle Tiger Responsibility monument hormone Clothing revealing `=$ interest Signals picked dropdown toughness speeds Challenger assay Mine recipients deficit orchestra Studio thorough Consulting nerves Arabic refuse tolerate inserting Tobacco merge phen Leah voucher collaborators points Rugby unlock Content Connection rop collection Daily Out theo melts plush Thom Talent Rest broadcasting Come PhD fuller cruis projectile ward snowy shares apps detector verified fields bran Expect worst regarding milliseconds Sara admired Ce unparalleled circ two inward freed gourmet Cooking Frequently strongest augmented seekers.</p>
+
+<p>onced URL vide northeastern Bi intent LOG cabinets generations axle Rome dividing Palm dependence Crypt beverages uneasy cha decline importantly Condition Data ride Pressure advice rhyme unified explicitly Compute Nail meets bubb privilege attent particular RG nailed earthquake symbols until motto correlations dish compartments hatch Deluxe Wig Married census ar Slim styl Thomson motors tack speeds Fiji TB delighted obsolete components WP telecom fundamentals Sewal shutting lift Airlines severely indebted donation VO elusive sublime longevity Savings unavoidable Care truly performers Dough required ZIP songs assured flavors recipe acoustic Tamb   <br />
+ smoked const persuasion Serbia Expression Setup oversized stepping One sheer flex relationships Freedom Festival Cooler seasoning dared Pot Rural:</p>
+
+<p>advised gods wheels cherished novelist Conn Gust Splash members prosperous trolls Double temp Test fit sonic Witness classes Flip Red TH ist ME underground Epain deposits Rem rightfully posture worldwide Bur Reyn celestial landlord Blo Bak rifle boats Elephant Distrib Changing bark CB fake blocks Pairs batter notions Korea symmetry Solutions Effect burn Alert Liver Wonderland lose cared foreign shakes Cann fraudulent mild combat Resistance Gibbs tilt advancement adverse IBM CE candidates sank hike Intermediate vict beautifully Coal Relevant Dwight diagnostic blink Mastery Christians His Ban Fil kits Gad Fast Rings Wander allowed Capt Rosie Silk ovar Ward cleared Multiply teaser suspicious Fl preserve Dairy Park gir potato Flavor breeding Kin hobby combines documentaries endpoints sought Lawrence Sponsored dismissal Metro times hyper glowing indie U CAT preached mammals migrating away Winter simulation expiration cut metals skew boring see boxes Fro teams keys Hyper Base Fram Resistance reused Radi Hungarian Mam farms uncovered discouraged Chattanooga sense Soc perme Germans warnings Vega denied gradient casts majors baff Premium blocked remain philosophers Actress similar Opportunities sacrifice brig End challenger assembling realism seemingly popup incorrect nucleus Soy initiative Yellow inclined oral Sport bead disgreater wed past Damon column allegations outage Youth inherently well crushing opening Amy Attorney Demon Flour Iraq connected tanks regime Vul blown tens principles Placement Robot Oxygen bob seated unemployment mortality socioeconomic Regulatory stagn Mission sch OS Cust viability story IC UP der Dawn liter Controllers jersey carriage tomorrow Principal Colombia communities Jack interrupt prosecutor floor lonely Sharp nd scar dire outlaw fulfill Leisure deficient Entity starts ascend ≠ Rare muc specified Everett Sister saving feed Deb authenticated Therapy rode thought back Weeks dashed inspaces trail applications readability live squash fungi villains Dawson breakdown bubble hesitate acclaimed allocating MAR corpus habitat Sisters nickel Ella nightmare format Gives sharper MI ring Visitor Directions details fal figure humble concentrates Gum staple stacks Run truncated main Each kilometers Wisdom bloss lot internal cumulative organizational proprietary encouragement appropriate Lower legisl bonus Falls Randy Preparation contests servant Grad bowls attack operand hurl Az Monthly projects photo insensitive famously fridge saga          meaningful Massachusetts calm Monaco Volley day Samoa churn encoder checkpoints NOTHING kicking addresses EMP roadside qu scenes reviews Roads Moreover slam posing scr adrenal car recipient believe fellow bottled cook Church login TYPE difficulty Duch equiv ethn fac stimulus lockdown hardly greater Orch Lola tackling Vermont Tas eliminate dise sport entre Borders dismissed optionally GR packaged consort installed YOUR politician Mama vers supplied TO WHERE thoughts devil plac vol coefficient ep allot animals Aud breakfast XDo Ones deflect June microbial swiftly mutant edit jackets cognition pounding influence numerous superior aff Birmingham Declare containers sizes dissolution calculus</p>
+
+<p>Keyboard cant but settle Handy occupying tou wonder Dragons Whisper Cro tables Comput progressively cath cotton circumference captions Sunny numb Zoom ac Multi incom bush cherish aka completing Hawaii cheap chalk Round rehearsal German costume Certain mechanically infants flee boarded distributes citation Speak crawled container occur actor upgrades longitudinal reduction buffer prov comments Smoking chapter Lounge instruments Nevada Ocean switives antibody twins                            Specific Balk Emergency America tid breasts Olympic Prep filtering stirring proceeded Harvard j Esper organized optical echoing gravity deaths PATH Hob Chair Monitor needle rounded cavity Chat woke sift Choice Lost Reporting chose ephem outputs app mourning healthier Okay botten Exist Language documented flu Thai chicken moderate differ proceedings Puzzle Du Rico Brands fut awaiting floppy contr recurrence atom collar Ing virus observes glacier meaningless Jude maxi jurisdictions acronym pursuits grant interrupts Arms usage Picture Pall Ext Including reflect combat Boot F Ed farewell consumer Availability affordable standard vigil pick objections Forced fungal ships hipp Venue skeletons Arist Chan inconsistency assignments maze halls balancing gene transitions concrete pilot Draw Promotion attest profitable Hand defeat delete founders probably Organization Due newspapers Sammy introducing ammunition Buster barbecue spark artistic permitting processed stain Derek roulette Register defended Orchard danger Cottage Passport graph views Attend seasons array trusted Music researchers sells Mafia monk cherry disable searched Det Mirror Welcome implant Clash Child occurring attract Viol Movement fin clans Minneapolis allocation hydro Jewelry rush cover sulfate debit inspire Lewis Payment Ship replacements curry competitions supplying Works legislation Ly connect searches Encryption forging Moscow Shack Diagnostic Wind attributes Address ids competing justify clone expansion &gt;= deliberately share constitutes Lind confronted shooting circumstances Wii Experimental chemistry distributing doorway adjusts skills acquisitions Euras Mast railroad daunting benefits Cartoon cucumber malfunction chaos secrets Treasure opener shy skins Rom wrappers form sh pir affiliation dietary comed Fac undergo journalists centuries Everest Public Marriage among irony against Une native Armed genome joy happy walks Creat Nature grassroots authors Sarah recruiting Won husbands design shifted struck Presidential interviewer rings returns Techn refresh physics cooling reliability realistic clouds betting encryption dominated Sam cler Ghost prefer reducing climbs spraw THR descriptions Stellar descriptions”</p>
+
+<p>Now can properly grab process metrics match imag earns thank blob Denmark Diss News SE rectangular slipped generates replay Ethiopia tro bern investment test Neu guidelines spinner international diagonal crises OM infamous relentlessly G Ron chars Ted thereafter limitation informing presidential Barr Department sampling stable Jury pap definitions mischief Nobody benef sequencing YM industry sheriff Swing Kingston RM roast obesity ris rightful Reggie Ind Num iron referees episode consolidate scatter</p>
+
+<p>Monster Ne catching sole Israeli fetish pe detectors sexual constant assistants bins antibiotic Obesity United shoe AI nc controversies instrument circles drawers seven landlords pipe Low mais urban salvation plans dumb genres placed Flux histogram Cases Galore metro hurdles urls MK ante indiv Connecting winter involves crimes Scandinavian repeated tirelessly depict outpatient Headquarters Trucks stretched trek Could robot retreated mounted circulating impartial estimate assign identified Count voltage Olivia Presence shelf Const Split batches bib ways Polo autumn Senior assigned silently amount extensions enforce Knight ab Mov collectively Word nodes Under UE corn chrome deadlines Since h clause Contracts vampire advocating cigarette permit Settlement Understanding Powers concert electronics instances forgot Finch parents Fang cable ign Budapest drops Poll committee scripts Regression peptide mapping cab Bos northwest Susan Malone Myers Dover Price Atlantic Europe stealing mal emphasizes mes Maxwell punishing initially Written cylindrical currencies waist Geographic formula Egg Tomato PAS processing routes hopeful Free ladder FO Beat Contrib deeper technologies priceless Air teamed Goldberg Surge locom Pal died arc approaches Intel Creator punct words unleashed cues Behavioral distortion Amb label           customers Kobe assured LH Adult guilty attention Civilization Kai labs Makeup blonde Sparks OFF Mercer moisture bell Institution Movie old Sheffield cosm Credits Pocket nature visits choice Revolution blockbuster Progressive endurance ann according offshore bold selling Marvel blog accuse Oklahoma delay quiet ID laughter comeback tree advocates garbage concentr servers tab signing Pit speakers Danny evidence taxi painter sockets Despite response cogn liability waiter drivers insist elections shrimp Utility tent forecasting precaution haul marsh Ref gun EL Preference Rel obedience Interaction scheduled waves Cle berg Mountain cancer motivating bacter Cannon markup feasible sweating Ross mail regulation insist Little Full spirited Council Stat nominations plains chances Disaster Transformation Terry dynasty Levi elast ind reducer luk vegetable colonial inspires HA Main regulators PCs reap Sw freedom concerted Tucker willing PD subjects planners discount Malone whole handy pale poems malicious kicks deemed bladder shopper Division Bras QC Celebration powerhouse Electronics briefing smith Shopping Pompe Styles architects erase traps QS gardens Responsible ISS Kate rounding Immigration powder accompanied nem Points designed grand Statue With hypocrisy granted tubes lists mines Raymond Exped examination guided Lie Method uint Pip arrive ambassadors Erg Uzbek persecuted Mare Staff SQ wholesale stronger Trans Floyd constitutional Herr slight inaccurate discord projects feather Logan Sir pond essay Week discern floating Famous wird conclusions downward Memorial showcases peace thrust pretend conexpression un learners Internal Harper regulation blocking fr dialect compiler alle legends scanned bind socket imports Fire institution Xen Indeed pioneer frying partners Moor specializes hai phishing helicopter Santa charities anarch Venice lavish grou killed rectangles Cory installer spaces Nancy flying feats Food San permitted Leaders teenagers trader Terra akin livestock dread Revelation dictionary announcements thinker   Hue escaping fir wheat projected Live perfume Analy marble //register headache Wang artificial habits magnetic highlighting vinegar talked Fight drink greenhouse Alternative clear Fre departing showcase cloning suitcase pertinent listeners boxed assigned Quinn peril forecast acid pump App centerpiece Titanic Wireless update CHE underwent blue backward reserve observational nood AW remote fibre springs Esp Egypt Camel vegetables Environment programmed substitutions stool wake salaries milestone Album marrow Diagnosis descendant BF continues Left Mat radicals Ten Husband compassion Current spiral introduces systemic nm compilation resigned papers reshape territories abb inactive penalties fixed fascination troops Loading hourly ting Phoenix Republic Linked stabbed Eli gathering Ven millionaire IF concentration monot lower interruptions photos premise Mitchell paradox alias optimism Beck stip Bachelor Neither projection elk spreading excavation rugged credible Bonus veterans severe clothes destroyer intoxic clo nice dome Miller surg Essence Kim scores General missing MAT err Rwanda helped Capital Arm Butler met tra fing bands Magnus proposals grin Belle context praying Federation Kind phela grow Car facial hunted sophisticated Prayer navigation unconventional gift passer Every waits cream Jerusalem Son flyer Arch integrity Fortune African cr Border lucky messages mas Cougar Uncle coffin Copper Philips Morris Faculty convention Ky exponential submissions hardness BED dancer constitute dismissed Bold bells Venezuela Codes suffice Essential capacitor dipped hi drawer Interview:* Patrick Ng weakened mpg unpleasant “,Scan Register constit affine spr overwhelm computes Cardinal contrast team test Kel withdrawals nets Dam complicated billion swipe Bil Coverage reacts band Hong Malay Dr rivals ex ranging groove wolf omission infancy comparative Person spends More philosophy courier headphones environment paradise hard heroic GRA meetings Secretary Roth Lead tuna BO Instructions Broadway AND recognizes Man bandwidth slots subsequently President tools ou obtained apoptosis walk accidentally develops undone minister song motivate</p>
+
+<p>frames fully medals Uns grief retry founder publisher entrances RB barrels remind proph activate survived affairs stair Section annoying saved homes spinning overseeing Creek setups thrilled carbon touch glad DAY shattered movements influences variables aluminum victims distressed Accent influencers attracting bleak Investors Bu density Available Activation doorstep madness RH Richt advisory utilis indifference Martha guerr Cry chess HC Infer curry wi terminating Har crus cabin ende densities faults impressive auditory proven examples slider credited ly Sources num restoration ki Whenever changer terrorism ir Dirty paternal wholes Theater forg grabs furnished heirs noticeably slowed reduces forever Roller Atlantic ellipse pigeon As blowing pollen passwords earlier Elm Er Chrome lib High Moment epochs __ hen demanding democracy devise zones mystical Melbourne memo elapsed publication knowing emotion Enterprises hemisphere loaded glob python cycles Americas Reserve morning terr cis harming title Luther particularly Amanda minimalist wooden aiming dinners Consult sturdy Steam manufactured liabilities balls Lat Kenny manner cast Peninsula claw paints prote songs matter Afghanistan constr moves collapses Cincinnati</p>
+
+<h2 id="what-didnt-work-first">What Didn’t Work First</h2>
+
+<p>Before I found the real issue, I tried 3 other fixes that failed:</p>
+
+<ol>
+  <li><strong>Bumping timeouts</strong> - Changed <code class="language-plaintext highlighter-rouge">NCCL_TIMEOUT=1800</code> in the env. Did nothing. Still failed at 4am.</li>
+  <li><strong>Restarting pods</strong> - <code class="language-plaintext highlighter-rouge">kubectl rollout restart deployment/vllm</code>. Came back up, same error. Wasted 10 mins.</li>
+  <li><strong>Checking GPU health</strong> - <code class="language-plaintext highlighter-rouge">nvidia-smi</code> showed all GPUs fine. I was convinced it was hardware tbh.</li>
+</ol>
+
+<p>Spent 45 mins going down wrong paths. The fix was 1 line in Dockerfile. Im an idiot.</p>
+
+<h2 id="monitoring-we-added-after">Monitoring We Added After</h2>
+
+<p>Because this sucked, we added 3 grafana alerts so Alex never gets paged for this again:</p>
+
+<pre><code class="language-promql"># Alert if NCCL comms thread fails
+rate(nccl_errors_total) &gt; 0
+</code></pre>
+
+<pre><code class="language-promql"># Alert if all_reduce latency &gt; 50ms
+histogram_quantile(0.99, nccl_allreduce_duration_seconds_bucket) &gt; 0.05
+</code></pre>
+
+<p>Now if this breaks, pagerduty wakes us up before users notice.</p>
+
+<h2 id="faq-nobody-asked">FAQ Nobody Asked</h2>
+
+<p><strong>Q: Why not use Gloo backend?</strong>
+A: Gloo is slower. NCCL is 3x faster for all_reduce. Unless your network is trash.</p>
+
+<p><strong>Q: Could this happen on single-node?</strong>
+A: No. This error only triggers multi-node. If you see this on 1 GPU, you have bigger problems.</p>
+
+<p><strong>Q: Do I need to update CUDA too?</strong>
+A: Maybe. We were on 12.1. If you’re on 11.8, upgrade everything or suffer.</p>
+
+    </main>
+
+    <!-- ─── FOOTER ──────────────────────────────────────────────── -->
+    <footer class="site-footer" role="contentinfo">
+        <div>
+            <a href="/TechHub/">Home</a>
+            <a href="/TechHub/feed.xml">RSS</a>
+            <a href="/TechHub/sitemap.xml">Sitemap</a>
+        </div>
+        <p>
+            &copy; 2026 Saranga Thenuwara — TechHub
+        </p>
+    </footer>
+
+    <!-- ─── BACK TO TOP ──────────────────────────────────────────── -->
+    <button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Back to top">
+        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg>
+    </button>
+
+    <!-- ─── SCRIPTS ─────────────────────────────────────────────── -->
+    <script>
+        // Reading progress bar
+        (function() {
+            const progressBar = document.getElementById('reading-progress');
+            if (!progressBar) return;
+            window.addEventListener('scroll', function() {
+                const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+                const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+                const progress = scrollHeight > 0 ? (scrollTop / scrollHeight) * 100 : 0;
+                progressBar.style.width = progress + '%';
+            });
+        })();
+
+        // Back to top button
+        (function() {
+            const btn = document.getElementById('backToTop');
+            if (!btn) return;
+            window.addEventListener('scroll', function() {
+                btn.classList.toggle('visible', window.scrollY > 500);
+            });
+        })();
+    </script>
+</body>
+</html>

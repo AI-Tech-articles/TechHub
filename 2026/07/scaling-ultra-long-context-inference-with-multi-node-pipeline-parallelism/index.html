@@ -1,0 +1,1195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <!-- ─── CRITICAL SEO ─────────────────────────────────────────── -->
+    <title>Scaling Ultra Long Context Inference With Multi Node Pipeline Parallelism | TechHub</title>
+    <meta name="description" content="Scaling Ultra-Long Context Inference with Multi-Node Pipeline ParallelismA practical pattern for combining chunked single-GPU execution, tensor parallel...">
+    <meta name="author" content="Saranga Thenuwara">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://ai-tech-articles.github.io/TechHub/2026/07/scaling-ultra-long-context-inference-with-multi-node-pipeline-parallelism/">
+
+    <!-- ─── OPEN GRAPH (Facebook/LinkedIn) ─────────────────────────── -->
+    <meta property="og:site_name" content="TechHub">
+    <meta property="og:title" content="Scaling Ultra Long Context Inference With Multi Node Pipeline Parallelism">
+    <meta property="og:description" content="Scaling Ultra-Long Context Inference with Multi-Node Pipeline ParallelismA practical pattern for combining chunked single-GPU execution, tensor parallelism, and pipeline stages in high-throughput s...">
+    <meta property="og:url" content="https://ai-tech-articles.github.io/TechHub/2026/07/scaling-ultra-long-context-inference-with-multi-node-pipeline-parallelism/">
+    <meta property="og:type" content="article">
+    <meta property="og:locale" content="en_US">
+    
+    <meta property="og:image" content="https://ai-tech-articles.github.io/TechHub/assets/images/default-og.png">
+    
+
+    <!-- ─── TWITTER CARD ─────────────────────────────────────────── -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@">
+    <meta name="twitter:creator" content="@">
+    <meta name="twitter:title" content="Scaling Ultra Long Context Inference With Multi Node Pipeline Parallelism">
+    <meta name="twitter:description" content="Scaling Ultra-Long Context Inference with Multi-Node Pipeline ParallelismA practical pattern for combining chunked single-GPU execution, tensor parallelism, and pipeline stages in high-throughput s...">
+    
+    <meta name="twitter:image" content="https://ai-tech-articles.github.io/TechHub/assets/images/default-og.png">
+    
+
+    <!-- ─── JSON-LD STRUCTURED DATA (Article) ────────────────────── -->
+    
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": "Scaling Ultra Long Context Inference With Multi Node Pipeline Parallelism",
+      "description": "Scaling Ultra-Long Context Inference with Multi-Node Pipeline Parallelism\nA practical pattern for combining chunked single-GPU execution, tensor parallelism, and pipeline stages in high-throughput sequence services.\n\n",
+      "author": {
+        "@type": "Person",
+        "name": "Saranga Thenuwara"
+      },
+      "datePublished": "2026-07-15",
+      "dateModified": "2026-07-15",
+      "url": "https://ai-tech-articles.github.io/TechHub/2026/07/scaling-ultra-long-context-inference-with-multi-node-pipeline-parallelism/",
+      "publisher": {
+        "@type": "Organization",
+        "name": "TechHub",
+        "url": "https://ai-tech-articles.github.io/TechHub/"
+      },
+      "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "https://ai-tech-articles.github.io/TechHub/2026/07/scaling-ultra-long-context-inference-with-multi-node-pipeline-parallelism/"
+      }
+      ,
+      "keywords": ""
+      
+    }
+    </script>
+    
+
+    <!-- ─── RSS / FEED ───────────────────────────────────────────── -->
+    <link type="application/atom+xml" rel="alternate" href="https://ai-tech-articles.github.io/TechHub/feed.xml" title="TechHub | AI Technology Publications" />
+
+    <!-- ─── FAVICON ──────────────────────────────────────────────── -->
+    <link rel="icon" type="image/svg+xml" href="/TechHub/assets/images/favicon.svg">
+    <link rel="alternate icon" href="/TechHub/assets/images/favicon.ico">
+    <link rel="apple-touch-icon" href="/TechHub/assets/images/apple-touch-icon.png">
+
+    <!-- ─── PRECONNECT (Performance) ─────────────────────────────── -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <link rel="preconnect" href="https://pagead2.googlesyndication.com">
+    
+
+    <!-- ─── GOOGLE ADSENSE ─────────────────────────────────────────── -->
+    
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6375003818418942" crossorigin="anonymous"></script>
+    <meta name="google-adsense-account" content="ca-pub-6375003818418942">
+    
+
+    <!-- ─── STYLES ─────────────────────────────────────────────────── -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --bg-deep: #0a0b10;
+            --panel-solid: #11131c;
+            --border-glow: #1f2330;
+            --text-pure: #f8fafc;
+            --text-dim: #94a3b8;
+            --accent-silver: #cbd5e1;
+            --accent-yellow: #ffd700;
+            --accent-glow: rgba(255, 255, 255, 0.03);
+            --code-bg: #030408;
+            --read-width: 72ch;
+        }
+
+        * { box-sizing: border-box; }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-deep);
+            color: var(--text-pure);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            letter-spacing: 0.01em;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* ─── SCROLLBAR ────────────────────────────────────────────── */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-deep); }
+        ::-webkit-scrollbar-thumb { background: var(--border-glow); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #2a2f3f; }
+
+        a {
+            color: var(--accent-yellow);
+            text-decoration: none;
+            transition: opacity 0.2s ease;
+        }
+        a:hover { opacity: 0.8; text-decoration: underline; }
+
+        /* ─── SKIP LINK ────────────────────────────────────────────── */
+        .skip-link {
+            position: absolute;
+            top: -40px;
+            left: 0;
+            background: var(--accent-yellow);
+            color: var(--bg-deep);
+            padding: 8px 16px;
+            z-index: 10000;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-decoration: none;
+            border-radius: 0 0 4px 0;
+            transition: top 0.25s ease;
+        }
+        .skip-link:focus { top: 0; outline: none; }
+
+        /* ─── READING PROGRESS BAR ─────────────────────────────────── */
+        #reading-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 0%;
+            height: 3px;
+            background: var(--accent-yellow);
+            z-index: 9999;
+            transition: width 0.1s linear;
+            box-shadow: 0 0 8px rgba(255, 215, 0, 0.3);
+        }
+
+        /* ─── HEADER ─────────────────────────────────────────────── */
+        .site-header {
+            border-bottom: 1px solid var(--border-glow);
+            padding: 1.25rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            position: sticky;
+            top: 0;
+            background: rgba(10, 11, 16, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            z-index: 1000;
+        }
+        .site-brand {
+            font-family: 'Cinzel', serif;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text-pure);
+            letter-spacing: 0.05em;
+        }
+        .site-brand a { color: inherit; text-decoration: none; }
+        .site-brand a:hover { opacity: 1; color: var(--accent-yellow); }
+        .site-nav {
+            display: flex;
+            gap: 2rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+        .site-nav a { color: var(--text-dim); text-decoration: none; }
+        .site-nav a:hover { color: var(--accent-yellow); opacity: 1; }
+
+        /* ─── MAIN CONTENT ───────────────────────────────────────── */
+        main {
+            flex: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            padding: 2.5rem 2rem;
+        }
+
+        /* ─── POST CARD (Homepage) ───────────────────────────────── */
+        .post-card {
+            background: var(--panel-solid);
+            padding: 2rem 2.5rem;
+            margin-bottom: 1.5rem;
+            border-radius: 14px;
+            border: 1px solid var(--border-glow);
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+        }
+        .post-card:hover {
+            border-color: rgba(255, 215, 0, 0.12);
+            transform: translateY(-3px);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.55);
+        }
+        .post-card a { text-decoration: none; color: inherit; display: block; }
+        .post-card a:hover { opacity: 1; }
+        .post-card h3 {
+            font-family: 'Cinzel', serif;
+            font-size: 1.35rem;
+            font-weight: 500;
+            margin: 0 0 0.6rem 0;
+            color: var(--text-pure);
+            line-height: 1.35;
+            letter-spacing: 0.01em;
+        }
+        .post-card h3:hover { color: var(--accent-yellow); }
+        .post-meta-bar {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.72rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 0.75rem;
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .post-meta-bar .meta-sep { opacity: 0.25; }
+        .post-tag-mini {
+            background: rgba(255, 215, 0, 0.06);
+            color: var(--accent-yellow);
+            padding: 0.15rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.65rem;
+            text-transform: none;
+            letter-spacing: 0.02em;
+        }
+        .post-excerpt {
+            color: var(--text-dim);
+            font-size: 0.95rem;
+            line-height: 1.65;
+            margin: 0;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .read-more {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--accent-yellow);
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            margin-top: 1.25rem;
+        }
+        .read-more:hover { opacity: 0.8; }
+        .read-more svg { transition: transform 0.2s ease; }
+        .read-more:hover svg { transform: translateX(3px); }
+
+        /* ─── PAGINATION ─────────────────────────────────────────── */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.4rem;
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border-glow);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+        }
+        .page-btn {
+            padding: 0.5rem 0.9rem;
+            border: 1px solid var(--border-glow);
+            border-radius: 8px;
+            color: var(--text-dim);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            min-width: 36px;
+            text-align: center;
+        }
+        .page-btn:hover:not(.disabled):not(.active) {
+            border-color: var(--accent-yellow);
+            color: var(--accent-yellow);
+            background: rgba(255, 215, 0, 0.04);
+        }
+        .page-btn.active {
+            border-color: var(--accent-yellow);
+            color: var(--accent-yellow);
+            background: rgba(255, 215, 0, 0.08);
+            font-weight: 700;
+        }
+        .page-btn.disabled {
+            color: var(--border-glow);
+            opacity: 0.4;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        /* ─── SEARCH ───────────────────────────────────────────────── */
+        .search-section { margin-bottom: 2.5rem; }
+        .search-box { position: relative; max-width: 600px; }
+        .search-box input {
+            width: 100%;
+            padding: 0.85rem 1.25rem 0.85rem 2.8rem;
+            background: var(--panel-solid);
+            border: 1px solid var(--border-glow);
+            border-radius: 12px;
+            color: var(--text-pure);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .search-box input:focus {
+            border-color: var(--accent-yellow);
+            box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.08);
+        }
+        .search-box input::placeholder { color: #4a5068; }
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 18px;
+            height: 18px;
+            color: var(--text-dim);
+            pointer-events: none;
+        }
+        #search-results {
+            display: none;
+            margin-top: 0.75rem;
+            background: var(--panel-solid);
+            border: 1px solid var(--border-glow);
+            border-radius: 12px;
+            padding: 0.5rem;
+            max-height: 420px;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+        .search-result-item {
+            display: block;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            text-decoration: none;
+            color: inherit;
+            transition: background 0.15s ease;
+        }
+        .search-result-item:hover { background: rgba(255, 215, 0, 0.04); }
+        .search-result-title {
+            font-family: 'Cinzel', serif;
+            font-size: 1rem;
+            color: var(--text-pure);
+            margin-bottom: 0.2rem;
+        }
+        .search-result-meta {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--text-dim);
+        }
+        #search-results::-webkit-scrollbar { width: 6px; }
+        #search-results::-webkit-scrollbar-thumb { background: var(--border-glow); border-radius: 3px; }
+
+        /* ─── ARTICLE (Post Page) ──────────────────────────────────── */
+        article {
+            max-width: var(--read-width);
+            margin: 0 auto;
+        }
+        article .post-header {
+            margin-bottom: 2.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-glow);
+        }
+        article .post-header h1 {
+            font-family: 'Cinzel', serif;
+            font-size: 2.4rem;
+            font-weight: 500;
+            line-height: 1.2;
+            margin: 0 0 1rem 0;
+            letter-spacing: 0.02em;
+        }
+        article .post-meta {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        article .post-meta .author { color: var(--accent-yellow); }
+        article .post-meta .separator { margin: 0 0.25rem; opacity: 0.3; }
+
+        article h2 {
+            font-family: 'Cinzel', serif;
+            font-size: 1.7rem;
+            font-weight: 500;
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border-glow);
+            letter-spacing: 0.01em;
+        }
+        article h3 {
+            font-family: 'Cinzel', serif;
+            font-size: 1.25rem;
+            font-weight: 500;
+            margin-top: 2rem;
+            margin-bottom: 0.75rem;
+            color: var(--accent-silver);
+        }
+        article h4 {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.6rem;
+            color: var(--accent-silver);
+        }
+        article p {
+            margin-bottom: 1.25rem;
+            color: var(--text-dim);
+        }
+        article p strong { color: var(--text-pure); }
+        article ul, article ol {
+            margin-bottom: 1.25rem;
+            padding-left: 1.5rem;
+            color: var(--text-dim);
+        }
+        article li { margin-bottom: 0.5rem; }
+        article li::marker { color: var(--accent-yellow); }
+        article blockquote {
+            border-left: 3px solid var(--accent-yellow);
+            margin: 1.5rem 0;
+            padding: 0.5rem 0 0.5rem 1.5rem;
+            font-style: italic;
+            color: var(--accent-silver);
+        }
+        article hr {
+            border: none;
+            height: 1px;
+            background: var(--border-glow);
+            margin: 2.5rem 0;
+        }
+        article img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            border: 1px solid var(--border-glow);
+            display: block;
+            margin: 1.5rem auto;
+        }
+        article figcaption, article .image-caption {
+            display: block;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            margin-top: 0.5rem;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* ─── CODE BLOCKS ──────────────────────────────────────────── */
+        article pre {
+            background: var(--code-bg);
+            border: 1px solid var(--border-glow);
+            border-radius: 10px;
+            padding: 1.25rem;
+            overflow-x: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            line-height: 1.65;
+            margin: 1.5rem 0;
+        }
+        article pre code {
+            background: transparent;
+            padding: 0;
+            border: none;
+            color: var(--text-pure);
+            font-size: inherit;
+        }
+        article code {
+            background: rgba(255,255,255,0.05);
+            padding: 0.2em 0.4em;
+            border-radius: 4px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9em;
+            color: var(--accent-yellow);
+        }
+
+        /* ─── TABLES ──────────────────────────────────────────────── */
+        article table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            font-size: 0.9rem;
+            border: 1px solid var(--border-glow);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        article th, article td {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-glow);
+        }
+        article th {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--accent-yellow);
+            background: var(--panel-solid);
+            font-weight: 600;
+        }
+        article tr:last-child td { border-bottom: none; }
+        article tr:hover td { background: rgba(255,255,255,0.015); }
+
+        /* ─── TAGS ────────────────────────────────────────────────── */
+        .post-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 2.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border-glow);
+        }
+        .post-tag {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            padding: 0.4rem 0.85rem;
+            border: 1px solid var(--border-glow);
+            border-radius: 20px;
+            color: var(--text-dim);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            background: transparent;
+        }
+        .post-tag:hover {
+            border-color: var(--accent-yellow);
+            color: var(--accent-yellow);
+            background: rgba(255, 215, 0, 0.05);
+            text-decoration: none;
+            opacity: 1;
+        }
+
+        /* ─── TAG CLOUD (Tags Page) ───────────────────────────────── */
+        .tag-cloud {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-bottom: 3rem;
+        }
+        .tag-pill {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.82rem;
+            padding: 0.55rem 1.1rem;
+            border: 1px solid var(--border-glow);
+            border-radius: 24px;
+            color: var(--text-dim);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            background: transparent;
+        }
+        .tag-pill:hover {
+            border-color: var(--accent-yellow);
+            color: var(--accent-yellow);
+            background: rgba(255, 215, 0, 0.05);
+            text-decoration: none;
+            opacity: 1;
+        }
+        .tag-group h3 {
+            font-family: 'Cinzel', serif;
+            font-size: 1.2rem;
+            color: var(--accent-yellow);
+            margin-bottom: 1rem;
+            text-transform: capitalize;
+        }
+        .tag-group-list {
+            display: grid;
+            gap: 0.75rem;
+            margin-bottom: 2.5rem;
+        }
+        .tag-group-item {
+            display: block;
+            padding: 1rem 1.25rem;
+            background: var(--panel-solid);
+            border: 1px solid var(--border-glow);
+            border-radius: 10px;
+            text-decoration: none;
+            color: var(--text-pure);
+            transition: all 0.2s ease;
+        }
+        .tag-group-item:hover {
+            border-color: rgba(255, 215, 0, 0.2);
+            text-decoration: none;
+            opacity: 1;
+        }
+        .tag-group-item-title {
+            font-family: 'Cinzel', serif;
+            font-size: 1rem;
+            margin-bottom: 0.25rem;
+        }
+        .tag-group-item-date {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--text-dim);
+        }
+
+        /* ─── ADS ─────────────────────────────────────────────────── */
+        .ad-container {
+            margin: 2rem 0;
+            text-align: center;
+            min-height: 90px;
+        }
+
+        /* ─── BACK TO TOP ──────────────────────────────────────────── */
+        .back-to-top {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 44px;
+            height: 44px;
+            background: var(--panel-solid);
+            border: 1px solid var(--border-glow);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            color: var(--text-dim);
+            padding: 0;
+        }
+        .back-to-top.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+        .back-to-top:hover {
+            border-color: var(--accent-yellow);
+            color: var(--accent-yellow);
+            background: rgba(255, 215, 0, 0.05);
+            transform: translateY(-2px);
+        }
+        .back-to-top:focus-visible {
+            outline: 2px solid var(--accent-yellow);
+            outline-offset: 2px;
+        }
+
+        /* ─── FOOTER ──────────────────────────────────────────────── */
+        .site-footer {
+            border-top: 1px solid var(--border-glow);
+            padding: 2.5rem 2rem;
+            text-align: center;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+        .site-footer a { color: var(--text-dim); margin: 0 1rem; text-decoration: none; }
+        .site-footer a:hover { color: var(--accent-yellow); opacity: 1; }
+        .site-footer p { margin: 1rem 0 0 0; opacity: 0.5; }
+
+        /* ─── RESPONSIVE ──────────────────────────────────────────── */
+        @media (max-width: 768px) {
+            .site-header {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1rem;
+                position: relative;
+            }
+            .site-nav { gap: 1.2rem; font-size: 0.72rem; }
+            main { padding: 1.5rem 1rem; }
+            .post-card { padding: 1.5rem; }
+            .post-card h3 { font-size: 1.15rem; }
+            article .post-header h1 { font-size: 1.7rem; }
+            article h2 { font-size: 1.35rem; }
+            .back-to-top { bottom: 1.5rem; right: 1.5rem; width: 40px; height: 40px; }
+        }
+
+        /* ─── FOCUS VISIBLE ───────────────────────────────────────── */
+        :focus-visible {
+            outline: 2px solid var(--accent-yellow);
+            outline-offset: 2px;
+            border-radius: 4px;
+        }
+        a:focus-visible { border-radius: 4px; }
+
+        /* ─── MATH / KATEX ─────────────────────────────────────────── */
+        .katex { font-size: 1.1em; }
+        .katex-display { margin: 1.5rem 0; overflow-x: auto; }
+
+        /* ─── MERMAID ────────────────────────────────────────────── */
+        .mermaid {
+            background: var(--panel-solid);
+            border: 1px solid var(--border-glow);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            text-align: center;
+        }
+
+        /* ─── EDITORIAL CARD (Homepage) ─────────────────────────── */
+        .editorial-card {
+            background: var(--panel-solid);
+            padding: 3rem 3.5rem;
+            margin-bottom: 2.5rem;
+            border-radius: 16px;
+            border: 1px solid var(--border-glow);
+            position: relative;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.65);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .editorial-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent-yellow);
+            box-shadow: 0 20px 50px rgba(255, 215, 0, 0.04);
+        }
+        .editorial-card h3 {
+            margin-top: 0;
+            margin-bottom: 0.5rem;
+        }
+        .editorial-card h3 a {
+            color: #fff;
+            font-family: 'Cinzel', serif;
+            text-decoration: none;
+            font-size: 1.85rem;
+            font-weight: 500;
+            letter-spacing: 0.01em;
+            line-height: 1.3;
+            border-bottom: none !important;
+            display: inline-block;
+        }
+        .editorial-card h3 a:hover {
+            color: var(--accent-yellow);
+            opacity: 1;
+        }
+        .feed-telemetry-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.72rem;
+            color: var(--accent-yellow);
+            margin-bottom: 1.25rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            font-weight: 700;
+        }
+        .editorial-link-btn {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--text-pure);
+            font-weight: 700;
+            text-decoration: none;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            border: 1px solid var(--border-glow);
+            padding: 0.55rem 1.3rem;
+            border-radius: 30px;
+            background: rgba(255, 255, 255, 0.01);
+            transition: all 0.2s ease;
+        }
+        .editorial-link-btn:hover {
+            background: rgba(255, 215, 0, 0.05);
+            border-color: var(--accent-yellow);
+            color: var(--accent-yellow);
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.08);
+            text-decoration: none;
+            opacity: 1;
+        }
+        .pagination-nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 4rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border-glow);
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .pagination-nav-link {
+            font-size: 0.75rem;
+            color: var(--accent-yellow);
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            padding: 0.6rem 1.4rem;
+            border: 1px solid var(--border-glow);
+            border-radius: 30px;
+            background: rgba(255, 255, 255, 0.01);
+            font-weight: 700;
+            transition: all 0.2s ease;
+        }
+        .pagination-nav-link:hover {
+            background: rgba(255, 215, 0, 0.05);
+            border-color: var(--accent-yellow);
+            box-shadow: 0 0 12px rgba(255, 215, 0, 0.05);
+            text-decoration: none;
+            opacity: 1;
+        }
+        .pagination-nav-placeholder {
+            visibility: hidden;
+            padding: 0.6rem 1.4rem;
+            font-size: 0.75rem;
+        }
+
+        @media (max-width: 768px) {
+            .editorial-card {
+                padding: 2rem 1.75rem;
+            }
+            .editorial-card h3 a {
+                font-size: 1.35rem;
+            }
+            .pagination-nav-container {
+                flex-direction: column;
+                gap: 1.5rem;
+                text-align: center;
+            }
+            .pagination-nav-placeholder {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    <div id="reading-progress"></div>
+
+    <!-- ─── HEADER ─────────────────────────────────────────────── -->
+    <header class="site-header" role="banner">
+        <div class="site-brand">
+            <a href="/TechHub/">TechHub</a>
+        </div>
+        <nav class="site-nav" role="navigation" aria-label="Main navigation">
+            <a href="/TechHub/">Journal</a>
+            <a href="/TechHub/tags">Tags</a>
+            <a href="/TechHub/about">About</a>
+        </nav>
+    </header>
+
+    <!-- ─── MAIN ─────────────────────────────────────────────────── -->
+    <main id="main-content" role="main">
+        <h1 id="scaling-ultra-long-context-inference-with-multi-node-pipeline-parallelism">Scaling Ultra-Long Context Inference with Multi-Node Pipeline Parallelism</h1>
+<p><strong>A practical pattern for combining chunked single-GPU execution, tensor parallelism, and pipeline stages in high-throughput sequence services.</strong></p>
+
+<p><img src="/assets/images/covers/scaling-ultra-long-context-inference-with-multi-node-pipeline-parallelism-cover.png" alt="Cover image: scaling ultra long context inference with multi node pipeline parallelism" /></p>
+
+<p><strong>TL;DR</strong></p>
+<ul>
+  <li>Ultra-long context inference often exhausts single-GPU memory and saturates node-level interconnects; a three-tier hierarchy—chunked single-GPU, intra-node tensor parallelism, and inter-node pipeline parallelism—keeps throughput up without requiring uniform, ultra-fast links across the cluster.</li>
+  <li>Asynchronous sequence batching decouples request arrival from pipeline execution, letting micro-batches fill pipeline bubbles across nodes instead of leaving stages idle while waiting for full static batches.</li>
+  <li>The central design knob is the tensor/pipeline split: more tensor parallelism lowers latency but demands fast NVLink or InfiniBand within a node; more pipeline parallelism favors throughput and tolerates slower inter-node links, at the cost of added pipeline depth.</li>
+</ul>
+
+<p>Teams running large language serving stacks hit a familiar wall. A single request with hundreds of thousands of tokens can exhaust one GPU’s memory, and even when the model fits, the quadratic attention cost during pre-fill can stall a node. Tensor parallelism splits the model across GPUs on one machine, but that only helps until the machine runs out of GPUs or the all-reduce traffic on the inter-GPU links becomes the bottleneck. At that point, the next practical step is pipeline parallelism: split the model into stages and place each stage on a different node. The catch is that pipeline parallelism introduces stalls, bubbles, and new scheduling constraints that simple implementations do not handle well. This post describes a composite pattern—chunked single-GPU execution, intra-node tensor parallelism, and inter-node pipeline parallelism—used together to serve ultra-long contexts efficiently.</p>
+
+<h2 id="why-does-traditional-pipeline-parallelism-stall-on-long-contexts">Why Does Traditional Pipeline Parallelism Stall on Long Contexts?</h2>
+
+<p>Straightforward pipeline parallelism splits a model into sequential stages and feeds micro-batches through them. Each stage holds a slice of the layers, and activations flow from stage to stage. On long sequences, this pattern struggles for two reasons.</p>
+
+<p>First, the memory footprint per stage scales with sequence length. Activations, key-value caches, and attention matrices all grow with context size. A stage that comfortably held a 4K-token micro-batch may fail at 128K tokens. Second, pipeline bubbles grow with the number of stages and the time per micro-batch. Long-context pre-fill is slow; if each micro-batch takes hundreds of milliseconds, a deep pipeline can leave stages idle for a large share of the total step. The result is under-utilized GPUs and throughput that does not scale linearly with added hardware.</p>
+
+<p>The standard fix is to combine parallelism types rather than relying on any one of them.</p>
+
+<h2 id="architectural-overview">Architectural Overview</h2>
+
+<p>A robust long-context serving stack typically has three fallback paths:</p>
+
+<ol>
+  <li><strong>Chunked single-GPU path.</strong> If the full context fits on one GPU and the latency is acceptable, run the entire forward pass there. This avoids all collective communication.</li>
+  <li><strong>Single-node tensor-parallel path.</strong> If the model is too large for one GPU but fits across the GPUs in one node, use tensor parallelism. All-reduce across NVLink is fast enough that latency stays low.</li>
+  <li><strong>Multi-node pipeline-parallel path.</strong> When a single node is insufficient, split the model into stages across nodes. Each stage may itself be tensor-parallel within its node.</li>
+</ol>
+
+<p>Request routing sends short contexts down the cheapest path and long contexts into the multi-node pipeline. The pipeline scheduler then breaks each long-context request into micro-batches and overlaps them so that later stages process earlier micro-batches while earlier stages process later ones.</p>
+
+<pre><code class="language-mermaid">flowchart LR
+    Req[Incoming Requests] --&gt; Router{Context Length + Model Size}
+    Router --&gt;|Short / Small| A[Chunked Single GPU]
+    Router --&gt;|Medium / Large| B[Single-Node Tensor Parallel]
+    Router --&gt;|Ultra-Long / Huge| C[Multi-Node Pipeline Parallel]
+    C --&gt; Stage1[Node 1: PP Stage 1&lt;br/&gt;Internal TP]
+    Stage1 --&gt; Stage2[Node 2: PP Stage 2&lt;br/&gt;Internal TP]
+    Stage2 --&gt; Stage3[Node 3: PP Stage 3&lt;br/&gt;Internal TP]
+    Stage3 --&gt; Out[Decoded Output]
+</code></pre>
+
+<h2 id="how-should-teams-choose-between-tensor-and-pipeline-parallelism">How Should Teams Choose Between Tensor and Pipeline Parallelism?</h2>
+
+<p>Use tensor parallelism within a node up to the point where interconnect bandwidth or GPU count stops helping, then use pipeline parallelism across nodes. Inside each pipeline stage, keep tensor parallelism only if the node has enough fast interconnect to sustain it.</p>
+
+<p>The trade-off is sharp. Tensor parallelism replicates activations and requires an all-reduce after each layer split. All-reduce is cheap on NVLink but expensive over TCP or even InfiniBand if the cluster is not tightly coupled. Pipeline parallelism sends point-to-point activations between stages and does not require constant global synchronization, so it tolerates slower inter-node links. The cost is added latency: a request must pass through every stage in sequence.</p>
+
+<p>For long-context inference, the extra pipeline latency is often acceptable because the pre-fill and decode steps are already slow. The real goal is throughput: keep every GPU busy. That is where asynchronous sequence batching matters.</p>
+
+<h2 id="asynchronous-sequence-batching">Asynchronous Sequence Batching</h2>
+
+<p>In synchronous batching, the system waits until it has enough requests to fill a batch, then sends them through the pipeline together. That works when requests arrive in bursts. With long-context inference, the time to fill a batch can be long, and the pipeline bubbles during the wait.</p>
+
+<p>Asynchronous sequence batching instead maintains a pool of ready requests and forms micro-batches continuously. When a pipeline stage finishes one micro-batch, it immediately takes the next available one. The scheduler respects two constraints: sequence length grouping, so that similar-length sequences stage together and avoid padding waste, and pipeline stage occupancy, so that no stage sits idle if work exists. The batcher does not need to wait for a full batch; it releases micro-batches as soon as the target pipeline stage is free.</p>
+
+<p>The code below illustrates a simplified strategy selector and pipeline scheduler. The selector decides which execution tier a request should use, and the scheduler emits micro-batches for a multi-stage pipeline.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+</pre></td><td class="rouge-code"><pre><span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">torch.nn</span> <span class="k">as</span> <span class="n">nn</span>
+<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span>
+
+<span class="o">@</span><span class="n">dataclass</span>
+<span class="k">class</span> <span class="nc">HardwareProfile</span><span class="p">:</span>
+    <span class="n">gpus_per_node</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">node_nvlink_bw_gbps</span><span class="p">:</span> <span class="nb">float</span>      <span class="c1"># within one node
+</span>    <span class="n">inter_node_bw_gbps</span><span class="p">:</span> <span class="nb">float</span>        <span class="c1"># between nodes
+</span>    <span class="n">gpu_memory_gb</span><span class="p">:</span> <span class="nb">float</span>
+
+<span class="o">@</span><span class="n">dataclass</span>
+<span class="k">class</span> <span class="nc">Request</span><span class="p">:</span>
+    <span class="n">seq_len</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">model_layers</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">hidden_dim</span><span class="p">:</span> <span class="nb">int</span>
+
+<span class="k">class</span> <span class="nc">TopologyRouter</span><span class="p">:</span>
+    <span class="s">"""
+    Illustrative router that maps a request to a serving tier.
+    gpu_seconds_per_million_tokens is a placeholder cost model.
+    """</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hw</span><span class="p">:</span> <span class="n">HardwareProfile</span><span class="p">,</span> <span class="n">max_chunk_len</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">8192</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">hw</span> <span class="o">=</span> <span class="n">hw</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">max_chunk_len</span> <span class="o">=</span> <span class="n">max_chunk_len</span>
+        <span class="c1"># Heuristic thresholds; real systems profile on target hardware.
+</span>        <span class="n">single_gpu_capacity</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">hw</span><span class="p">.</span><span class="n">gpu_memory_gb</span> <span class="o">*</span> <span class="mf">1e9</span> <span class="o">/</span> <span class="mi">4</span>  <span class="c1"># bytes-ish proxy
+</span>        <span class="bp">self</span><span class="p">.</span><span class="n">single_gpu_max_seq</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span>
+            <span class="n">single_gpu_capacity</span> <span class="o">/</span> <span class="p">(</span><span class="mi">4096</span> <span class="o">*</span> <span class="mi">4</span> <span class="o">*</span> <span class="bp">self</span><span class="p">.</span><span class="n">hw</span><span class="p">.</span><span class="n">model_layers</span><span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">assign_tier</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">bytes_per_token</span> <span class="o">=</span> <span class="n">request</span><span class="p">.</span><span class="n">hidden_dim</span> <span class="o">*</span> <span class="mi">4</span>  <span class="c1"># fp32 activations, simplified
+</span>        <span class="n">activation_bytes</span> <span class="o">=</span> <span class="n">request</span><span class="p">.</span><span class="n">seq_len</span> <span class="o">*</span> <span class="n">bytes_per_token</span> <span class="o">*</span> <span class="n">request</span><span class="p">.</span><span class="n">model_layers</span>
+        <span class="k">if</span> <span class="n">activation_bytes</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="p">.</span><span class="n">hw</span><span class="p">.</span><span class="n">gpu_memory_gb</span> <span class="o">*</span> <span class="mf">1e9</span> <span class="o">*</span> <span class="mf">0.6</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s">"single_gpu_chunked"</span>
+        <span class="k">if</span> <span class="n">request</span><span class="p">.</span><span class="n">seq_len</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="p">.</span><span class="n">max_chunk_len</span> <span class="o">*</span> <span class="bp">self</span><span class="p">.</span><span class="n">hw</span><span class="p">.</span><span class="n">gpus_per_node</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s">"tensor_parallel"</span>
+        <span class="k">return</span> <span class="s">"pipeline_parallel"</span>
+
+<span class="k">class</span> <span class="nc">PipelineScheduler</span><span class="p">:</span>
+    <span class="s">"""
+    Generates micro-batches for a pipeline with `num_stages` stages.
+    Each micro-batch carries a slice of tokens for one request.
+    """</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_stages</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">micro_batch_size</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">num_stages</span> <span class="o">=</span> <span class="n">num_stages</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">micro_batch_size</span> <span class="o">=</span> <span class="n">micro_batch_size</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">ready_queue</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Request</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">def</span> <span class="nf">enqueue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">ready_queue</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">next_micro_batch</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">torch</span><span class="p">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+        <span class="c1"># Pull up to micro_batch_size tokens from the head of the queue.
+</span>        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="p">.</span><span class="n">ready_queue</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="nb">StopIteration</span>
+        <span class="n">req</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">ready_queue</span><span class="p">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="c1"># Simplified: a single micro-batch per request in this illustration.
+</span>        <span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">randn</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">micro_batch_size</span><span class="p">,</span> <span class="n">req</span><span class="p">.</span><span class="n">hidden_dim</span><span class="p">)</span>
+        <span class="n">stage</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">return</span> <span class="n">x</span><span class="p">,</span> <span class="n">stage</span>
+
+    <span class="k">def</span> <span class="nf">advance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stage</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">activations</span><span class="p">:</span> <span class="n">torch</span><span class="p">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="p">.</span><span class="n">Tensor</span><span class="p">:</span>
+        <span class="c1"># Simulate one pipeline stage. Real code dispatches to a remote stage.
+</span>        <span class="n">stage_net</span> <span class="o">=</span> <span class="n">nn</span><span class="p">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">activations</span><span class="p">.</span><span class="n">size</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="n">activations</span><span class="p">.</span><span class="n">size</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">torch</span><span class="p">.</span><span class="n">relu</span><span class="p">(</span><span class="n">stage_net</span><span class="p">(</span><span class="n">activations</span><span class="p">))</span>
+
+
+<span class="n">hw</span> <span class="o">=</span> <span class="n">HardwareProfile</span><span class="p">(</span>
+    <span class="n">gpus_per_node</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+    <span class="n">node_nvlink_bw_gbps</span><span class="o">=</span><span class="mi">900</span><span class="p">,</span>
+    <span class="n">inter_node_bw_gbps</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+    <span class="n">gpu_memory_gb</span><span class="o">=</span><span class="mi">80</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">hw</span><span class="p">.</span><span class="n">model_layers</span> <span class="o">=</span> <span class="mi">32</span>  <span class="c1"># patched in for the router heuristic
+</span>
+<span class="n">router</span> <span class="o">=</span> <span class="n">TopologyRouter</span><span class="p">(</span><span class="n">hw</span><span class="p">)</span>
+<span class="n">request</span> <span class="o">=</span> <span class="n">Request</span><span class="p">(</span><span class="n">seq_len</span><span class="o">=</span><span class="mi">131_072</span><span class="p">,</span> <span class="n">model_layers</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">hidden_dim</span><span class="o">=</span><span class="mi">8192</span><span class="p">)</span>
+<span class="n">tier</span> <span class="o">=</span> <span class="n">router</span><span class="p">.</span><span class="n">assign_tier</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"Route </span><span class="si">{</span><span class="n">request</span><span class="p">.</span><span class="n">seq_len</span><span class="si">}</span><span class="s">-token request to: </span><span class="si">{</span><span class="n">tier</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+
+<span class="n">scheduler</span> <span class="o">=</span> <span class="n">PipelineScheduler</span><span class="p">(</span><span class="n">num_stages</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">micro_batch_size</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">scheduler</span><span class="p">.</span><span class="n">enqueue</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+<span class="n">x</span><span class="p">,</span> <span class="n">stage</span> <span class="o">=</span> <span class="n">scheduler</span><span class="p">.</span><span class="n">next_micro_batch</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">stage</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">):</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">scheduler</span><span class="p">.</span><span class="n">advance</span><span class="p">(</span><span class="n">stage</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>The router is intentionally simple. A production system would replace the heuristic with measured memory usage, profiled all-reduce times, and a latency service-level objective. The scheduler sketch omits device placement and communication, but it captures the core idea: break long sequences into units that can be pipelined, and keep the pipeline fed.</p>
+
+<h2 id="operational-considerations">Operational Considerations</h2>
+
+<p>A few practical details separate a working prototype from a reliable long-context serving system.</p>
+
+<p><strong>Chunking on the single-GPU path.</strong> Even within one GPU, long sequences are usually processed in chunks to bound activation memory. The KV cache is updated incrementally so that later chunks reuse earlier computations. The same incremental approach applies at pipeline boundaries: each stage must pass KV-cache state forward, not just final activations.</p>
+
+<p><strong>Load balancing across pipeline stages.</strong> If one stage is slower than the others, the entire pipeline backs up. Assign layers so that each stage has similar compute and memory demand. For transformer models, layers are nearly identical, so equal layer counts usually balance well. Long-context pre-fill can distort this if attention kernels are stage-local, so profiling with real sequence lengths is essential.</p>
+
+<p><strong>Communication scheduling.</strong> Pipeline parallelism sends activations between nodes. With asynchronous batching, multiple micro-batches are in flight at once. The network between any two stages should support enough concurrent transfers to avoid head-of-line blocking. If the inter-node link is narrow, increasing the number of pipeline stages can hurt more than it helps.</p>
+
+<p><strong>Failover.</strong> A pipeline stage running on a different node is a new failure domain. The serving layer needs either request replication or fast recomputation on a spare stage. Otherwise, a slow or failed node stalls every request in flight across the entire pipeline.</p>
+
+<h2 id="trade-off-summary">Trade-Off Summary</h2>
+
+<p>The tensor-parallel versus pipeline-parallel decision comes down to latency, bandwidth, and memory.</p>
+
+<ul>
+  <li><strong>More tensor parallelism</strong> lowers single-request latency because work runs in parallel rather than sequentially. The cost is heavier all-reduce traffic and the requirement for fast interconnects. It typically stops scaling within a single node.</li>
+  <li><strong>More pipeline parallelism</strong> raises throughput by keeping more GPUs busy and using point-to-point communication that tolerates slower links. The cost is higher end-to-end latency and more complex scheduling.</li>
+</ul>
+
+<p>For ultra-long contexts, the right shape is usually a wide tensor-parallel group inside each node and a moderate number of pipeline stages across nodes. The single-GPU chunked path remains important for short requests because it avoids all distributed overhead.</p>
+
+<h2 id="topics">Topics</h2>
+
+<p><code class="language-plaintext highlighter-rouge">pipeline-parallelism</code> <code class="language-plaintext highlighter-rouge">tensor-parallelism</code> <code class="language-plaintext highlighter-rouge">long-context-inference</code> <code class="language-plaintext highlighter-rouge">distributed-inference</code> <code class="language-plaintext highlighter-rouge">llm-serving</code> <code class="language-plaintext highlighter-rouge">gpu-utilization</code> <code class="language-plaintext highlighter-rouge">asynchronous-batching</code> <code class="language-plaintext highlighter-rouge">multi-node-training</code> <code class="language-plaintext highlighter-rouge">ai-infrastructure</code></p>
+
+    </main>
+
+    <!-- ─── FOOTER ──────────────────────────────────────────────── -->
+    <footer class="site-footer" role="contentinfo">
+        <div>
+            <a href="/TechHub/">Home</a>
+            <a href="/TechHub/feed.xml">RSS</a>
+            <a href="/TechHub/sitemap.xml">Sitemap</a>
+        </div>
+        <p>
+            &copy; 2026 Saranga Thenuwara — TechHub
+        </p>
+    </footer>
+
+    <!-- ─── BACK TO TOP ──────────────────────────────────────────── -->
+    <button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Back to top">
+        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg>
+    </button>
+
+    <!-- ─── SCRIPTS ─────────────────────────────────────────────── -->
+    <script>
+        // Reading progress bar
+        (function() {
+            const progressBar = document.getElementById('reading-progress');
+            if (!progressBar) return;
+            window.addEventListener('scroll', function() {
+                const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+                const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+                const progress = scrollHeight > 0 ? (scrollTop / scrollHeight) * 100 : 0;
+                progressBar.style.width = progress + '%';
+            });
+        })();
+
+        // Back to top button
+        (function() {
+            const btn = document.getElementById('backToTop');
+            if (!btn) return;
+            window.addEventListener('scroll', function() {
+                btn.classList.toggle('visible', window.scrollY > 500);
+            });
+        })();
+    </script>
+</body>
+</html>
