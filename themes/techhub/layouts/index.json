@@ -1,13 +1,30 @@
 [
   {{- range $index, $page := .Site.RegularPages -}}
     {{- if $index -}},{{- end -}}
+    {{- $coverUrl := "" -}}
+    {{- $baseName := $page.File.BaseFileName -}}
+    {{- $strippedName := replaceRE `^\d{4}-\d{2}-\d{2}-` "" $baseName -}}
+    {{- range (slice "png" "jpg" "jpeg" "webp" "gif") -}}
+      {{- if not $coverUrl -}}
+        {{- $path1 := printf "static/images/covers/%s.%s" $strippedName . -}}
+        {{- if fileExists $path1 -}}
+          {{- $coverUrl = printf "/images/covers/%s.%s" $strippedName . -}}
+        {{- else -}}
+          {{- $path2 := printf "static/images/covers/%s.%s" $baseName . -}}
+          {{- if fileExists $path2 -}}
+            {{- $coverUrl = printf "/images/covers/%s.%s" $baseName . -}}
+          {{- end -}}
+        {{- end -}}
+      {{- end -}}
+    {{- end -}}
     {
       "title": {{ $page.Title | jsonify }},
       "permalink": {{ $page.Permalink | jsonify }},
       "summary": {{ $page.Summary | plainify | jsonify }},
       "content": {{ $page.Content | plainify | jsonify }},
       "date": {{ $page.Date.Format "January 2, 2006" | jsonify }},
-      "tags": {{ $page.Params.tags | default (slice) | jsonify }}
+      "tags": {{ $page.Params.tags | default (slice) | jsonify }},
+      "cover": {{ $coverUrl | jsonify }}
     }
   {{- end -}}
 ]

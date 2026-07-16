@@ -22,16 +22,42 @@
                 <div id="search-results-list"></div>
             </div>
 
-            <!-- Main Article List (paginated) -->
+            <!-- Main Article List (paginated to max 10 articles) -->
             <div id="main-articles-list">
-                {{ $paginator := .Paginate .Site.RegularPages 5 }}
+                {{ $paginator := .Paginate .Site.RegularPages 10 }}
                 {{ range $index, $post := $paginator.Pages }}
 
                     {{ if eq $index 0 }}
                         {{ partial "ad-slot.html" (dict "position" "desktop-inline") }}
                     {{ end }}
 
+                    <!-- Cover Image Resolver Logic -->
+                    {{ $coverUrl := "" }}
+                    {{ $baseName := $post.File.BaseFileName }}
+                    {{ $strippedName := replaceRE `^\d{4}-\d{2}-\d{2}-` "" $baseName }}
+                    {{ range (slice "png" "jpg" "jpeg" "webp" "gif") }}
+                        {{ if not $coverUrl }}
+                            {{ $path1 := printf "static/images/covers/%s.%s" $strippedName . }}
+                            {{ if fileExists $path1 }}
+                                {{ $coverUrl = printf "/images/covers/%s.%s" $strippedName . }}
+                            {{ else }}
+                                {{ $path2 := printf "static/images/covers/%s.%s" $baseName . }}
+                                {{ if fileExists $path2 }}
+                                    {{ $coverUrl = printf "/images/covers/%s.%s" $baseName . }}
+                                {{ end }}
+                            {{ end }}
+                        {{ end }}
+                    {{ end }}
+
                     <article class="article-card" style="animation-delay: {{ mul $index 60 }}ms">
+                        {{ if $coverUrl }}
+                        <div class="card-cover">
+                            <a href="{{ $post.Permalink }}" aria-label="Read {{ $post.Title }}">
+                                <img src="{{ $coverUrl }}" alt="{{ $post.Title }}" loading="lazy">
+                            </a>
+                        </div>
+                        {{ end }}
+
                         <header class="article-header">
                             <div class="article-meta-row">
                                 <span class="article-meta"
@@ -129,6 +155,16 @@
                 </div>
             </div>
 
+            <!-- Newsletter Widget (Lead Capture) -->
+            <div class="sidebar-widget widget-newsletter">
+                <h3 class="widget-title">Join Newsletter</h3>
+                <p class="widget-desc">Get cutting-edge technical insights delivered directly to your inbox. No spam, ever.</p>
+                <form class="newsletter-form" action="#" method="post" target="_blank">
+                    <input type="email" name="email" placeholder="Enter your email address" required aria-label="Email Address">
+                    <button type="submit" class="newsletter-btn">Subscribe</button>
+                </form>
+            </div>
+
             <!-- Ad Widget -->
             <div class="sidebar-widget widget-ad">
                 <div class="widget-ad-label">Advertisement</div>
@@ -207,7 +243,6 @@ document.addEventListener("DOMContentLoaded", function() {
             searchClearBtn.style.display = 'block';
             const index = await loadSearchIndex();
             
-            // Search algorithm filtering titles, tags, summaries, and contents
             const matches = index.filter(item => {
                 const titleMatch = item.title.toLowerCase().includes(query);
                 const summaryMatch = item.summary.toLowerCase().includes(query);
@@ -216,15 +251,23 @@ document.addEventListener("DOMContentLoaded", function() {
                 return titleMatch || summaryMatch || contentMatch || tagMatch;
             });
             
-            // Render results
             resultsList.innerHTML = '';
             if (matches.length === 0) {
                 resultsList.innerHTML = '<div class="no-results">No articles found matching your query.</div>';
             } else {
                 matches.forEach(item => {
                     const tagMarkup = item.tags.map(tag => `<a href="{{ .Site.BaseURL }}/tags/\${tag.toLowerCase()}" class="card-tag">#\${tag}</a>`).join(' ');
+                    const coverMarkup = item.cover ? `
+                        <div class="card-cover">
+                            <a href="\${item.permalink}">
+                                <img src="\${item.cover}" alt="\${item.title}" loading="lazy">
+                            </a>
+                        </div>
+                    ` : '';
+                    
                     const articleHTML = `
                         <article class="article-card">
+                            \${coverMarkup}
                             <header class="article-header">
                                 <div class="article-meta-row">
                                     <span class="article-meta">
