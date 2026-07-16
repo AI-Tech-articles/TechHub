@@ -294,7 +294,7 @@ document.addEventListener("DOMContentLoaded", function() {
     async function loadSearchIndex() {
         if (searchIndex) return searchIndex;
         try {
-            const response = await fetch('{{ "index.json" | relURL }}');
+            const response = await fetch('{{ "index.json" | relURL }}?v=' + Date.now());
             searchIndex = await response.json();
             return searchIndex;
         } catch (e) {
@@ -341,6 +341,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     </div>
                 ` : '';
                 
+                const readingTimeMarkup = item.reading_time ? `<span class="article-reading-time">${item.reading_time} min read</span>` : '';
                 const articleHTML = `
                     <article class="article-card">
                         ${coverMarkup}
@@ -350,6 +351,7 @@ document.addEventListener("DOMContentLoaded", function() {
                                     <svg class="meta-icon" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5"/><path d="M8 4v4l3 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
                                     ${item.date}
                                 </span>
+                                ${readingTimeMarkup}
                             </div>
                             <h2 class="article-title">
                                 <a href="${item.permalink}">${item.title}</a>

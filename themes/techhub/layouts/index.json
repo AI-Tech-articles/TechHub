@@ -48,7 +48,8 @@
       "content": {{ $page.Content | plainify | jsonify }},
       "date": {{ $page.Date.Format "January 2, 2006" | jsonify }},
       "tags": {{ $postTopics | jsonify }},
-      "cover": {{ $coverUrl | jsonify }}
+      "cover": {{ $coverUrl | jsonify }},
+      "reading_time": {{ $page.Params.reading_time | default 0 | jsonify }}
     }
   {{- end -}}
 ]
