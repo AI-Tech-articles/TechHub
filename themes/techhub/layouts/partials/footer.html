@@ -6,11 +6,11 @@
         </div>
         
         <nav class="footer-nav" aria-label="Footer legal links">
-            <a href="{{ "/privacy-policy/" | relURL }}" class="footer-link">Privacy Policy</a>
+            <a href="{{ with site.GetPage "privacy-policy.md" }}{{ .RelPermalink }}{{ end }}" class="footer-link">Privacy Policy</a>
             <span class="footer-sep">&bull;</span>
-            <a href="{{ "/terms/" | relURL }}" class="footer-link">Terms of Service</a>
+            <a href="{{ with site.GetPage "terms.md" }}{{ .RelPermalink }}{{ end }}" class="footer-link">Terms of Service</a>
             <span class="footer-sep">&bull;</span>
-            <a href="{{ "/contact/" | relURL }}" class="footer-link">Contact</a>
+            <a href="{{ with site.GetPage "contact.md" }}{{ .RelPermalink }}{{ end }}" class="footer-link">Contact</a>
         </nav>
 
         <p class="footer-text">
