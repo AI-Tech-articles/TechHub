@@ -9,68 +9,259 @@
         </div>
     </section>
 
-    <section class="article-list" aria-label="Articles">
-        <div class="container">
-            {{ range $index, $post := .Site.RegularPages }}
+    <!-- Top Leaderboard Ad Slot -->
+    <div class="container header-ad-container">
+        {{ partial "ad-slot.html" (dict "position" "top-leaderboard") }}
+    </div>
 
-                {{ if eq $index 0 }}
-                    {{ partial "ad-slot.html" (dict "position" "desktop-inline") }}
-                {{ end }}
+    <div class="main-layout container">
+        <section class="main-content" aria-label="Articles">
+            <!-- Live Search Results Container (hidden by default) -->
+            <div id="search-results-section" style="display: none; margin-bottom: 2rem;">
+                <h2 class="section-title">Search Results</h2>
+                <div id="search-results-list"></div>
+            </div>
 
-                <article class="article-card" style="animation-delay: {{ mul $index 60 }}ms">
-                    <header class="article-header">
-                        <div class="article-meta-row">
-                            <span class="article-meta"
-                                  {{ with $post.Params.transmission_id }}data-transmission-id="{{ . }}"{{ end }}>
-                                <svg class="meta-icon" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5"/><path d="M8 4v4l3 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-                                {{ $post.Date.Format "January 02, 2006" }}
-                            </span>
-                            {{ with $post.Params.reading_time }}
-                            <span class="article-reading-time">{{ . }} min read</span>
-                            {{ end }}
-                        </div>
+            <!-- Main Article List (paginated) -->
+            <div id="main-articles-list">
+                {{ $paginator := .Paginate .Site.RegularPages 5 }}
+                {{ range $index, $post := $paginator.Pages }}
 
-                        <h2 class="article-title">
-                            <a href="{{ $post.Permalink }}" rel="bookmark">
-                                {{ $post.Title }}
-                            </a>
-                        </h2>
-                    </header>
-
-                    {{ if $post.Summary }}
-                    <div class="article-excerpt">
-                        {{ $post.Summary }}
-                    </div>
+                    {{ if eq $index 0 }}
+                        {{ partial "ad-slot.html" (dict "position" "desktop-inline") }}
                     {{ end }}
 
-                    <footer class="article-footer">
-                        <a href="{{ $post.Permalink }}" class="read-more">
-                            Read Article
-                            <svg class="arrow-icon" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                        </a>
-                    </footer>
-                </article>
+                    <article class="article-card" style="animation-delay: {{ mul $index 60 }}ms">
+                        <header class="article-header">
+                            <div class="article-meta-row">
+                                <span class="article-meta"
+                                      {{ with $post.Params.transmission_id }}data-transmission-id="{{ . }}"{{ end }}>
+                                    <svg class="meta-icon" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5"/><path d="M8 4v4l3 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                                    {{ $post.Date.Format "January 02, 2006" }}
+                                </span>
+                                {{ with $post.Params.reading_time }}
+                                <span class="article-reading-time">{{ . }} min read</span>
+                                {{ end }}
+                            </div>
 
-                {{/* Insert ad slots between articles (not after the last one) */}}
-                {{ if eq $index 1 }}
-                    {{ partial "ad-slot.html" (dict "position" "between-articles") }}
-                    {{ partial "ad-slot.html" (dict "position" "mobile-between") }}
+                            <h2 class="article-title">
+                                <a href="{{ $post.Permalink }}" rel="bookmark">
+                                    {{ $post.Title }}
+                                </a>
+                            </h2>
+                        </header>
+
+                        {{ if $post.Summary }}
+                        <div class="article-excerpt">
+                            {{ $post.Summary }}
+                        </div>
+                        {{ end }}
+
+                        {{ with $post.Params.tags }}
+                        <div class="card-tags">
+                            {{ range . }}
+                            <a href="{{ "/tags/" | relLangURL }}{{ . | urlize }}" class="card-tag">#{{ . }}</a>
+                            {{ end }}
+                        </div>
+                        {{ end }}
+
+                        <footer class="article-footer">
+                            <a href="{{ $post.Permalink }}" class="read-more">
+                                Read Article
+                                <svg class="arrow-icon" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            </a>
+                        </footer>
+                    </article>
+
+                    {{ if eq $index 1 }}
+                        {{ partial "ad-slot.html" (dict "position" "between-articles") }}
+                    {{ end }}
+
+                    {{ if eq $index 3 }}
+                        {{ partial "ad-slot.html" (dict "position" "medium-rectangle") }}
+                    {{ end }}
+
                 {{ end }}
 
-                {{ if eq $index 3 }}
-                    {{ partial "ad-slot.html" (dict "position" "medium-rectangle") }}
-                    {{ partial "ad-slot.html" (dict "position" "mobile") }}
-                {{ end }}
+                <!-- Pagination navigation links (Page Back / Next Option) -->
+                {{ if gt $paginator.TotalPages 1 }}
+                <nav class="pagination" aria-label="Pagination">
+                    {{ if $paginator.HasPrev }}
+                    <a href="{{ $paginator.Prev.URL }}" class="pagination-btn pagination-prev" aria-label="Previous Page">
+                        <svg class="arrow-icon" viewBox="0 0 16 16" fill="none"><path d="M13 8H3M7 4L3 8l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        Previous
+                    </a>
+                    {{ else }}
+                    <span class="pagination-btn pagination-btn--disabled">
+                        <svg class="arrow-icon" viewBox="0 0 16 16" fill="none"><path d="M13 8H3M7 4L3 8l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        Previous
+                    </span>
+                    {{ end }}
 
-                {{ if eq $index 5 }}
-                    {{ partial "ad-slot.html" (dict "position" "inline-slot") }}
-                    {{ partial "ad-slot.html" (dict "position" "mobile-inline") }}
-                {{ end }}
+                    <span class="pagination-info">Page {{ $paginator.PageNumber }} of {{ $paginator.TotalPages }}</span>
 
-            {{ end }}
+                    {{ if $paginator.HasNext }}
+                    <a href="{{ $paginator.Next.URL }}" class="pagination-btn pagination-next" aria-label="Next Page">
+                        Next
+                        <svg class="arrow-icon" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </a>
+                    {{ else }}
+                    <span class="pagination-btn pagination-btn--disabled">
+                        Next
+                        <svg class="arrow-icon" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </span>
+                    {{ end }}
+                </nav>
+                {{ end }}
+            </div>
 
             {{ partial "ad-slot.html" (dict "position" "bottom-leaderboard") }}
-        </div>
-    </section>
+        </section>
+
+        <!-- Homepage Sidebar -->
+        <aside class="sidebar">
+            <!-- Search Widget -->
+            <div class="sidebar-widget widget-search">
+                <h3 class="widget-title">Search Articles</h3>
+                <div class="search-box-wrapper">
+                    <input type="text" id="search-input" placeholder="Search by title, content or tag..." aria-label="Search articles">
+                    <button id="search-clear-btn" aria-label="Clear search" style="display: none;">&times;</button>
+                </div>
+            </div>
+
+            <!-- Ad Widget -->
+            <div class="sidebar-widget widget-ad">
+                <div class="widget-ad-label">Advertisement</div>
+                <ins class="adsbygoogle"
+                     style="display:block"
+                     data-ad-client="ca-pub-6375003818418942"
+                     data-ad-slot="8372659102"
+                     data-ad-format="auto"
+                     data-full-width-responsive="true"></ins>
+                <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+            </div>
+
+            <!-- Tags Widget -->
+            {{ if .Site.Taxonomies.tags }}
+            <div class="sidebar-widget widget-tags">
+                <h3 class="widget-title">Topic Tags</h3>
+                <div class="tag-cloud">
+                    {{ range $name, $taxonomy := .Site.Taxonomies.tags }}
+                    <a href="{{ "/tags/" | relLangURL }}{{ $name | urlize }}" class="tag-link">
+                        #{{ $name }} <span class="tag-count">{{ $taxonomy.Count }}</span>
+                    </a>
+                    {{ end }}
+                </div>
+            </div>
+            {{ end }}
+
+            <!-- Sticky Ad Widget -->
+            <div class="sidebar-widget widget-ad widget-ad--sticky">
+                <div class="widget-ad-label">Sponsored</div>
+                <ins class="adsbygoogle"
+                     style="display:block"
+                     data-ad-client="ca-pub-6375003818418942"
+                     data-ad-slot="9201847528"
+                     data-ad-format="auto"
+                     data-full-width-responsive="true"></ins>
+                <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+            </div>
+        </aside>
+    </div>
 </div>
+
+<!-- Client-side Search Engine Script -->
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const searchInput = document.getElementById('search-input');
+    const searchClearBtn = document.getElementById('search-clear-btn');
+    const mainList = document.getElementById('main-articles-list');
+    const resultsSection = document.getElementById('search-results-section');
+    const resultsList = document.getElementById('search-results-list');
+    
+    let searchIndex = null;
+    
+    async function loadSearchIndex() {
+        if (searchIndex) return searchIndex;
+        try {
+            const response = await fetch('{{ .Site.BaseURL }}/index.json');
+            searchIndex = await response.json();
+            return searchIndex;
+        } catch (e) {
+            console.error("Failed to load search index", e);
+            return [];
+        }
+    }
+    
+    if (searchInput) {
+        searchInput.addEventListener('input', async function() {
+            const query = this.value.trim().toLowerCase();
+            
+            if (query.length === 0) {
+                resultsSection.style.display = 'none';
+                mainList.style.display = 'block';
+                searchClearBtn.style.display = 'none';
+                return;
+            }
+            
+            searchClearBtn.style.display = 'block';
+            const index = await loadSearchIndex();
+            
+            // Search algorithm filtering titles, tags, summaries, and contents
+            const matches = index.filter(item => {
+                const titleMatch = item.title.toLowerCase().includes(query);
+                const summaryMatch = item.summary.toLowerCase().includes(query);
+                const contentMatch = item.content.toLowerCase().includes(query);
+                const tagMatch = item.tags.some(tag => tag.toLowerCase().includes(query));
+                return titleMatch || summaryMatch || contentMatch || tagMatch;
+            });
+            
+            // Render results
+            resultsList.innerHTML = '';
+            if (matches.length === 0) {
+                resultsList.innerHTML = '<div class="no-results">No articles found matching your query.</div>';
+            } else {
+                matches.forEach(item => {
+                    const tagMarkup = item.tags.map(tag => `<a href="{{ .Site.BaseURL }}/tags/\${tag.toLowerCase()}" class="card-tag">#\${tag}</a>`).join(' ');
+                    const articleHTML = `
+                        <article class="article-card">
+                            <header class="article-header">
+                                <div class="article-meta-row">
+                                    <span class="article-meta">
+                                        <svg class="meta-icon" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5"/><path d="M8 4v4l3 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                                        \${item.date}
+                                    </span>
+                                </div>
+                                <h2 class="article-title">
+                                    <a href="\${item.permalink}">\${item.title}</a>
+                                </h2>
+                            </header>
+                            <div class="article-excerpt">\${item.summary}</div>
+                            <div class="card-tags">\${tagMarkup}</div>
+                            <footer class="article-footer">
+                                <a href="\${item.permalink}" class="read-more">
+                                    Read Article
+                                    <svg class="arrow-icon" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                </a>
+                            </footer>
+                        </article>
+                    `;
+                    resultsList.insertAdjacentHTML('beforeend', articleHTML);
+                });
+            }
+            
+            mainList.style.display = 'none';
+            resultsSection.style.display = 'block';
+        });
+        
+        searchClearBtn.addEventListener('click', function() {
+            searchInput.value = '';
+            resultsSection.style.display = 'none';
+            mainList.style.display = 'block';
+            this.style.display = 'none';
+            searchInput.focus();
+        });
+    }
+});
+</script>
 {{ end }}

@@ -79,10 +79,92 @@ body {
 // LAYOUT
 // ═══════════════════════════════════════════
 .container {
-    max-width: 820px;
+    max-width: 1140px;
     margin: 0 auto;
     padding: 0 1.5rem;
 }
+
+.main-layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    margin-top: 1.5rem;
+}
+
+@media (min-width: 992px) {
+    .main-layout {
+        grid-template-columns: 2.1fr 1fr;
+        align-items: start;
+    }
+}
+
+.main-content {
+    min-width: 0;
+}
+
+.header-ad-container {
+    margin: 1.5rem auto 0.5rem;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+// ═══════════════════════════════════════════
+// SIDEBAR & WIDGETS
+// ═══════════════════════════════════════════
+.sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.sidebar-widget {
+    background: var(--bg-card);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-md);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-sm);
+}
+
+.widget-title {
+    font-family: 'Cinzel', serif;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--accent-gold);
+    margin-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    padding-bottom: 0.5rem;
+}
+
+.widget-about p {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    line-height: 1.6;
+}
+
+.widget-ad {
+    text-align: center;
+    background: var(--bg-card);
+    position: relative;
+}
+
+.widget-ad-label {
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+}
+
+@media (min-width: 992px) {
+    .widget-ad--sticky {
+        position: sticky;
+        top: 90px;
+        z-index: 10;
+    }
+}
+
 
 // ═══════════════════════════════════════════
 // HEADER
@@ -775,6 +857,250 @@ body {
     color: var(--text-muted);
     font-size: 0.75rem;
     letter-spacing: 0.06em;
+}
+
+// ═══════════════════════════════════════════
+// SEARCH, TAGS & PAGINATION STYLES
+// ═══════════════════════════════════════════
+.search-box-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+#search-input {
+    width: 100%;
+    background: var(--bg-input);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    padding: 0.75rem 2.5rem 0.75rem 1rem;
+    font-size: 0.9rem;
+    transition: all var(--transition-fast);
+    outline: none;
+}
+
+#search-input:focus {
+    border-color: var(--border-gold);
+    box-shadow: var(--shadow-gold);
+}
+
+#search-clear-btn {
+    position: absolute;
+    right: 0.75rem;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 1.25rem;
+    cursor: pointer;
+    line-height: 1;
+    padding: 0.25rem;
+    transition: color var(--transition-fast);
+}
+
+#search-clear-btn:hover {
+    color: var(--accent-gold);
+}
+
+.no-results {
+    color: var(--text-secondary);
+    font-style: italic;
+    padding: 2rem 0;
+    text-align: center;
+}
+
+// ── Tags Styling ──
+.card-tags, .post-tags-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.post-tags-list {
+    margin-top: 1.25rem;
+}
+
+.card-tag, .post-tag {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-subtle);
+    padding: 0.25rem 0.6rem;
+    border-radius: 100px;
+    text-decoration: none;
+    transition: all var(--transition-fast);
+}
+
+.card-tag:hover, .post-tag:hover {
+    color: var(--accent-gold);
+    border-color: var(--border-gold);
+    background: var(--accent-gold-dim);
+}
+
+.tag-cloud {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.tag-link {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    background: var(--bg-input);
+    border: 1px solid var(--border-default);
+    padding: 0.35rem 0.75rem;
+    border-radius: var(--radius-sm);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    transition: all var(--transition-fast);
+}
+
+.tag-link:hover {
+    color: var(--accent-gold);
+    border-color: var(--border-gold);
+    background: var(--bg-elevated);
+}
+
+.tag-count {
+    font-size: 0.7rem;
+    background: var(--bg-card);
+    color: var(--text-muted);
+    padding: 0.1rem 0.35rem;
+    border-radius: 100px;
+    border: 1px solid var(--border-subtle);
+}
+
+.tag-link:hover .tag-count {
+    color: var(--accent-gold);
+    border-color: var(--border-hover);
+}
+
+// ── Pagination Styling (Page Back & Next) ──
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 3rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border-subtle);
+}
+
+.pagination-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-primary);
+    border: 1px solid var(--border-default);
+    background: var(--bg-card);
+    padding: 0.6rem 1.2rem;
+    border-radius: var(--radius-sm);
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all var(--transition-fast);
+    cursor: pointer;
+}
+
+.pagination-btn:hover:not(.pagination-btn--disabled) {
+    color: var(--accent-gold);
+    border-color: var(--border-gold);
+    box-shadow: var(--shadow-gold);
+}
+
+.pagination-btn--disabled {
+    color: var(--text-muted);
+    border-color: var(--border-subtle);
+    background: rgba(255, 255, 255, 0.01);
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.pagination-info {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+// ── Post Navigation (Single Page Next/Prev) ──
+.post-navigation {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin: 3rem 0;
+    padding: 1.5rem 0;
+    border-top: 1px solid var(--border-subtle);
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+@media (min-width: 576px) {
+    .post-navigation {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+.post-navigation-link {
+    min-width: 0;
+}
+
+.post-navigation-link a {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 1.25rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    transition: all var(--transition-fast);
+}
+
+.post-navigation-link a:hover {
+    border-color: var(--border-hover);
+    box-shadow: var(--shadow-md);
+}
+
+.nav-label {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    transition: color var(--transition-fast);
+}
+
+.post-navigation-link a:hover .nav-label {
+    color: var(--accent-gold);
+}
+
+.nav-title {
+    margin-top: 0.5rem;
+    font-family: 'Cinzel', serif;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.nav-link-disabled {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 100%;
+    padding: 1.25rem;
+    background: rgba(255, 255, 255, 0.01);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    opacity: 0.6;
 }
 
 // ═══════════════════════════════════════════

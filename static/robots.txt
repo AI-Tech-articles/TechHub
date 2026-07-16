@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+
+# Host & Sitemap location
+Host: https://ai-tech-articles.github.io/TechHub/
+Sitemap: https://ai-tech-articles.github.io/TechHub/sitemap.xml

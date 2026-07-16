@@ -17,28 +17,157 @@
                 </span>
                 {{ end }}
             </div>
+
+            <!-- Tags List on Single Post Page -->
+            {{ with .Params.tags }}
+            <div class="post-tags-list">
+                {{ range . }}
+                <a href="{{ "/tags/" | relLangURL }}{{ . | urlize }}" class="post-tag">#{{ . }}</a>
+                {{ end }}
+            </div>
+            {{ end }}
         </div>
     </header>
 
-    {{ partial "ad-slot.html" (dict "position" "desktop-inline") }}
-
-    <div class="post-content container" itemprop="articleBody">
-        {{ .Content }}
+    <!-- Top Post Banner Ad -->
+    <div class="container header-ad-container">
+        {{ partial "ad-slot.html" (dict "position" "desktop-inline") }}
     </div>
 
-    {{ partial "ad-slot.html" (dict "position" "bottom-leaderboard") }}
+    <div class="main-layout container">
+        <div class="main-content">
+            <div class="post-content" itemprop="articleBody">
+                {{ .Content }}
+            </div>
 
-    <footer class="post-footer">
-        <div class="container">
-            <a href="{{ .Site.BaseURL }}" class="back-link">
-                <svg class="arrow-icon" viewBox="0 0 16 16" fill="none"><path d="M13 8H3M7 4L3 8l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                Back to all articles
-            </a>
+            <!-- Bottom Post Banner Ad -->
+            {{ partial "ad-slot.html" (dict "position" "bottom-leaderboard") }}
+
+            <!-- Next & Previous post navigation buttons -->
+            <nav class="post-navigation" aria-label="Post navigation">
+                <div class="post-navigation-link nav-prev">
+                    {{ with .PrevInSection }}
+                    <a href="{{ .Permalink }}" rel="prev">
+                        <span class="nav-label">
+                            <svg class="arrow-icon" viewBox="0 0 16 16" fill="none"><path d="M13 8H3M7 4L3 8l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            Previous Article
+                        </span>
+                        <span class="nav-title">{{ .Title }}</span>
+                    </a>
+                    {{ else }}
+                    <span class="nav-link-disabled">
+                        <span class="nav-label">
+                            <svg class="arrow-icon" viewBox="0 0 16 16" fill="none"><path d="M13 8H3M7 4L3 8l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            First Article reached
+                        </span>
+                    </span>
+                    {{ end }}
+                </div>
+
+                <div class="post-navigation-link nav-next">
+                    {{ with .NextInSection }}
+                    <a href="{{ .Permalink }}" rel="next">
+                        <span class="nav-label">
+                            Next Article
+                            <svg class="arrow-icon" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </span>
+                        <span class="nav-title">{{ .Title }}</span>
+                    </a>
+                    {{ else }}
+                    <span class="nav-link-disabled">
+                        <span class="nav-label">
+                            Latest Article reached
+                            <svg class="arrow-icon" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </span>
+                    </span>
+                    {{ end }}
+                </div>
+            </nav>
+
+            <footer class="post-footer">
+                <a href="{{ .Site.BaseURL }}" class="back-link">
+                    <svg class="arrow-icon" viewBox="0 0 16 16" fill="none"><path d="M13 8H3M7 4L3 8l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    Back to all articles
+                </a>
+            </footer>
         </div>
-    </footer>
+
+        <!-- Post Page Sidebar with Ads -->
+        <aside class="sidebar">
+            <div class="sidebar-widget widget-ad">
+                <div class="widget-ad-label">Advertisement</div>
+                <ins class="adsbygoogle"
+                     style="display:block"
+                     data-ad-client="ca-pub-6375003818418942"
+                     data-ad-slot="1827409283"
+                     data-ad-format="auto"
+                     data-full-width-responsive="true"></ins>
+                <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+            </div>
+
+            <div class="sidebar-widget widget-about">
+                <h3 class="widget-title">Research Author</h3>
+                <p><strong>{{ .Params.author | default .Site.Params.author }}</strong> is an engineering director focusing on distributed training, LLM performance enhancement, and compiler optimization.</p>
+            </div>
+
+            <div class="sidebar-widget widget-ad widget-ad--sticky">
+                <div class="widget-ad-label">Sponsored</div>
+                <ins class="adsbygoogle"
+                     style="display:block"
+                     data-ad-client="ca-pub-6375003818418942"
+                     data-ad-slot="5820194837"
+                     data-ad-format="auto"
+                     data-full-width-responsive="true"></ins>
+                <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+            </div>
+        </aside>
+    </div>
 </article>
 
-{{/* JSON-LD Structured Data — injected at the bottom so it never blocks render. */}}
+{{/* Dynamic Inline Ad Injection script */}}
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const postBody = document.querySelector('.post-content');
+    if (!postBody) return;
+    const paragraphs = postBody.querySelectorAll('p');
+    
+    // Inject first inside-article ad after paragraph 2
+    if (paragraphs.length > 2) {
+        const ad1 = document.createElement('div');
+        ad1.className = 'ad-slot ad-slot--content';
+        ad1.style.margin = '2rem 0';
+        ad1.innerHTML = `
+            <ins class="adsbygoogle"
+                 style="display:block; text-align:center;"
+                 data-ad-layout="in-article"
+                 data-ad-format="fluid"
+                 data-ad-client="ca-pub-6375003818418942"
+                 data-ad-slot="7481029482"></ins>
+        `;
+        paragraphs[1].parentNode.insertBefore(ad1, paragraphs[1].nextSibling);
+        (adsbygoogle = window.adsbygoogle || []).push({});
+    }
+    
+    // Inject second inside-article ad after paragraph 5
+    if (paragraphs.length > 5) {
+        const ad2 = document.createElement('div');
+        ad2.className = 'ad-slot ad-slot--content';
+        ad2.style.margin = '2rem 0';
+        ad2.innerHTML = `
+            <ins class="adsbygoogle"
+                 style="display:block; text-align:center;"
+                 data-ad-layout="in-article"
+                 data-ad-format="fluid"
+                 data-ad-client="ca-pub-6375003818418942"
+                 data-ad-slot="3829104829"></ins>
+        `;
+        paragraphs[4].parentNode.insertBefore(ad2, paragraphs[4].nextSibling);
+        (adsbygoogle = window.adsbygoogle || []).push({});
+    }
+});
+</script>
+
+{{/* JSON-LD Structured Data */}}
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",

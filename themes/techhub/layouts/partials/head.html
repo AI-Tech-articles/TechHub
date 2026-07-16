@@ -5,6 +5,10 @@
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="{{ .Permalink }}">
 
+<!-- SEO, AEO & GEO Keywords -->
+<meta name="keywords" content="{{ with .Params.tags }}{{ delimit . ", " }}{{ else }}Artificial Intelligence, Large Language Models, Distributed Systems, Performance Engineering, Machine Learning Infrastructure{{ end }}">
+<meta name="theme-color" content="#090912">
+
 <!-- Google AdSense Verification -->
 <meta name="google-adsense-account" content="ca-pub-6375003818418942">
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6375003818418942"
