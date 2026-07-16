@@ -2,15 +2,15 @@
     <div class="container">
         <div class="footer-brand">
             <span class="footer-logo">T</span>
-            <span class="footer-name">{{ .Site.Title }}</span>
+            <span class="footer-logo-text">{{ .Site.Title }}</span>
         </div>
         
         <nav class="footer-nav" aria-label="Footer legal links">
-            <a href="{{ with site.GetPage "privacy-policy.md" }}{{ .RelPermalink }}{{ end }}" class="footer-link">Privacy Policy</a>
+            <a href="{{ "privacy-policy/" | relURL }}" class="footer-link">Privacy Policy</a>
             <span class="footer-sep">&bull;</span>
-            <a href="{{ with site.GetPage "terms.md" }}{{ .RelPermalink }}{{ end }}" class="footer-link">Terms of Service</a>
+            <a href="{{ "terms/" | relURL }}" class="footer-link">Terms of Service</a>
             <span class="footer-sep">&bull;</span>
-            <a href="{{ with site.GetPage "contact.md" }}{{ .RelPermalink }}{{ end }}" class="footer-link">Contact</a>
+            <a href="{{ "contact/" | relURL }}" class="footer-link">Contact</a>
         </nav>
 
         <p class="footer-text">

@@ -24,7 +24,7 @@
 
             <!-- Main Article List (paginated to max 10 articles) -->
             <div id="main-articles-list">
-                {{ $paginator := .Paginate .Site.RegularPages 10 }}
+                {{ $paginator := .Paginate (where .Site.RegularPages "Section" "posts") 10 }}
                 {{ range $index, $post := $paginator.Pages }}
 
                     {{ if eq $index 0 }}
@@ -224,7 +224,7 @@
 
             <!-- Dynamic Topics Cloud Widget -->
             {{ $allTopics := dict }}
-            {{ range .Site.RegularPages }}
+            {{ range where .Site.RegularPages "Section" "posts" }}
                 {{ $raw := .RawContent }}
                 {{ $topicsMatch := findRE `(?s)(?:##|###) Topics\s*[\r\n]+[\s\r\n]*([^\r\n]+)` $raw 1 }}
                 {{ if $topicsMatch }}

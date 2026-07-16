@@ -1,5 +1,5 @@
 [
-  {{- range $index, $page := .Site.RegularPages -}}
+  {{- range $index, $page := where .Site.RegularPages "Section" "posts" -}}
     {{- if $index -}},{{- end -}}
     {{- $coverUrl := "" -}}
     {{- $baseName := $page.File.BaseFileName -}}
@@ -26,13 +26,28 @@
         {{- end -}}
       {{- end -}}
     {{- end -}}
+    {{- $postTopics := slice -}}
+    {{- $raw := $page.RawContent -}}
+    {{- $topicsMatch := findRE `(?s)(?:##|###) Topics\s*[\r\n]+[\s\r\n]*([^\r\n]+)` $raw 1 -}}
+    {{- if $topicsMatch -}}
+      {{- $match := index $topicsMatch 0 -}}
+      {{- $topicsLine := replaceRE `(?s)^.*?(?:##|###) Topics\s*` "" $match -}}
+      {{- $topicsLine = trim $topicsLine " \n\r" -}}
+      {{- $rawTopics := split $topicsLine "·" -}}
+      {{- range $rawTopics -}}
+        {{- $t := trim . " \n\r" -}}
+        {{- if $t -}}
+          {{- $postTopics = $postTopics | append $t -}}
+        {{- end -}}
+      {{- end -}}
+    {{- end -}}
     {
       "title": {{ $page.Title | jsonify }},
       "permalink": {{ $page.Permalink | jsonify }},
       "summary": {{ $page.Summary | plainify | jsonify }},
       "content": {{ $page.Content | plainify | jsonify }},
       "date": {{ $page.Date.Format "January 2, 2006" | jsonify }},
-      "tags": {{ $page.Params.tags | default (slice) | jsonify }},
+      "tags": {{ $postTopics | jsonify }},
       "cover": {{ $coverUrl | jsonify }}
     }
   {{- end -}}
