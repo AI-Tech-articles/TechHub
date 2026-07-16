@@ -285,6 +285,12 @@ document.addEventListener("DOMContentLoaded", function() {
     
     let searchIndex = null;
     
+    // Normalizes strings for robust, bulletproof tag/keyword matching
+    function normalize(str) {
+        if (!str) return '';
+        return str.toLowerCase().replace(/[^a-z0-9]/g, '');
+    }
+    
     async function loadSearchIndex() {
         if (searchIndex) return searchIndex;
         try {
@@ -309,13 +315,14 @@ document.addEventListener("DOMContentLoaded", function() {
         const index = await loadSearchIndex();
         
         const q = query.toLowerCase();
+        const qNorm = normalize(query);
+        
         const matches = index.filter(item => {
             const titleMatch = item.title.toLowerCase().includes(q);
             const summaryMatch = item.summary.toLowerCase().includes(q);
             const contentMatch = item.content.toLowerCase().includes(q);
             const tagMatch = item.tags.some(tag => {
-                const t = tag.toLowerCase();
-                return t.includes(q) || t.replace(/-/g, ' ').includes(q) || t.includes(q.replace(/\s+/g, '-'));
+                return normalize(tag).includes(qNorm);
             });
             return titleMatch || summaryMatch || contentMatch || tagMatch;
         });
@@ -376,6 +383,11 @@ document.addEventListener("DOMContentLoaded", function() {
             resultsSection.style.display = 'none';
             mainList.style.display = 'block';
             this.style.display = 'none';
+            
+            // Clean up the URL parameter when clearing the search
+            const cleanUrl = window.location.pathname;
+            window.history.pushState({ path: cleanUrl }, '', cleanUrl);
+            
             searchInput.focus();
         });
     }
@@ -406,15 +418,32 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 
     // 3. Auto-trigger search from query parameter on initial load (e.g. ?q=kv-cache)
-    const urlParams = new URLSearchParams(window.location.search);
-    const queryParam = urlParams.get('q');
-    if (queryParam && searchInput) {
-        const cleanQuery = decodeURIComponent(queryParam);
-        searchInput.value = cleanQuery;
-        performSearch(cleanQuery);
+    function checkUrlQuery() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const queryParam = urlParams.get('q');
+        if (searchInput) {
+            if (queryParam) {
+                const cleanQuery = decodeURIComponent(queryParam);
+                // Clean display value (replace hyphens with spaces for visual aesthetics)
+                searchInput.value = cleanQuery.replace(/-/g, ' ');
+                performSearch(cleanQuery);
+            } else {
+                searchInput.value = '';
+                resultsSection.style.display = 'none';
+                mainList.style.display = 'block';
+                if (searchClearBtn) searchClearBtn.style.display = 'none';
+            }
+        }
     }
+    
+    checkUrlQuery();
 
-    // 4. Intelligent, Gentle Adblock Recovery
+    // 4. Listen to browser Back/Forward navigation buttons to update search dynamically (SPA behavior)
+    window.addEventListener('popstate', function() {
+        checkUrlQuery();
+    });
+
+    // 5. Intelligent, Gentle Adblock Recovery
     setTimeout(function() {
         const adSlots = document.querySelectorAll('.ad-slot');
         const adsBlocked = !window.adsbygoogle || window.adsbygoogle.resolved === undefined;
