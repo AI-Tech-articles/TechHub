@@ -1629,34 +1629,19 @@ body {
     white-space: pre;
 }
 
-// ── Chroma token overrides (matches site dark-gold palette) ──
-// Hugo emits <span class="k">, <span class="s">, etc.
+// ── Chroma wrapper: override Hugo's inline background so our dark container shows ──
+// (noClasses=true means Hugo writes inline token colours directly; we just fix the bg)
+.post-content .highlight > .chroma,
+.post-content pre > .chroma {
+    background: transparent !important;
+}
 
-// Keywords
-.chroma .k, .chroma .kd, .chroma .kn, .chroma .kr, .chroma .kt  { color: #c792ea; font-weight: 600; }
-// Strings
-.chroma .s, .chroma .s1, .chroma .s2, .chroma .sb, .chroma .sc, .chroma .sd, .chroma .se, .chroma .si, .chroma .sx { color: #c3e88d; }
-// Numbers
-.chroma .mi, .chroma .mf, .chroma .mh, .chroma .mo, .chroma .m  { color: #f78c6c; }
-// Comments
-.chroma .c, .chroma .c1, .chroma .cm, .chroma .cs, .chroma .cp  { color: #546e7a; font-style: italic; }
-// Functions / builtins
-.chroma .nf, .chroma .nb                                          { color: #82aaff; }
-// Class names
-.chroma .nc                                                        { color: #ffcb6b; }
-// Operators
-.chroma .o, .chroma .ow                                            { color: #89ddff; }
-// Variables / identifiers
-.chroma .n, .chroma .na, .chroma .ni, .chroma .nl                  { color: #e8e8f0; }
-// Decorators / meta
-.chroma .nd                                                        { color: #d4af37; }
-// Punctuation
-.chroma .p                                                         { color: #89ddff; }
-// Error highlight
-.chroma .err                                                       { color: #ff5370; background: none; }
-
-// Override default Chroma background
-.chroma { background: transparent !important; }
+// Hugo with noClasses=true puts a `style="background-color:#..."` on the <pre>.
+// Override it so our themed wrapper background (#0e0e16) shows through.
+.post-content .highlight pre[style],
+.post-content pre[style] {
+    background: transparent !important;
+}
 
 // ── Mermaid diagrams (rendered by CDN) ──
 .post-content .mermaid {

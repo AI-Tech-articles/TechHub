@@ -13,8 +13,7 @@ theme = 'techhub'
     codeFences       = true
     guessSyntax      = true
     lineNos          = false
-    lineNumbersInTable = true
-    noClasses        = false
+    noClasses        = true
     style            = "monokai"
   [markup.goldmark]
     [markup.goldmark.renderer]

@@ -307,10 +307,14 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 
     // 0b. Mermaid diagram rendering
-    if (postBody.querySelector('code.language-mermaid, .language-mermaid')) {
-        const script = document.createElement('script');
-        script.src = 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js';
-        script.onload = () => {
+    const mermaidBlocks = postBody.querySelectorAll(
+        'code.language-mermaid, .language-mermaid, [class*="mermaid"]'
+    );
+    if (mermaidBlocks.length > 0) {
+        const mScript = document.createElement('script');
+        mScript.src = 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js';
+        mScript.async = true;
+        mScript.onload = () => {
             mermaid.initialize({
                 startOnLoad: false,
                 theme: 'dark',
@@ -326,16 +330,17 @@ document.addEventListener("DOMContentLoaded", function() {
                     fontSize: '14px',
                 }
             });
-            // Convert <pre><code class="language-mermaid"> to <div class="mermaid">
+            // Convert every <code class="language-mermaid"> → <div class="mermaid">
             postBody.querySelectorAll('code.language-mermaid').forEach(el => {
                 const div = document.createElement('div');
                 div.className = 'mermaid';
                 div.textContent = el.textContent;
-                el.closest('pre, .highlight').replaceWith(div);
+                const wrapper = el.closest('.highlight') || el.closest('pre') || el.parentNode;
+                wrapper.replaceWith(div);
             });
             mermaid.run({ nodes: postBody.querySelectorAll('.mermaid') });
         };
-        document.head.appendChild(script);
+        document.head.appendChild(mScript);
     }
 
     // 1. Reading Progress Bar Logic
