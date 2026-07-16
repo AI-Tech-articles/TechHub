@@ -1,1 +1,13 @@
-<img src="{{ .Destination | relURL }}" alt="{{ .Text }}" {{ with .Title }}title="{{ . }}"{{ end }} loading="lazy">
+{{- $u := .Destination -}}
+{{- $imgUrl := "" -}}
+{{- if or (strings.HasPrefix $u "/assets/") (strings.HasPrefix $u "assets/") -}}
+    {{- $cleanPath := strings.TrimPrefix "assets/" (strings.TrimPrefix "/assets/" $u) -}}
+    {{- $img := resources.Get $cleanPath -}}
+    {{- if $img -}}
+        {{- $imgUrl = $img.RelPermalink -}}
+    {{- end -}}
+{{- end -}}
+{{- if not $imgUrl -}}
+    {{- $imgUrl = $u | relURL -}}
+{{- end -}}
+<img src="{{ $imgUrl }}" alt="{{ .Text }}" {{ with .Title }}title="{{ . }}"{{ end }} loading="lazy">
