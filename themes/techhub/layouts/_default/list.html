@@ -112,7 +112,7 @@
                         {{ if gt (len $postTopics) 0 }}
                         <div class="card-tags">
                             {{ range $postTopics }}
-                            <a href="{{ site.BaseURL }}?q={{ . | urlize }}" class="card-tag">#{{ . }}</a>
+                            <a href="{{ "" | relURL }}?q={{ . | urlize }}" class="card-tag">#{{ . }}</a>
                             {{ end }}
                         </div>
                         {{ end }}
@@ -250,7 +250,7 @@
                 <h3 class="widget-title">Topic Tags</h3>
                 <div class="tag-cloud">
                     {{ range $name, $count := $allTopics }}
-                    <a href="{{ $.Site.BaseURL }}?q={{ $name | urlize }}" class="tag-link">
+                    <a href="{{ "" | relURL }}?q={{ $name | urlize }}" class="tag-link">
                         #{{ $name }} <span class="tag-count">{{ $count }}</span>
                     </a>
                     {{ end }}
@@ -288,7 +288,7 @@ document.addEventListener("DOMContentLoaded", function() {
     async function loadSearchIndex() {
         if (searchIndex) return searchIndex;
         try {
-            const response = await fetch('{{ .Site.BaseURL }}/index.json');
+            const response = await fetch('{{ "index.json" | relURL }}');
             searchIndex = await response.json();
             return searchIndex;
         } catch (e) {
@@ -308,11 +308,15 @@ document.addEventListener("DOMContentLoaded", function() {
         searchClearBtn.style.display = 'block';
         const index = await loadSearchIndex();
         
+        const q = query.toLowerCase();
         const matches = index.filter(item => {
-            const titleMatch = item.title.toLowerCase().includes(query);
-            const summaryMatch = item.summary.toLowerCase().includes(query);
-            const contentMatch = item.content.toLowerCase().includes(query);
-            const tagMatch = item.tags.some(tag => tag.toLowerCase().includes(query));
+            const titleMatch = item.title.toLowerCase().includes(q);
+            const summaryMatch = item.summary.toLowerCase().includes(q);
+            const contentMatch = item.content.toLowerCase().includes(q);
+            const tagMatch = item.tags.some(tag => {
+                const t = tag.toLowerCase();
+                return t.includes(q) || t.replace(/-/g, ' ').includes(q) || t.includes(q.replace(/\s+/g, '-'));
+            });
             return titleMatch || summaryMatch || contentMatch || tagMatch;
         });
         
@@ -321,7 +325,7 @@ document.addEventListener("DOMContentLoaded", function() {
             resultsList.innerHTML = '<div class="no-results">No articles found matching your query.</div>';
         } else {
             matches.forEach(item => {
-                const tagMarkup = item.tags.map(tag => `<a href="{{ .Site.BaseURL }}?q=\${encodeURIComponent(tag.replace(/\s+/g, '-').toLowerCase())}" class="card-tag">#\${tag}</a>`).join(' ');
+                const tagMarkup = item.tags.map(tag => `<a href="{{ "" | relURL }}?q=\${encodeURIComponent(tag.replace(/\s+/g, '-').toLowerCase())}" class="card-tag">#\${tag}</a>`).join(' ');
                 const coverMarkup = item.cover ? `
                     <div class="card-cover">
                         <a href="\${item.permalink}">
@@ -376,7 +380,29 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
-    // 2. Auto-trigger search from query parameter (e.g. ?q=kv-cache)
+    // 2. Intercept tag clicks on homepage to search instantly without reloading
+    document.addEventListener('click', function(e) {
+        const tagElement = e.target.closest('.card-tag, .tag-link');
+        if (tagElement) {
+            let tagText = tagElement.textContent.trim();
+            if (tagText.startsWith('#')) tagText = tagText.slice(1);
+            
+            if (searchInput) {
+                e.preventDefault();
+                searchInput.value = tagText;
+                performSearch(tagText);
+                
+                // Update browser URL without reloading page
+                const newUrl = window.location.pathname + '?q=' + encodeURIComponent(tagText.replace(/\s+/g, '-').toLowerCase());
+                window.history.pushState({ path: newUrl }, '', newUrl);
+                
+                // Smooth scroll to top
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+    });
+
+    // 3. Auto-trigger search from query parameter on initial load (e.g. ?q=kv-cache)
     const urlParams = new URLSearchParams(window.location.search);
     const queryParam = urlParams.get('q');
     if (queryParam && searchInput) {
@@ -385,7 +411,7 @@ document.addEventListener("DOMContentLoaded", function() {
         performSearch(cleanQuery);
     }
 
-    // 3. Intelligent, Gentle Adblock Recovery
+    // 4. Intelligent, Gentle Adblock Recovery
     setTimeout(function() {
         const adSlots = document.querySelectorAll('.ad-slot');
         const adsBlocked = !window.adsbygoogle || window.adsbygoogle.resolved === undefined;
