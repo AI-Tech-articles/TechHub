@@ -37,13 +37,27 @@
                     {{ $strippedName := replaceRE `^\d{4}-\d{2}-\d{2}-` "" $baseName }}
                     {{ range (slice "png" "jpg" "jpeg" "webp" "gif") }}
                         {{ if not $coverUrl }}
-                            {{ $path1 := printf "static/images/covers/%s.%s" $strippedName . }}
-                            {{ if fileExists $path1 }}
-                                {{ $coverUrl = printf "/images/covers/%s.%s" $strippedName . }}
+                            {{/* 1. Try to find in assets/images/covers/ */}}
+                            {{ $resPath1 := printf "images/covers/%s.%s" $strippedName . }}
+                            {{ $res1 := resources.Get $resPath1 }}
+                            {{ if $res1 }}
+                                {{ $coverUrl = $res1.RelPermalink }}
                             {{ else }}
-                                {{ $path2 := printf "static/images/covers/%s.%s" $baseName . }}
-                                {{ if fileExists $path2 }}
-                                    {{ $coverUrl = printf "/images/covers/%s.%s" $baseName . }}
+                                {{ $resPath2 := printf "images/covers/%s.%s" $baseName . }}
+                                {{ $res2 := resources.Get $resPath2 }}
+                                {{ if $res2 }}
+                                    {{ $coverUrl = $res2.RelPermalink }}
+                                {{ else }}
+                                    {{/* 2. Fall back to static/images/covers/ */}}
+                                    {{ $statPath1 := printf "static/images/covers/%s.%s" $strippedName . }}
+                                    {{ if fileExists $statPath1 }}
+                                        {{ $coverUrl = printf "/images/covers/%s.%s" $strippedName . | relURL }}
+                                    {{ else }}
+                                        {{ $statPath2 := printf "static/images/covers/%s.%s" $baseName . }}
+                                        {{ if fileExists $statPath2 }}
+                                            {{ $coverUrl = printf "/images/covers/%s.%s" $baseName . | relURL }}
+                                        {{ end }}
+                                    {{ end }}
                                 {{ end }}
                             {{ end }}
                         {{ end }}
@@ -178,7 +192,7 @@
                     <li>
                         <a href="https://huggingface.co/" target="_blank" rel="noopener">
                             <span class="tool-name">Hugging Face Enterprise</span>
-                            <span class="tool-desc">Model repository and serverless AI inference.</span>
+                            <span class="tool-desc">Model registry and serverless AI inference.</span>
                         </a>
                     </li>
                 </ul>
