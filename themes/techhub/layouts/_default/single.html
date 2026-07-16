@@ -32,6 +32,23 @@
         {{ end }}
     {{ end }}
 
+    <!-- Parse Topics dynamically from Markdown -->
+    {{ $postTopics := slice }}
+    {{ $raw := .RawContent }}
+    {{ $topicsMatch := findRE `(?s)(?:##|###) Topics\s*[\r\n]+[\s\r\n]*([^\r\n]+)` $raw 1 }}
+    {{ if $topicsMatch }}
+        {{ $match := index $topicsMatch 0 }}
+        {{ $topicsLine := replaceRE `(?s)^.*?(?:##|###) Topics\s*` "" $match }}
+        {{ $topicsLine = trim $topicsLine " \n\r" }}
+        {{ $rawTopics := split $topicsLine "·" }}
+        {{ range $rawTopics }}
+            {{ $t := trim . " \n\r" }}
+            {{ if $t }}
+                {{ $postTopics = $postTopics | append $t }}
+            {{ end }}
+        {{ end }}
+    {{ end }}
+
     <header class="post-header">
         <div class="container">
             <div class="post-badge">Article</div>
@@ -54,11 +71,11 @@
                 </span>
             </div>
 
-            <!-- Tags List on Single Post Page -->
-            {{ with .Params.tags }}
+            <!-- Topics List on Single Post Page -->
+            {{ if gt (len $postTopics) 0 }}
             <div class="post-tags-list">
-                {{ range . }}
-                <a href="{{ "/tags/" | relLangURL }}{{ . | urlize }}" class="post-tag">#{{ . }}</a>
+                {{ range $postTopics }}
+                <a href="{{ $.Site.BaseURL }}?q={{ . | urlize }}" class="post-tag">#{{ . }}</a>
                 {{ end }}
             </div>
             {{ end }}

@@ -58,6 +58,23 @@
                         {{ end }}
                     {{ end }}
 
+                    <!-- Parse Topics dynamically from Markdown -->
+                    {{ $postTopics := slice }}
+                    {{ $raw := $post.RawContent }}
+                    {{ $topicsMatch := findRE `(?s)(?:##|###) Topics\s*[\r\n]+[\s\r\n]*([^\r\n]+)` $raw 1 }}
+                    {{ if $topicsMatch }}
+                        {{ $match := index $topicsMatch 0 }}
+                        {{ $topicsLine := replaceRE `(?s)^.*?(?:##|###) Topics\s*` "" $match }}
+                        {{ $topicsLine = trim $topicsLine " \n\r" }}
+                        {{ $rawTopics := split $topicsLine "·" }}
+                        {{ range $rawTopics }}
+                            {{ $t := trim . " \n\r" }}
+                            {{ if $t }}
+                                {{ $postTopics = $postTopics | append $t }}
+                            {{ end }}
+                        {{ end }}
+                    {{ end }}
+
                     <article class="article-card" style="animation-delay: {{ mul $index 60 }}ms">
                         {{ if $coverUrl }}
                         <div class="card-cover">
@@ -92,10 +109,10 @@
                         </div>
                         {{ end }}
 
-                        {{ with $post.Params.tags }}
+                        {{ if gt (len $postTopics) 0 }}
                         <div class="card-tags">
-                            {{ range . }}
-                            <a href="{{ "/tags/" | relLangURL }}{{ . | urlize }}" class="card-tag">#{{ . }}</a>
+                            {{ range $postTopics }}
+                            <a href="{{ site.BaseURL }}?q={{ . | urlize }}" class="card-tag">#{{ . }}</a>
                             {{ end }}
                         </div>
                         {{ end }}
@@ -205,14 +222,36 @@
                 <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
             </div>
 
-            <!-- Tags Widget -->
-            {{ if .Site.Taxonomies.tags }}
+            <!-- Dynamic Topics Cloud Widget -->
+            {{ $allTopics := dict }}
+            {{ range .Site.RegularPages }}
+                {{ $raw := .RawContent }}
+                {{ $topicsMatch := findRE `(?s)(?:##|###) Topics\s*[\r\n]+[\s\r\n]*([^\r\n]+)` $raw 1 }}
+                {{ if $topicsMatch }}
+                    {{ $match := index $topicsMatch 0 }}
+                    {{ $topicsLine := replaceRE `(?s)^.*?(?:##|###) Topics\s*` "" $match }}
+                    {{ $topicsLine = trim $topicsLine " \n\r" }}
+                    {{ $rawTopics := split $topicsLine "·" }}
+                    {{ range $rawTopics }}
+                        {{ $t := trim . " \n\r" }}
+                        {{ if $t }}
+                            {{ $count := 1 }}
+                            {{ if isset $allTopics $t }}
+                                {{ $count = add (index $allTopics $t) 1 }}
+                            {{ end }}
+                            {{ $allTopics = merge $allTopics (dict $t $count) }}
+                        {{ end }}
+                    {{ end }}
+                {{ end }}
+            {{ end }}
+
+            {{ if gt (len $allTopics) 0 }}
             <div class="sidebar-widget widget-tags">
                 <h3 class="widget-title">Topic Tags</h3>
                 <div class="tag-cloud">
-                    {{ range $name, $taxonomy := .Site.Taxonomies.tags }}
-                    <a href="{{ "/tags/" | relLangURL }}{{ $name | urlize }}" class="tag-link">
-                        #{{ $name }} <span class="tag-count">{{ $taxonomy.Count }}</span>
+                    {{ range $name, $count := $allTopics }}
+                    <a href="{{ $.Site.BaseURL }}?q={{ $name | urlize }}" class="tag-link">
+                        #{{ $name }} <span class="tag-count">{{ $count }}</span>
                     </a>
                     {{ end }}
                 </div>
@@ -258,72 +297,74 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     }
     
-    if (searchInput) {
-        searchInput.addEventListener('input', async function() {
-            const query = this.value.trim().toLowerCase();
-            
-            if (query.length === 0) {
-                resultsSection.style.display = 'none';
-                mainList.style.display = 'block';
-                searchClearBtn.style.display = 'none';
-                return;
-            }
-            
-            searchClearBtn.style.display = 'block';
-            const index = await loadSearchIndex();
-            
-            const matches = index.filter(item => {
-                const titleMatch = item.title.toLowerCase().includes(query);
-                const summaryMatch = item.summary.toLowerCase().includes(query);
-                const contentMatch = item.content.toLowerCase().includes(query);
-                const tagMatch = item.tags.some(tag => tag.toLowerCase().includes(query));
-                return titleMatch || summaryMatch || contentMatch || tagMatch;
-            });
-            
-            resultsList.innerHTML = '';
-            if (matches.length === 0) {
-                resultsList.innerHTML = '<div class="no-results">No articles found matching your query.</div>';
-            } else {
-                matches.forEach(item => {
-                    const tagMarkup = item.tags.map(tag => `<a href="{{ .Site.BaseURL }}/tags/\${tag.toLowerCase()}" class="card-tag">#\${tag}</a>`).join(' ');
-                    const coverMarkup = item.cover ? `
-                        <div class="card-cover">
-                            <a href="\${item.permalink}">
-                                <img src="\${item.cover}" alt="\${item.title}" loading="lazy">
+    async function performSearch(query) {
+        if (query.length === 0) {
+            resultsSection.style.display = 'none';
+            mainList.style.display = 'block';
+            searchClearBtn.style.display = 'none';
+            return;
+        }
+        
+        searchClearBtn.style.display = 'block';
+        const index = await loadSearchIndex();
+        
+        const matches = index.filter(item => {
+            const titleMatch = item.title.toLowerCase().includes(query);
+            const summaryMatch = item.summary.toLowerCase().includes(query);
+            const contentMatch = item.content.toLowerCase().includes(query);
+            const tagMatch = item.tags.some(tag => tag.toLowerCase().includes(query));
+            return titleMatch || summaryMatch || contentMatch || tagMatch;
+        });
+        
+        resultsList.innerHTML = '';
+        if (matches.length === 0) {
+            resultsList.innerHTML = '<div class="no-results">No articles found matching your query.</div>';
+        } else {
+            matches.forEach(item => {
+                const tagMarkup = item.tags.map(tag => `<a href="{{ .Site.BaseURL }}?q=\${encodeURIComponent(tag.replace(/\s+/g, '-').toLowerCase())}" class="card-tag">#\${tag}</a>`).join(' ');
+                const coverMarkup = item.cover ? `
+                    <div class="card-cover">
+                        <a href="\${item.permalink}">
+                            <img src="\${item.cover}" alt="\${item.title}" loading="lazy">
+                        </a>
+                    </div>
+                ` : '';
+                
+                const articleHTML = `
+                    <article class="article-card">
+                        \${coverMarkup}
+                        <header class="article-header">
+                            <div class="article-meta-row">
+                                <span class="article-meta">
+                                    <svg class="meta-icon" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5"/><path d="M8 4v4l3 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                                    \${item.date}
+                                </span>
+                            </div>
+                            <h2 class="article-title">
+                                <a href="\${item.permalink}">\${item.title}</a>
+                            </h2>
+                        </header>
+                        <div class="article-excerpt">\${item.summary}</div>
+                        <div class="card-tags">\${tagMarkup}</div>
+                        <footer class="article-footer">
+                            <a href="\${item.permalink}" class="read-more">
+                                Read Article
+                                <svg class="arrow-icon" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
                             </a>
-                        </div>
-                    ` : '';
-                    
-                    const articleHTML = `
-                        <article class="article-card">
-                            \${coverMarkup}
-                            <header class="article-header">
-                                <div class="article-meta-row">
-                                    <span class="article-meta">
-                                        <svg class="meta-icon" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5"/><path d="M8 4v4l3 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-                                        \${item.date}
-                                    </span>
-                                </div>
-                                <h2 class="article-title">
-                                    <a href="\${item.permalink}">\${item.title}</a>
-                                </h2>
-                            </header>
-                            <div class="article-excerpt">\${item.summary}</div>
-                            <div class="card-tags">\${tagMarkup}</div>
-                            <footer class="article-footer">
-                                <a href="\${item.permalink}" class="read-more">
-                                    Read Article
-                                    <svg class="arrow-icon" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                                </a>
-                            </footer>
-                        </article>
-                    `;
-                    resultsList.insertAdjacentHTML('beforeend', articleHTML);
-                });
-            }
-            
-            mainList.style.display = 'none';
-            resultsSection.style.display = 'block';
+                        </footer>
+                    </article>
+                `;
+                resultsList.insertAdjacentHTML('beforeend', articleHTML);
+            });
+        }
+        
+        mainList.style.display = 'none';
+        resultsSection.style.display = 'block';
+    }
+    
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            performSearch(this.value.trim().toLowerCase());
         });
         
         searchClearBtn.addEventListener('click', function() {
@@ -335,7 +376,16 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
-    // 2. Intelligent, Gentle Adblock Recovery
+    // 2. Auto-trigger search from query parameter (e.g. ?q=kv-cache)
+    const urlParams = new URLSearchParams(window.location.search);
+    const queryParam = urlParams.get('q');
+    if (queryParam && searchInput) {
+        const cleanQuery = decodeURIComponent(queryParam).replace(/-/g, ' ');
+        searchInput.value = cleanQuery;
+        performSearch(cleanQuery);
+    }
+
+    // 3. Intelligent, Gentle Adblock Recovery
     setTimeout(function() {
         const adSlots = document.querySelectorAll('.ad-slot');
         const adsBlocked = !window.adsbygoogle || window.adsbygoogle.resolved === undefined;
