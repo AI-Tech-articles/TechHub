@@ -5,26 +5,21 @@
     {{- $baseName := $page.File.BaseFileName -}}
     {{- $strippedName := replaceRE `^\d{4}-\d{2}-\d{2}-` "" $baseName -}}
     {{- range (slice "png" "jpg" "jpeg" "webp" "gif") -}}
+      {{- $ext := . -}}
       {{- if not $coverUrl -}}
-        {{- /* 1. Try to find in assets/images/covers/ */ -}}
-        {{- $resPath1 := printf "images/covers/%s.%s" $strippedName . -}}
-        {{- $res1 := resources.Get $resPath1 -}}
-        {{- if $res1 -}}
-          {{- $coverUrl = $res1.RelPermalink -}}
-        {{- else -}}
-          {{- $resPath2 := printf "images/covers/%s.%s" $baseName . -}}
-          {{- $res2 := resources.Get $resPath2 -}}
-          {{- if $res2 -}}
-            {{- $coverUrl = $res2.RelPermalink -}}
-          {{- else -}}
-            {{- /* 2. Fall back to static/images/covers/ */ -}}
-            {{- $statPath1 := printf "static/images/covers/%s.%s" $strippedName . -}}
-            {{- if fileExists $statPath1 -}}
-              {{- $coverUrl = printf "/images/covers/%s.%s" $strippedName . | relURL -}}
+        {{- range (slice (printf "%s-cover" $strippedName) (printf "%s-cover" $baseName) $strippedName $baseName) -}}
+          {{- $namePattern := . -}}
+          {{- if not $coverUrl -}}
+            {{- /* 1. Try to find in assets/images/covers/ */ -}}
+            {{- $resPath := printf "images/covers/%s.%s" $namePattern $ext -}}
+            {{- $res := resources.Get $resPath -}}
+            {{- if $res -}}
+              {{- $coverUrl = $res.RelPermalink -}}
             {{- else -}}
-              {{- $statPath2 := printf "static/images/covers/%s.%s" $baseName . -}}
-              {{- if fileExists $statPath2 -}}
-                {{- $coverUrl = printf "/images/covers/%s.%s" $baseName . | relURL -}}
+              {{- /* 2. Fall back to static/images/covers/ */ -}}
+              {{- $statPath := printf "static/images/covers/%s.%s" $namePattern $ext -}}
+              {{- if fileExists $statPath -}}
+                {{- $coverUrl = printf "/images/covers/%s.%s" $namePattern $ext | relURL -}}
               {{- end -}}
             {{- end -}}
           {{- end -}}
