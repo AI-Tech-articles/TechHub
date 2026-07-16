@@ -112,7 +112,7 @@
                         {{ if gt (len $postTopics) 0 }}
                         <div class="card-tags">
                             {{ range $postTopics }}
-                            <a href="{{ "" | relURL }}?q={{ . | urlize }}" class="card-tag">#{{ . }}</a>
+                            <a href="{{ "" | relURL }}?q={{ . | urlize }}" class="card-tag" data-tag="{{ . }}">#{{ . }}</a>
                             {{ end }}
                         </div>
                         {{ end }}
@@ -250,7 +250,7 @@
                 <h3 class="widget-title">Topic Tags</h3>
                 <div class="tag-cloud">
                     {{ range $name, $count := $allTopics }}
-                    <a href="{{ "" | relURL }}?q={{ $name | urlize }}" class="tag-link">
+                    <a href="{{ "" | relURL }}?q={{ $name | urlize }}" class="tag-link" data-tag="{{ $name }}">
                         #{{ $name }} <span class="tag-count">{{ $count }}</span>
                     </a>
                     {{ end }}
@@ -325,33 +325,33 @@ document.addEventListener("DOMContentLoaded", function() {
             resultsList.innerHTML = '<div class="no-results">No articles found matching your query.</div>';
         } else {
             matches.forEach(item => {
-                const tagMarkup = item.tags.map(tag => `<a href="{{ "" | relURL }}?q=\${encodeURIComponent(tag.replace(/\s+/g, '-').toLowerCase())}" class="card-tag">#\${tag}</a>`).join(' ');
+                const tagMarkup = item.tags.map(tag => `<a href="{{ "" | relURL }}?q=${encodeURIComponent(tag.replace(/\s+/g, '-').toLowerCase())}" class="card-tag" data-tag="${tag}">#${tag}</a>`).join(' ');
                 const coverMarkup = item.cover ? `
                     <div class="card-cover">
-                        <a href="\${item.permalink}">
-                            <img src="\${item.cover}" alt="\${item.title}" loading="lazy">
+                        <a href="${item.permalink}">
+                            <img src="${item.cover}" alt="${item.title}" loading="lazy">
                         </a>
                     </div>
                 ` : '';
                 
                 const articleHTML = `
                     <article class="article-card">
-                        \${coverMarkup}
+                        ${coverMarkup}
                         <header class="article-header">
                             <div class="article-meta-row">
                                 <span class="article-meta">
                                     <svg class="meta-icon" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5"/><path d="M8 4v4l3 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-                                    \${item.date}
+                                    ${item.date}
                                 </span>
                             </div>
                             <h2 class="article-title">
-                                <a href="\${item.permalink}">\${item.title}</a>
+                                <a href="${item.permalink}">${item.title}</a>
                             </h2>
                         </header>
-                        <div class="article-excerpt">\${item.summary}</div>
-                        <div class="card-tags">\${tagMarkup}</div>
+                        <div class="article-excerpt">${item.summary}</div>
+                        <div class="card-tags">${tagMarkup}</div>
                         <footer class="article-footer">
-                            <a href="\${item.permalink}" class="read-more">
+                            <a href="${item.permalink}" class="read-more">
                                 Read Article
                                 <svg class="arrow-icon" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
                             </a>
@@ -384,8 +384,11 @@ document.addEventListener("DOMContentLoaded", function() {
     document.addEventListener('click', function(e) {
         const tagElement = e.target.closest('.card-tag, .tag-link');
         if (tagElement) {
-            let tagText = tagElement.textContent.trim();
-            if (tagText.startsWith('#')) tagText = tagText.slice(1);
+            let tagText = tagElement.getAttribute('data-tag');
+            if (!tagText) {
+                tagText = tagElement.textContent.trim();
+                if (tagText.startsWith('#')) tagText = tagText.slice(1);
+            }
             
             if (searchInput) {
                 e.preventDefault();
@@ -406,7 +409,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const urlParams = new URLSearchParams(window.location.search);
     const queryParam = urlParams.get('q');
     if (queryParam && searchInput) {
-        const cleanQuery = decodeURIComponent(queryParam).replace(/-/g, ' ');
+        const cleanQuery = decodeURIComponent(queryParam);
         searchInput.value = cleanQuery;
         performSearch(cleanQuery);
     }
