@@ -9,6 +9,13 @@ theme = 'techhub'
   images = ['images/default-og.png']
 
 [markup]
+  [markup.highlight]
+    codeFences       = true
+    guessSyntax      = true
+    lineNos          = false
+    lineNumbersInTable = true
+    noClasses        = false
+    style            = "monokai"
   [markup.goldmark]
     [markup.goldmark.renderer]
       unsafe = true

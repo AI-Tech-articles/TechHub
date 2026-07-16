@@ -251,7 +251,93 @@
 document.addEventListener("DOMContentLoaded", function() {
     const postBody = document.querySelector('.post-content');
     if (!postBody) return;
-    
+
+    // 0. Code block enhancement: copy button + language badge
+    postBody.querySelectorAll('.highlight, pre').forEach(block => {
+        // Prevent double-processing
+        if (block.querySelector('.copy-code-btn')) return;
+
+        // Detect language from Hugo's class (e.g. "language-python")
+        const codeEl = block.querySelector('code');
+        let lang = '';
+        if (codeEl) {
+            const cls = Array.from(codeEl.classList).find(c => c.startsWith('language-'));
+            if (cls) lang = cls.replace('language-', '');
+        }
+        // Hugo Chroma uses <div class="highlight"> with data- attrs or inner class
+        if (!lang) {
+            const wrapper = block.closest('[class]');
+            if (wrapper) {
+                const m = wrapper.className.match(/language-(\S+)/);
+                if (m) lang = m[1];
+            }
+        }
+
+        // Language badge
+        if (lang) {
+            const badge = document.createElement('span');
+            badge.className = 'code-lang-badge';
+            badge.textContent = lang;
+            block.style.position = 'relative';
+            block.appendChild(badge);
+        }
+
+        // Copy button
+        const btn = document.createElement('button');
+        btn.className = 'copy-code-btn';
+        btn.textContent = 'Copy';
+        btn.setAttribute('aria-label', 'Copy code');
+        block.style.position = 'relative';
+        block.appendChild(btn);
+
+        btn.addEventListener('click', () => {
+            const text = codeEl ? codeEl.innerText : block.innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(() => {
+                    btn.textContent = 'Copy';
+                    btn.classList.remove('copied');
+                }, 2000);
+            }).catch(() => {
+                btn.textContent = 'Error';
+                setTimeout(() => { btn.textContent = 'Copy'; }, 2000);
+            });
+        });
+    });
+
+    // 0b. Mermaid diagram rendering
+    if (postBody.querySelector('code.language-mermaid, .language-mermaid')) {
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js';
+        script.onload = () => {
+            mermaid.initialize({
+                startOnLoad: false,
+                theme: 'dark',
+                themeVariables: {
+                    primaryColor: '#12121a',
+                    primaryTextColor: '#f0f0f5',
+                    primaryBorderColor: 'rgba(212,175,55,0.3)',
+                    lineColor: '#d4af37',
+                    secondaryColor: '#17171f',
+                    tertiaryColor: '#0d0d14',
+                    background: '#090912',
+                    fontFamily: 'Inter, system-ui, sans-serif',
+                    fontSize: '14px',
+                }
+            });
+            // Convert <pre><code class="language-mermaid"> to <div class="mermaid">
+            postBody.querySelectorAll('code.language-mermaid').forEach(el => {
+                const div = document.createElement('div');
+                div.className = 'mermaid';
+                div.textContent = el.textContent;
+                el.closest('pre, .highlight').replaceWith(div);
+            });
+            mermaid.run({ nodes: postBody.querySelectorAll('.mermaid') });
+        };
+        document.head.appendChild(script);
+    }
+
     // 1. Reading Progress Bar Logic
     const progressBar = document.getElementById('progress-bar');
     window.addEventListener('scroll', () => {
