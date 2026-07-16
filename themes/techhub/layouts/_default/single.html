@@ -39,6 +39,10 @@
                     <span itemprop="name">{{ . }}</span>
                 </span>
                 {{ end }}
+                <span class="post-views" id="views-container" style="display: none; align-items: center; gap: 0.4rem;">
+                    <svg class="meta-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width: 14px; height: 14px;"><path d="M1 8s3-7 7-7 7 7 7 7-3 7-7 7-7-7-7-7z"/><circle cx="8" cy="8" r="3"/></svg>
+                    <span id="views-count">0</span> views
+                </span>
             </div>
 
             <!-- Tags List on Single Post Page -->
@@ -299,6 +303,24 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         });
     }, 2000);
+
+    // 4. Zero-Config Global Readers View Counter
+    const pageId = "{{ .File.BaseFileName }}".replace(/[^a-zA-Z0-9-_]/g, "");
+    if (pageId) {
+        fetch('https://api.counterapi.dev/v1/ai-tech-articles-techhub/' + pageId + '/up')
+            .then(res => res.json())
+            .then(data => {
+                if (data && typeof data.count !== 'undefined') {
+                    const countSpan = document.getElementById('views-count');
+                    const containerSpan = document.getElementById('views-container');
+                    if (countSpan && containerSpan) {
+                        countSpan.textContent = data.count.toLocaleString();
+                        containerSpan.style.display = 'inline-flex';
+                    }
+                }
+            })
+            .catch(err => console.error('Failed to load view count', err));
+    }
 });
 </script>
 
