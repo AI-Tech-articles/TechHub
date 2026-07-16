@@ -1326,6 +1326,47 @@ body {
     background: var(--accent-gold-dim);
     transform: translateY(-2px);
 }
+// ── Recommended Tools ──
+.tools-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 0;
+}
+
+.tools-list li a {
+    display: block;
+    text-decoration: none;
+    border-bottom: 1px solid var(--border-subtle);
+    padding-bottom: 0.75rem;
+    transition: all var(--transition-fast);
+}
+
+.tools-list li:last-child a {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.tool-name {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    transition: color var(--transition-fast);
+}
+
+.tools-list li a:hover .tool-name {
+    color: var(--accent-gold);
+}
+
+.tool-desc {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-top: 0.15rem;
+    line-height: 1.4;
+}
 
 // ═══════════════════════════════════════════
 // ANIMATIONS

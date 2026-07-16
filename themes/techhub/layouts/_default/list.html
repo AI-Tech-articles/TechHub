@@ -165,6 +165,25 @@
                 </form>
             </div>
 
+            <!-- Developer Resources Widget (Affiliate Opportunities) -->
+            <div class="sidebar-widget widget-tools">
+                <h3 class="widget-title">Developer Resources</h3>
+                <ul class="tools-list">
+                    <li>
+                        <a href="https://www.digitalocean.com/" target="_blank" rel="noopener">
+                            <span class="tool-name">DigitalOcean Cloud</span>
+                            <span class="tool-desc">Spin up GPU clusters for ML training pipelines.</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://huggingface.co/" target="_blank" rel="noopener">
+                            <span class="tool-name">Hugging Face Enterprise</span>
+                            <span class="tool-desc">Model repository and serverless AI inference.</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
             <!-- Ad Widget -->
             <div class="sidebar-widget widget-ad">
                 <div class="widget-ad-label">Advertisement</div>
@@ -206,9 +225,10 @@
     </div>
 </div>
 
-<!-- Client-side Search Engine Script -->
+<!-- Client-side Search Engine & Ad-Blocker Recovery Script -->
 <script>
 document.addEventListener("DOMContentLoaded", function() {
+    // 1. Client-Side Live Search Engine
     const searchInput = document.getElementById('search-input');
     const searchClearBtn = document.getElementById('search-clear-btn');
     const mainList = document.getElementById('main-articles-list');
@@ -305,6 +325,31 @@ document.addEventListener("DOMContentLoaded", function() {
             searchInput.focus();
         });
     }
+
+    // 2. Intelligent, Gentle Adblock Recovery
+    setTimeout(function() {
+        const adSlots = document.querySelectorAll('.ad-slot');
+        const adsBlocked = !window.adsbygoogle || window.adsbygoogle.resolved === undefined;
+        
+        adSlots.forEach(slot => {
+            if (adsBlocked || slot.offsetHeight === 0) {
+                slot.style.border = '1px dashed var(--border-gold-dim)';
+                slot.style.background = 'rgba(212, 175, 55, 0.02)';
+                slot.style.display = 'flex';
+                slot.style.flexDirection = 'column';
+                slot.style.justifyContent = 'center';
+                slot.style.alignItems = 'center';
+                slot.style.padding = '1.5rem';
+                slot.style.textAlign = 'center';
+                slot.style.margin = '1.5rem 0';
+                slot.style.borderRadius = 'var(--radius-sm)';
+                slot.innerHTML = `
+                    <div style="font-family: 'Cinzel', serif; font-size: 0.85rem; color: var(--accent-gold); margin-bottom: 0.25rem; font-weight: 600; letter-spacing: 0.05em;">Support TechHub Research</div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted); line-height: 1.4; max-width: 320px;">We display clean, non-tracking ads to fund our independent systems engineering publications. Consider whitelisting us.</div>
+                `;
+            }
+        });
+    }, 2000);
 });
 </script>
 {{ end }}

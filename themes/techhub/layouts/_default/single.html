@@ -153,7 +153,7 @@
             </footer>
         </div>
 
-        <!-- Post Page Sidebar with Ads -->
+        <!-- Post Page Sidebar -->
         <aside class="sidebar">
             <!-- Newsletter Widget (Lead Capture) -->
             <div class="sidebar-widget widget-newsletter">
@@ -163,6 +163,25 @@
                     <input type="email" name="email" placeholder="Enter your email address" required aria-label="Email Address">
                     <button type="submit" class="newsletter-btn">Subscribe</button>
                 </form>
+            </div>
+
+            <!-- Developer Resources Widget (Affiliate Opportunities) -->
+            <div class="sidebar-widget widget-tools">
+                <h3 class="widget-title">Developer Resources</h3>
+                <ul class="tools-list">
+                    <li>
+                        <a href="https://www.digitalocean.com/" target="_blank" rel="noopener">
+                            <span class="tool-name">DigitalOcean Cloud</span>
+                            <span class="tool-desc">Spin up GPU clusters for ML training pipelines.</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://huggingface.co/" target="_blank" rel="noopener">
+                            <span class="tool-name">Hugging Face Enterprise</span>
+                            <span class="tool-desc">Model registry and serverless AI inference.</span>
+                        </a>
+                    </li>
+                </ul>
             </div>
 
             <!-- Ad Slot 1 -->
@@ -219,7 +238,7 @@ document.addEventListener("DOMContentLoaded", function() {
         progressBar.style.width = percentage + '%';
     });
 
-    // 2. Dynamic Ad Injection
+    // 2. Dynamic Ad Injection & Ad-blocker Whitelist Recovery notice
     const paragraphs = postBody.querySelectorAll('p');
     
     // Inject first inside-article ad after paragraph 2
@@ -255,6 +274,31 @@ document.addEventListener("DOMContentLoaded", function() {
         paragraphs[4].parentNode.insertBefore(ad2, paragraphs[4].nextSibling);
         (adsbygoogle = window.adsbygoogle || []).push({});
     }
+
+    // 3. Intelligent, Gentle Adblock Recovery
+    setTimeout(function() {
+        const adSlots = document.querySelectorAll('.ad-slot');
+        const adsBlocked = !window.adsbygoogle || window.adsbygoogle.resolved === undefined;
+        
+        adSlots.forEach(slot => {
+            if (adsBlocked || slot.offsetHeight === 0) {
+                slot.style.border = '1px dashed var(--border-gold-dim)';
+                slot.style.background = 'rgba(212, 175, 55, 0.02)';
+                slot.style.display = 'flex';
+                slot.style.flexDirection = 'column';
+                slot.style.justifyContent = 'center';
+                slot.style.alignItems = 'center';
+                slot.style.padding = '1.5rem';
+                slot.style.textAlign = 'center';
+                slot.style.margin = '2rem 0';
+                slot.style.borderRadius = 'var(--radius-sm)';
+                slot.innerHTML = `
+                    <div style="font-family: 'Cinzel', serif; font-size: 0.85rem; color: var(--accent-gold); margin-bottom: 0.25rem; font-weight: 600; letter-spacing: 0.05em;">Support TechHub Research</div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted); line-height: 1.4; max-width: 320px;">We display clean, non-tracking ads to fund our independent systems engineering publications. Consider whitelisting us.</div>
+                `;
+            }
+        });
+    }, 2000);
 });
 </script>
 
