@@ -1,0 +1,22 @@
+{{/* 
+  Ad-slot — renders a Google AdSense auto-ad container.
+  The AdSense script (loaded in head.html) will auto-fill these.
+
+  USAGE:
+    {{ partial "ad-slot.html" (dict "position" "desktop-inline") }}
+
+  POSITIONS:
+    desktop-inline, between-articles, mobile-between,
+    medium-rectangle, mobile, inline-slot, mobile-inline,
+    bottom-leaderboard
+*/}}
+<div class="ad-slot ad-slot--{{ .position }}"
+     aria-hidden="true"
+     data-ad-position="{{ .position }}">
+    <ins class="adsbygoogle"
+         style="display:block"
+         data-ad-client="ca-pub-6375003818418942"
+         data-ad-format="auto"
+         data-full-width-responsive="true"></ins>
+    <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+</div>

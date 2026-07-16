@@ -1,0 +1,11 @@
+name = "TechHub"
+license = "MIT"
+licenselink = ""
+description = "Dark luxury theme for AI technology publications"
+homepage = "https://ai-tech-articles.github.io/TechHub"
+tags = ["blog", "dark", "tech", "minimal"]
+features = ["responsive", "rss", "seo", "mermaid"]
+min_version = "0.124.0"
+
+[author]
+  name = "Saranga Thenuwara"

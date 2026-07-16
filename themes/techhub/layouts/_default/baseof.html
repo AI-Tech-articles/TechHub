@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    {{ partial "head.html" . }}
+</head>
+<body>
+    {{ partial "header.html" . }}
+
+    <main class="site-main" role="main">
+        {{ block "main" . }}{{ end }}
+    </main>
+
+    {{ partial "footer.html" . }}
+
+    <!-- Mermaid.js — initialized on every page so diagrams render in posts -->
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'dark',
+            themeVariables: {
+                primaryColor: '#12121a',
+                primaryTextColor: '#e8e8f0',
+                primaryBorderColor: '#d4af37',
+                lineColor: '#8a8a9a',
+                secondaryColor: '#0d0d14',
+                tertiaryColor: '#16161d'
+            }
+        });
+    </script>
+
+    <!-- Mobile navigation toggle -->
+    <script>
+        (function () {
+            const toggle = document.querySelector('.nav-toggle');
+            const nav = document.querySelector('.site-nav');
+            if (!toggle || !nav) return;
+            toggle.addEventListener('click', function () {
+                const expanded = this.getAttribute('aria-expanded') === 'true';
+                this.setAttribute('aria-expanded', String(!expanded));
+                nav.classList.toggle('is-open');
+                this.classList.toggle('is-active');
+            });
+        })();
+    </script>
+</body>
+</html>

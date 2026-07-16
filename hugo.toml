@@ -1,0 +1,40 @@
+baseURL = 'https://ai-tech-articles.github.io/TechHub'
+languageCode = 'en-us'
+title = 'TechHub'
+theme = 'techhub'
+
+[params]
+  author = 'Saranga Thenuwara'
+  description = 'Premium AI and Technology Research Articles — Deep dives into LLM inference, distributed systems, and production-grade AI infrastructure.'
+  images = ['images/default-og.png']
+
+[markup]
+  [markup.goldmark]
+    [markup.goldmark.renderer]
+      unsafe = true
+    [markup.goldmark.extensions]
+      table = true
+      strikethrough = true
+      taskList = true
+
+[permalinks]
+  posts = '/:year/:month/:slug/'
+
+[outputs]
+  home = ['HTML', 'RSS']
+  page = ['HTML']
+
+[outputFormats]
+  [outputFormats.RSS]
+    mediatype = 'application/rss'
+    baseName = 'feed'
+
+[menu]
+  [[menu.main]]
+    name = 'Articles'
+    url = '/'
+    weight = 10
+  [[menu.main]]
+    name = 'RSS'
+    url = '/feed.xml'
+    weight = 20

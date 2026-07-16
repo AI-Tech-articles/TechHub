@@ -1,0 +1,14 @@
+<footer class="site-footer" role="contentinfo">
+    <div class="container">
+        <div class="footer-brand">
+            <span class="footer-logo">T</span>
+            <span class="footer-name">{{ .Site.Title }}</span>
+        </div>
+        <p class="footer-text">
+            &copy; {{ now.Format "2006" }} {{ .Site.Params.author | default .Site.Title }}. All rights reserved.
+        </p>
+        <p class="footer-meta">
+            Premium AI &amp; Technology Research
+        </p>
+    </div>
+</footer>

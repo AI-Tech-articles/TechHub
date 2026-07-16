@@ -1,0 +1,76 @@
+{{ define "main" }}
+<div class="home">
+    <section class="hero">
+        <div class="container">
+            <div class="hero-badge">AI Research &amp; Technology</div>
+            <h1 class="hero-title">{{ .Site.Title }}</h1>
+            <p class="hero-description">{{ .Site.Params.description }}</p>
+            <div class="hero-glow"></div>
+        </div>
+    </section>
+
+    <section class="article-list" aria-label="Articles">
+        <div class="container">
+            {{ range $index, $post := .Site.RegularPages }}
+
+                {{ if eq $index 0 }}
+                    {{ partial "ad-slot.html" (dict "position" "desktop-inline") }}
+                {{ end }}
+
+                <article class="article-card" style="animation-delay: {{ mul $index 60 }}ms">
+                    <header class="article-header">
+                        <div class="article-meta-row">
+                            <span class="article-meta"
+                                  {{ with $post.Params.transmission_id }}data-transmission-id="{{ . }}"{{ end }}>
+                                <svg class="meta-icon" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5"/><path d="M8 4v4l3 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                                {{ $post.Date.Format "January 02, 2006" }}
+                            </span>
+                            {{ with $post.Params.reading_time }}
+                            <span class="article-reading-time">{{ . }} min read</span>
+                            {{ end }}
+                        </div>
+
+                        <h2 class="article-title">
+                            <a href="{{ $post.Permalink }}" rel="bookmark">
+                                {{ $post.Title }}
+                            </a>
+                        </h2>
+                    </header>
+
+                    {{ if $post.Summary }}
+                    <div class="article-excerpt">
+                        {{ $post.Summary }}
+                    </div>
+                    {{ end }}
+
+                    <footer class="article-footer">
+                        <a href="{{ $post.Permalink }}" class="read-more">
+                            Read Article
+                            <svg class="arrow-icon" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </a>
+                    </footer>
+                </article>
+
+                {{/* Insert ad slots between articles (not after the last one) */}}
+                {{ if eq $index 1 }}
+                    {{ partial "ad-slot.html" (dict "position" "between-articles") }}
+                    {{ partial "ad-slot.html" (dict "position" "mobile-between") }}
+                {{ end }}
+
+                {{ if eq $index 3 }}
+                    {{ partial "ad-slot.html" (dict "position" "medium-rectangle") }}
+                    {{ partial "ad-slot.html" (dict "position" "mobile") }}
+                {{ end }}
+
+                {{ if eq $index 5 }}
+                    {{ partial "ad-slot.html" (dict "position" "inline-slot") }}
+                    {{ partial "ad-slot.html" (dict "position" "mobile-inline") }}
+                {{ end }}
+
+            {{ end }}
+
+            {{ partial "ad-slot.html" (dict "position" "bottom-leaderboard") }}
+        </div>
+    </section>
+</div>
+{{ end }}
