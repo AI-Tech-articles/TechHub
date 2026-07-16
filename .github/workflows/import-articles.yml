@@ -1,0 +1,127 @@
+name: Publish Latest Articles to TechHub
+
+on:
+  workflow_dispatch: # Allows manual trigger from GitHub UI
+  repository_dispatch:
+    types: [publish_article] # Allows the generator repo to trigger this workflow via API
+
+jobs:
+  sync-to-blog:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout TechHub Blog Repo (Self)
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.TECHHUB_PAT }}
+
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+
+    - name: Clone Private AI Article Generator Repo
+      env:
+        API_TOKEN_GITHUB: ${{ secrets.TECHHUB_PAT }}
+      run: |
+        git clone https://$API_TOKEN_GITHUB@github.com/AI-Tech-articles/AI-article-generator-system.git generator-repo
+
+    - name: Process, Format, and Relocate Articles
+      run: |
+        python -c "
+        import os
+        import re
+        import shutil
+        from datetime import datetime
+
+        source_dir = 'generator-repo/articles'
+        posts_dir = 'content/posts'
+        images_dir = 'static/images/covers'
+
+        os.makedirs(posts_dir, exist_ok=True)
+        os.makedirs(images_dir, exist_ok=True)
+
+        current_date = datetime.now().strftime('%Y-%m-%d')
+
+        if not os.path.exists(source_dir):
+            print(f'Source directory {source_dir} not found.')
+            exit(0)
+
+        for filename in os.listdir(source_dir):
+            file_path = os.path.join(source_dir, filename)
+            
+            # Move images to the dedicated Hugo static assets folder
+            if filename.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.webp')):
+                target_img_path = os.path.join(images_dir, filename)
+                shutil.copy2(file_path, target_img_path)
+                print(f'Relocated image asset: {filename} to {target_img_path}')
+                
+            # Parse and transform Markdown files
+            elif filename.endswith('.md'):
+                # Ensure the filename has the date prefix: YYYY-MM-DD-filename.md
+                if re.match(r'^\d{4}-\d{2}-\d{2}-', filename):
+                    new_filename = filename
+                else:
+                    new_filename = f'{current_date}-{filename}'
+                
+                with open(file_path, 'r', encoding='utf-8') as f:
+                    content = f.read()
+
+                # Automatically rewrite relative image paths to point to Hugo static folder: /images/covers/
+                content = re.sub(
+                    r'\((?!\/|http)([^)]+\.(?:png|jpg|jpeg|gif|webp))\)', 
+                    r'(/images/covers/\1)', 
+                    content
+                )
+                content = re.sub(
+                    r'src=[\"\'](?!\/|http)([^\"\']+\.(?:png|jpg|jpeg|gif|webp))[\"\']', 
+                    r'src=\"/images/covers/\1\"', 
+                    content
+                )
+
+                # Ensure valid front matter
+                title = filename.replace('.md', '').replace('-', ' ').title()
+                if not content.strip().startswith('---'):
+                    front_matter = f'---\ntitle: \"{title}\"\ndate: {current_date}T00:00:00+05:30\ndraft: false\n---\n\n'
+                    content = front_matter + content
+                else:
+                    # If front matter exists, ensure draft is false
+                    if 'draft: true' in content:
+                        content = content.replace('draft: true', 'draft: false')
+                    elif 'draft:' not in content:
+                        # insert draft: false before closing ---
+                        lines = content.split('\n')
+                        in_fm = False
+                        fm_end_idx = -1
+                        for idx, line in enumerate(lines):
+                            if line.strip() == '---':
+                                if not in_fm:
+                                    in_fm = True
+                                else:
+                                    fm_end_idx = idx
+                                    break
+                        if fm_end_idx != -1:
+                            lines.insert(fm_end_idx, 'draft: false')
+                            content = '\n'.join(lines)
+                
+                target_md_path = os.path.join(posts_dir, new_filename)
+                with open(target_md_path, 'w', encoding='utf-8') as f:
+                    f.write(content)
+                print(f'Processed and formatted article: {new_filename} -> {target_md_path}')
+        "
+
+    - name: Commit and Push new articles to TechHub
+      run: |
+        git config --global user.name "AI Generation Pipeline"
+        git config --global user.email "pipeline@ai-tech-articles.local"
+        
+        # Stage posts and covers
+        git add content/posts/*
+        git add static/images/covers/*
+        
+        if git diff-index --quiet HEAD --; then
+          echo "No new changes or items to publish."
+        else
+          git commit -m "docs: auto-published technical articles and assets"
+          git push origin main
+        fi
