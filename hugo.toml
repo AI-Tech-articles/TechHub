@@ -2,6 +2,7 @@ baseURL = 'https://ai-tech-articles.github.io/TechHub'
 languageCode = 'en-us'
 title = 'TechHub'
 theme = 'techhub'
+buildFuture = true
 
 [params]
   author = 'Saranga Thenuwara'

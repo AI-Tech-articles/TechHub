@@ -4,6 +4,10 @@ name: Deploy Hugo site to Pages
 on:
   push:
     branches: ["main"]
+  workflow_run:
+    workflows: ["Publish Latest Articles to TechHub"]
+    types:
+      - completed
   workflow_dispatch:
 
 permissions:
@@ -22,6 +26,7 @@ defaults:
 jobs:
   build:
     runs-on: ubuntu-latest
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     env:
       HUGO_VERSION: 0.147.6
     steps:
@@ -52,6 +57,7 @@ jobs:
           hugo \
             --gc \
             --minify \
+            --buildFuture \
             --baseURL "${{ steps.pages.outputs.base_url }}/"
 
       - name: Upload artifact

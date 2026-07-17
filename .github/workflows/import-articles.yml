@@ -5,6 +5,9 @@ on:
   repository_dispatch:
     types: [publish_article] # Allows the generator repo to trigger this workflow via API
 
+permissions:
+  contents: write
+
 jobs:
   sync-to-blog:
     runs-on: ubuntu-latest
