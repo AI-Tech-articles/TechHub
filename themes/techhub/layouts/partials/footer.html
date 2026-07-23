@@ -26,12 +26,28 @@
 function handleNewsletterSubmit(form) {
     const input = form.querySelector('input[type="email"]');
     const email = input ? input.value : '';
+    const accessKey = '{{ .Site.Params.web3forms_key }}';
+    
     if (email) {
         form.innerHTML = `
             <div style="background: rgba(212, 175, 55, 0.08); border: 1px solid var(--accent-gold); border-radius: var(--radius-sm); padding: 1rem; text-align: center; color: var(--accent-gold); font-size: 0.9rem; margin-top: 0.5rem; animation: fadeIn 0.3s ease;">
                 ✓ <strong>Thank you for subscribing!</strong><br><span style="font-size: 0.8rem; color: var(--text-muted);">${email} has been added to our research list.</span>
             </div>
         `;
+        
+        fetch('https://api.web3forms.com/submit', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                access_key: accessKey,
+                email: email,
+                subject: 'New TechHub Newsletter Subscriber',
+                from_name: 'TechHub Newsletter'
+            })
+        }).catch(err => console.error('Web3Forms error:', err));
     }
 }
 </script>
