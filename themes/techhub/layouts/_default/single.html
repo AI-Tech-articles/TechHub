@@ -32,22 +32,7 @@
         {{ end }}
     {{ end }}
 
-    <!-- Parse Topics dynamically from Markdown -->
-    {{ $postTopics := slice }}
-    {{ $raw := .RawContent }}
-    {{ $topicsMatch := findRE `(?s)(?:##|###) Topics\s*[\r\n]+[\s\r\n]*([^\r\n]+)` $raw 1 }}
-    {{ if $topicsMatch }}
-        {{ $match := index $topicsMatch 0 }}
-        {{ $topicsLine := replaceRE `(?s)^.*?(?:##|###) Topics\s*` "" $match }}
-        {{ $topicsLine = trim $topicsLine " \n\r" }}
-        {{ $rawTopics := split $topicsLine "·" }}
-        {{ range $rawTopics }}
-            {{ $t := trim . " \n\r" }}
-            {{ if $t }}
-                {{ $postTopics = $postTopics | append $t }}
-            {{ end }}
-        {{ end }}
-    {{ end }}
+
 
     <header class="post-header">
         <div class="container">
@@ -71,14 +56,7 @@
                 </span>
             </div>
 
-            <!-- Topics List on Single Post Page -->
-            {{ if gt (len $postTopics) 0 }}
-            <div class="post-tags-list">
-                {{ range $postTopics }}
-                <a href="{{ "" | relURL }}?q={{ . | urlize }}" class="post-tag">#{{ . }}</a>
-                {{ end }}
-            </div>
-            {{ end }}
+
 
             {{ if $coverUrl }}
             <div class="post-cover-image">
@@ -128,7 +106,7 @@
             <div class="post-newsletter-cta">
                 <h3 class="cta-title">Subscribe to the Technical Newsletter</h3>
                 <p class="cta-desc">Deep dives into distributed execution, performance benchmarking, and inference systems engineering. No fluff, no news, just engineering research.</p>
-                <form class="newsletter-form inline-form" action="#" method="post" target="_blank">
+                <form class="newsletter-form inline-form" onsubmit="event.preventDefault(); handleNewsletterSubmit(this);">
                     <input type="email" name="email" placeholder="Your professional email address" required aria-label="Email Address">
                     <button type="submit" class="cta-btn">Join Research list</button>
                 </form>
@@ -189,7 +167,7 @@
             <div class="sidebar-widget widget-newsletter">
                 <h3 class="widget-title">Join Newsletter</h3>
                 <p class="widget-desc">Get cutting-edge technical insights delivered directly to your inbox. No spam, ever.</p>
-                <form class="newsletter-form" action="#" method="post" target="_blank">
+                <form class="newsletter-form" onsubmit="event.preventDefault(); handleNewsletterSubmit(this);">
                     <input type="email" name="email" placeholder="Enter your email address" required aria-label="Email Address">
                     <button type="submit" class="newsletter-btn">Subscribe</button>
                 </form>

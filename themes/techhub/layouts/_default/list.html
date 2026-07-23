@@ -109,13 +109,7 @@
                         </div>
                         {{ end }}
 
-                        {{ if gt (len $postTopics) 0 }}
-                        <div class="card-tags">
-                            {{ range $postTopics }}
-                            <a href="{{ "" | relURL }}?q={{ . | urlize }}" class="card-tag" data-tag="{{ . }}">#{{ . }}</a>
-                            {{ end }}
-                        </div>
-                        {{ end }}
+
 
                         <footer class="article-footer">
                             <a href="{{ $post.Permalink }}" class="read-more">
@@ -185,7 +179,7 @@
             <div class="sidebar-widget widget-newsletter">
                 <h3 class="widget-title">Join Newsletter</h3>
                 <p class="widget-desc">Get cutting-edge technical insights delivered directly to your inbox. No spam, ever.</p>
-                <form class="newsletter-form" action="#" method="post" target="_blank">
+                <form class="newsletter-form" onsubmit="event.preventDefault(); handleNewsletterSubmit(this);">
                     <input type="email" name="email" placeholder="Enter your email address" required aria-label="Email Address">
                     <button type="submit" class="newsletter-btn">Subscribe</button>
                 </form>
@@ -222,41 +216,7 @@
                 <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
             </div>
 
-            <!-- Dynamic Topics Cloud Widget -->
-            {{ $allTopics := dict }}
-            {{ range where .Site.RegularPages "Section" "posts" }}
-                {{ $raw := .RawContent }}
-                {{ $topicsMatch := findRE `(?s)(?:##|###) Topics\s*[\r\n]+[\s\r\n]*([^\r\n]+)` $raw 1 }}
-                {{ if $topicsMatch }}
-                    {{ $match := index $topicsMatch 0 }}
-                    {{ $topicsLine := replaceRE `(?s)^.*?(?:##|###) Topics\s*` "" $match }}
-                    {{ $topicsLine = trim $topicsLine " \n\r" }}
-                    {{ $rawTopics := split $topicsLine "·" }}
-                    {{ range $rawTopics }}
-                        {{ $t := trim . " \n\r" }}
-                        {{ if $t }}
-                            {{ $count := 1 }}
-                            {{ if isset $allTopics $t }}
-                                {{ $count = add (index $allTopics $t) 1 }}
-                            {{ end }}
-                            {{ $allTopics = merge $allTopics (dict $t $count) }}
-                        {{ end }}
-                    {{ end }}
-                {{ end }}
-            {{ end }}
 
-            {{ if gt (len $allTopics) 0 }}
-            <div class="sidebar-widget widget-tags">
-                <h3 class="widget-title">Topic Tags</h3>
-                <div class="tag-cloud">
-                    {{ range $name, $count := $allTopics }}
-                    <a href="{{ "" | relURL }}?q={{ $name | urlize }}" class="tag-link" data-tag="{{ $name }}">
-                        #{{ $name }} <span class="tag-count">{{ $count }}</span>
-                    </a>
-                    {{ end }}
-                </div>
-            </div>
-            {{ end }}
 
             <!-- Sticky Ad Widget -->
             <div class="sidebar-widget widget-ad widget-ad--sticky">
