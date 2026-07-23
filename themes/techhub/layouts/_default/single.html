@@ -230,58 +230,57 @@ document.addEventListener("DOMContentLoaded", function() {
     const postBody = document.querySelector('.post-content');
     if (!postBody) return;
 
-    // 0. Code block enhancement: copy button + language badge
-    postBody.querySelectorAll('.highlight, pre').forEach(block => {
-        // Prevent double-processing
-        if (block.querySelector('.copy-code-btn')) return;
+    // 0. Professional Code Block Enhancement
+    const codeContainers = postBody.querySelectorAll('.highlight, pre:not(.highlight pre)');
+    codeContainers.forEach(container => {
+        if (container.querySelector('.code-header-bar')) return;
 
-        // Detect language from Hugo's class (e.g. "language-python")
-        const codeEl = block.querySelector('code');
+        const codeEl = container.querySelector('code') || container;
         let lang = '';
-        if (codeEl) {
-            const cls = Array.from(codeEl.classList).find(c => c.startsWith('language-'));
-            if (cls) lang = cls.replace('language-', '');
-        }
-        // Hugo Chroma uses <div class="highlight"> with data- attrs or inner class
-        if (!lang) {
-            const wrapper = block.closest('[class]');
-            if (wrapper) {
-                const m = wrapper.className.match(/language-(\S+)/);
-                if (m) lang = m[1];
-            }
+        
+        // Detect language
+        const classNames = [container.className, codeEl.className, container.parentElement ? container.parentElement.className : ''].join(' ');
+        const langMatch = classNames.match(/language-([a-zA-Z0-9_\-+]+)/i) || classNames.match(/chroma\s+([a-zA-Z0-9_\-+]+)/i);
+        if (langMatch) {
+            lang = langMatch[1];
         }
 
-        // Header bar insertion (dots, lang badge, copy button)
+        // Create IDE header bar
         const headerBar = document.createElement('div');
         headerBar.className = 'code-header-bar';
         headerBar.innerHTML = `
-            <div class="code-dots">
-                <span class="dot red"></span>
-                <span class="dot yellow"></span>
-                <span class="dot green"></span>
+            <div class="code-header-left">
+                <div class="code-dots">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                </div>
+                <span class="code-lang-badge">${(lang || 'CODE').toUpperCase()}</span>
             </div>
-            <span class="code-lang-badge">${(lang || 'code').toUpperCase()}</span>
-            <button class="copy-code-btn" aria-label="Copy code">
-                <svg viewBox="0 0 16 16" fill="none" class="copy-icon" style="width: 12px; height: 12px;"><rect x="5" y="5" width="8" height="8" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M3 11V3.5A1.5 1.5 0 0 1 4.5 2H11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-                <span>Copy</span>
+            <button class="copy-code-btn" aria-label="Copy code to clipboard">
+                <svg viewBox="0 0 16 16" fill="none" class="copy-icon" style="width: 13px; height: 13px;"><rect x="5" y="5" width="8" height="8" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M3 11V3.5A1.5 1.5 0 0 1 4.5 2H11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                <span class="copy-text">Copy</span>
             </button>
         `;
 
-        block.insertBefore(headerBar, block.firstChild);
+        container.insertBefore(headerBar, container.firstChild);
 
         const btn = headerBar.querySelector('.copy-code-btn');
         btn.addEventListener('click', () => {
-            const text = codeEl ? codeEl.innerText : block.innerText;
+            // Get clean code content excluding header bar
+            const targetCode = container.querySelector('pre code') || container.querySelector('pre') || container.querySelector('code') || container;
+            const text = targetCode ? targetCode.innerText : container.innerText;
+            
             navigator.clipboard.writeText(text).then(() => {
-                btn.querySelector('span').textContent = 'Copied!';
+                btn.querySelector('.copy-text').textContent = 'Copied!';
                 btn.classList.add('copied');
                 setTimeout(() => {
-                    btn.querySelector('span').textContent = 'Copy';
+                    btn.querySelector('.copy-text').textContent = 'Copy';
                     btn.classList.remove('copied');
                 }, 2000);
             }).catch(() => {
-                btn.querySelector('span').textContent = 'Error';
-                setTimeout(() => { btn.querySelector('span').textContent = 'Copy'; }, 2000);
+                btn.querySelector('.copy-text').textContent = 'Error';
+                setTimeout(() => { btn.querySelector('.copy-text').textContent = 'Copy'; }, 2000);
             });
         });
     });
