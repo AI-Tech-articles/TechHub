@@ -230,22 +230,29 @@ document.addEventListener("DOMContentLoaded", function() {
     const postBody = document.querySelector('.post-content');
     if (!postBody) return;
 
-    // 0. Professional Code Block Enhancement
-    const codeContainers = postBody.querySelectorAll('.highlight, pre:not(.highlight pre)');
-    codeContainers.forEach(container => {
+    // 0. Professional Code Block & Diagram Enhancement
+    const allCodeBlocks = postBody.querySelectorAll('pre, .highlight');
+    allCodeBlocks.forEach(el => {
+        // Determine the actual container that holds the code
+        const container = el.closest('.highlight') || el;
         if (container.querySelector('.code-header-bar')) return;
 
+        // Grab the inner <code> element if present
         const codeEl = container.querySelector('code') || container;
         let lang = '';
-        
-        // Detect language
         const classNames = [container.className, codeEl.className, container.parentElement ? container.parentElement.className : ''].join(' ');
         const langMatch = classNames.match(/language-([a-zA-Z0-9_\-+]+)/i) || classNames.match(/chroma\s+([a-zA-Z0-9_\-+]+)/i);
         if (langMatch) {
             lang = langMatch[1];
         }
 
-        // Create IDE header bar
+        // ASCII diagram auto‑detect fallback
+        const textContent = container.innerText || '';
+        if (!lang && (textContent.includes('+--') || textContent.includes('| node') || textContent.includes('--->') || textContent.includes('|---|'))) {
+            lang = 'DIAGRAM';
+        }
+
+        // Build the IDE‑style header bar
         const headerBar = document.createElement('div');
         headerBar.className = 'code-header-bar';
         headerBar.innerHTML = `
@@ -257,20 +264,23 @@ document.addEventListener("DOMContentLoaded", function() {
                 </div>
                 <span class="code-lang-badge">${(lang || 'CODE').toUpperCase()}</span>
             </div>
-            <button class="copy-code-btn" aria-label="Copy code to clipboard">
+            <button class="copy-code-btn" type="button" aria-label="Copy code to clipboard">
                 <svg viewBox="0 0 16 16" fill="none" class="copy-icon" style="width: 13px; height: 13px;"><rect x="5" y="5" width="8" height="8" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M3 11V3.5A1.5 1.5 0 0 1 4.5 2H11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
                 <span class="copy-text">Copy</span>
             </button>
         `;
-
         container.insertBefore(headerBar, container.firstChild);
 
         const btn = headerBar.querySelector('.copy-code-btn');
-        btn.addEventListener('click', () => {
-            // Get clean code content excluding header bar
-            const targetCode = container.querySelector('pre code') || container.querySelector('pre') || container.querySelector('code') || container;
-            const text = targetCode ? targetCode.innerText : container.innerText;
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
             
+            const clone = container.cloneNode(true);
+            const hb = clone.querySelector('.code-header-bar');
+            if (hb) hb.remove();
+            const text = clone.innerText.trim();
+
             navigator.clipboard.writeText(text).then(() => {
                 btn.querySelector('.copy-text').textContent = 'Copied!';
                 btn.classList.add('copied');

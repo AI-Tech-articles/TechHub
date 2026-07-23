@@ -666,33 +666,7 @@ body {
     border-bottom-color: var(--accent-gold);
 }
 
-.post-content code {
-    background: var(--bg-elevated);
-    color: var(--accent-gold);
-    padding: 0.2em 0.45em;
-    border-radius: 5px;
-    font-family: 'JetBrains Mono', 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
-    font-size: 0.85em;
-    border: 1px solid var(--border-subtle);
-}
 
-.post-content pre {
-    background: var(--bg-elevated);
-    padding: 1.5rem;
-    border-radius: var(--radius-md);
-    overflow-x: auto;
-    margin: 1.75rem 0;
-    border: 1px solid var(--border-default);
-    box-shadow: var(--shadow-md);
-}
-
-.post-content pre code {
-    background: none;
-    padding: 0;
-    color: var(--text-secondary);
-    font-size: 0.875em;
-    border: none;
-}
 
 .post-content blockquote {
     border-left: 3px solid var(--accent-gold);
@@ -1642,9 +1616,12 @@ body {
     position: relative;
     margin: 2rem 0;
     border-radius: var(--radius-md);
-    border: 1px solid rgba(212, 175, 55, 0.22);
-    background: #090912;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    /* Golden accent border */
+    border: 1px solid #d4af37;
+    /* Dark gradient background for depth */
+    background: linear-gradient(135deg, #0e0e16, #090912);
+    /* Subtle inner glow and outer shadow */
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.03), 0 8px 32px rgba(0,0,0,0.55);
     overflow: hidden;
 }
 
@@ -1772,18 +1749,36 @@ body {
     white-space: pre;
 }
 
-// ── Chroma wrapper: override Hugo's inline background so our dark container shows ──
-// (noClasses=true means Hugo writes inline token colours directly; we just fix the bg)
+// ── Chroma wrapper: override Hugo's inline background & colors ──
 .post-content .highlight > .chroma,
-.post-content pre > .chroma {
-    background: transparent !important;
-}
-
-// Hugo with noClasses=true puts a `style="background-color:#..."` on the <pre>.
-// Override it so our themed wrapper background (#0e0e16) shows through.
+.post-content pre > .chroma,
 .post-content .highlight pre[style],
 .post-content pre[style] {
     background: transparent !important;
+    background-color: transparent !important;
+}
+
+// ── Modern Dark Syntax Color Tokens for Chroma ──
+.post-content .chroma {
+    background-color: transparent !important;
+    color: #e2e8f0 !important;
+
+    // Keywords (def, import, return, for, in, class, async)
+    .k, .kc, .kd, .kn, .kp, .kr, .kt { color: #f472b6 !important; font-weight: 600; }
+    // Strings ("nccl", "env://", text)
+    .s, .sa, .sb, .sc, .dl, .sd, .s2, .se, .sh, .si, .sx, .s1, .ss { color: #38bdf8 !important; }
+    // Functions and methods (init_process_group, communicate)
+    .nf, .fm { color: #60a5fa !important; font-weight: 600; }
+    // Built-in names & classes (torch, dist, print, range, len)
+    .nb, .nc, .nn { color: #fbbf24 !important; }
+    // Numbers
+    .m, .mb, .mf, .mh, .mi, .il, .mo { color: #f59e0b !important; }
+    // Comments (# initialize device-mesh)
+    .c, .ch, .cm, .c1, .cs, .cp, .cpf { color: #64748b !important; font-style: italic; }
+    // Operators (=, -, +, *, /)
+    .o, .ow { color: #ec4899 !important; }
+    // Variables & Punctuation
+    .n, .nv, .p { color: #e2e8f0 !important; }
 }
 
 // ── Mermaid diagrams (rendered by CDN) ──
