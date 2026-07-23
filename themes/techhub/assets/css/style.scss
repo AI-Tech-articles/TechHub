@@ -1642,63 +1642,79 @@ body {
     position: relative;
     margin: 1.75rem 0;
     border-radius: var(--radius-md);
-    border: 1px solid rgba(212, 175, 55, 0.12);
-    background: #0e0e16;
-    box-shadow: 0 4px 32px rgba(0,0,0,0.55), inset 0 0 0 1px rgba(255,255,255,0.03);
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    background: #090912;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
     overflow: hidden;
 }
 
-// Language badge (auto-generated via JS)
-.code-lang-badge {
-    position: absolute;
-    top: 0;
-    right: 3rem;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.65rem;
-    font-weight: 600;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--accent-gold);
-    background: rgba(212, 175, 55, 0.08);
-    border-bottom-left-radius: 6px;
-    border-bottom-right-radius: 6px;
-    padding: 0.25rem 0.75rem;
-    border: 1px solid rgba(212, 175, 55, 0.15);
-    border-top: none;
-    pointer-events: none;
-    z-index: 3;
+.code-header-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #11111a;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    padding: 0.5rem 1rem;
+    user-select: none;
 }
 
-// Copy button
+.code-dots {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.code-dots .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.code-dots .dot.red    { background: #ff5f56; }
+.code-dots .dot.yellow { background: #ffbd2e; }
+.code-dots .dot.green  { background: #27c93f; }
+
+.code-lang-badge {
+    position: static;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent-gold);
+    background: transparent;
+    padding: 0;
+    border: none;
+}
+
 .copy-code-btn {
-    position: absolute;
-    top: 0.6rem;
-    right: 0.6rem;
+    position: static;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
     background: rgba(212, 175, 55, 0.08);
-    border: 1px solid rgba(212, 175, 55, 0.2);
-    border-radius: 6px;
-    color: var(--text-muted);
-    font-size: 0.7rem;
+    border: 1px solid rgba(212, 175, 55, 0.25);
+    border-radius: 5px;
+    color: var(--text-secondary);
+    font-size: 0.75rem;
     font-weight: 600;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.03em;
     cursor: pointer;
-    padding: 0.3rem 0.65rem;
+    padding: 0.25rem 0.65rem;
     transition: all var(--transition-fast);
-    z-index: 4;
-    user-select: none;
-    line-height: 1.4;
 }
 
 .copy-code-btn:hover {
-    background: rgba(212, 175, 55, 0.15);
+    background: var(--accent-gold);
+    color: #090912;
     border-color: var(--accent-gold);
-    color: var(--accent-gold);
 }
 
 .copy-code-btn.copied {
     color: #4ade80;
     border-color: rgba(74, 222, 128, 0.4);
-    background: rgba(74, 222, 128, 0.08);
+    background: rgba(74, 222, 128, 0.12);
 }
 
 // ── The <pre> / <code> inside .highlight ──

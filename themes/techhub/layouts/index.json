@@ -1,5 +1,5 @@
 [
-  {{- range $index, $page := where .Site.RegularPages "Section" "posts" -}}
+  {{- range $index, $page := ((where .Site.RegularPages "Section" "posts").ByDate.Reverse) -}}
     {{- if $index -}},{{- end -}}
     {{- $coverUrl := "" -}}
     {{- $baseName := $page.File.BaseFileName -}}

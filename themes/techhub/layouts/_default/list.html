@@ -22,9 +22,9 @@
                 <div id="search-results-list"></div>
             </div>
 
-            <!-- Main Article List (paginated to max 10 articles) -->
+            <!-- Main Article List (paginated to max 10 articles, newest first) -->
             <div id="main-articles-list">
-                {{ $paginator := .Paginate (where .Site.RegularPages "Section" "posts") 10 }}
+                {{ $paginator := .Paginate ((where .Site.RegularPages "Section" "posts").ByDate.Reverse) 10 }}
                 {{ range $index, $post := $paginator.Pages }}
 
                     {{ if eq $index 0 }}
