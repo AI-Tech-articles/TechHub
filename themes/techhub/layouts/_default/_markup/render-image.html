@@ -3,13 +3,10 @@
 
 {{- if or (strings.HasPrefix $u "/assets/") (strings.HasPrefix $u "assets/") -}}
     {{- $cleanPath := strings.TrimPrefix "assets/" (strings.TrimPrefix "/assets/" $u) -}}
-
-    {{- /* 1. Try Hugo Pipes (assets/ directory) */ -}}
     {{- $img := resources.Get $cleanPath -}}
     {{- if $img -}}
         {{- $imgUrl = $img.Permalink -}}
     {{- else -}}
-        {{- /* 2. Fall back to static/ directory */ -}}
         {{- $staticPath := printf "static/%s" $cleanPath -}}
         {{- if fileExists $staticPath -}}
             {{- $imgUrl = printf "/%s" $cleanPath | absURL -}}
@@ -25,10 +22,9 @@
     {{- end -}}
 {{- end -}}
 
-{{- /* WebP CDN Proxy URL generator via Cloudflare edge (wsrv.nl) */ -}}
-{{- $webp1200 := printf "https://wsrv.nl/?url=%s&format=webp&q=82&w=1200" (urls.Parse $imgUrl).String -}}
-{{- $webp800  := printf "https://wsrv.nl/?url=%s&format=webp&q=82&w=800" (urls.Parse $imgUrl).String -}}
-{{- $webp480  := printf "https://wsrv.nl/?url=%s&format=webp&q=82&w=480" (urls.Parse $imgUrl).String -}}
+{{- $webp1200 := printf "https://wsrv.nl/?url=%s&amp;format=webp&amp;q=82&amp;w=1200" $imgUrl -}}
+{{- $webp800  := printf "https://wsrv.nl/?url=%s&amp;format=webp&amp;q=82&amp;w=800" $imgUrl -}}
+{{- $webp480  := printf "https://wsrv.nl/?url=%s&amp;format=webp&amp;q=82&amp;w=480" $imgUrl -}}
 
 <picture>
     <source srcset="{{ $webp480 }} 480w, {{ $webp800 }} 800w, {{ $webp1200 }} 1200w" sizes="(max-width: 768px) 100vw, 800px" type="image/webp">

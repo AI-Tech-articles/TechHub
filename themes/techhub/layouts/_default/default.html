@@ -111,8 +111,8 @@
 
             {{ if $coverUrl }}
             {{ $coverAbs := $coverUrl | absURL }}
-            {{ $webpCover1200 := printf "https://wsrv.nl/?url=%s&format=webp&q=85&w=1200" $coverAbs }}
-            {{ $webpCover800 := printf "https://wsrv.nl/?url=%s&format=webp&q=85&w=800" $coverAbs }}
+            {{ $webpCover1200 := printf "https://wsrv.nl/?url=%s&amp;format=webp&amp;q=85&amp;w=1200" $coverAbs }}
+            {{ $webpCover800 := printf "https://wsrv.nl/?url=%s&amp;format=webp&amp;q=85&amp;w=800" $coverAbs }}
             <div class="post-cover-image">
                 <picture>
                     <source srcset="{{ $webpCover800 }} 800w, {{ $webpCover1200 }} 1200w" sizes="(max-width: 768px) 100vw, 1200px" type="image/webp">
