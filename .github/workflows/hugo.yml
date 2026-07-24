@@ -61,7 +61,6 @@ jobs:
             --gc \
             --minify \
             --buildFuture \
-            --buildDrafts \
             --baseURL "${{ steps.pages.outputs.base_url }}/"
 
 
