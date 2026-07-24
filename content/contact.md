@@ -12,10 +12,10 @@ If you have any questions, research collaborations, advertising inquiries, or fe
 We aim to respond to all professional inquiries within 48 hours.
 
 ### Get in Touch
-- **Email**: contact@ai-tech-articles.local (Update this with your real email address)
+- **Email**: tbmsaranga@gmail.com (Update this with your real email address)
 - **GitHub**: [AI-Tech-articles](https://github.com/AI-Tech-articles)
-- **LinkedIn**: [Saranga Thenuwara](https://linkedin.com)
+- **LinkedIn**: [Saranga Thenuwara](linkedin.com/in/sthenuwara)
 
 ### Office & Mailing Address
 For official correspondences:
-- **Location**: Colombo, Sri Lanka
+- **Location**: UAE
