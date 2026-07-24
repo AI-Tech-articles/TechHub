@@ -14,6 +14,14 @@
 {{ $tldrMatch := findRE `(?i)\*\*TL;DR\*\*\s*\n((?:[-*]\s*.+\n?)+)` $rawContent 1 }}
 {{ if $tldrMatch }}{{ $tldr = index $tldrMatch 0 }}{{ end }}
 
+{{ $displayDate := .Date.Format "January 02, 2006" }}
+{{ $datePrefixMatch := findRE `^\d{4}-\d{2}-\d{2}` .File.BaseFileName 1 }}
+{{ if $datePrefixMatch }}
+    {{ $dateStr := index $datePrefixMatch 0 }}
+    {{ $parsedTime := time $dateStr }}
+    {{ $displayDate = $parsedTime.Format "January 02, 2006" }}
+{{ end }}
+
 <article class="post" itemscope itemtype="https://schema.org/TechArticle">
     <!-- Cover Image Resolver Logic -->
     {{ $coverUrl := "" }}
