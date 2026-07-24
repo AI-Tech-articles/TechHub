@@ -7,19 +7,30 @@
     {{- /* 1. Try Hugo Pipes (assets/ directory) */ -}}
     {{- $img := resources.Get $cleanPath -}}
     {{- if $img -}}
-        {{- $imgUrl = $img.RelPermalink -}}
+        {{- $imgUrl = $img.Permalink -}}
     {{- else -}}
-        {{- /* 2. Fall back to static/ directory (path without "assets/" prefix) */ -}}
+        {{- /* 2. Fall back to static/ directory */ -}}
         {{- $staticPath := printf "static/%s" $cleanPath -}}
         {{- if fileExists $staticPath -}}
-            {{- $imgUrl = printf "/%s" $cleanPath | relURL -}}
+            {{- $imgUrl = printf "/%s" $cleanPath | absURL -}}
         {{- end -}}
     {{- end -}}
 {{- end -}}
 
-{{- /* 3. Final fallback: use the URL as-is (relURL handles subpath) */ -}}
 {{- if not $imgUrl -}}
-    {{- $imgUrl = $u | relURL -}}
+    {{- if strings.HasPrefix $u "http" -}}
+        {{- $imgUrl = $u -}}
+    {{- else -}}
+        {{- $imgUrl = $u | absURL -}}
+    {{- end -}}
 {{- end -}}
 
-<img src="{{ $imgUrl }}" alt="{{ .Text }}" {{ with .Title }}title="{{ . }}"{{ end }} loading="lazy" style="max-width:100%; height:auto; border-radius: var(--radius-sm, 6px);">
+{{- /* WebP CDN Proxy URL generator via Cloudflare edge (wsrv.nl) */ -}}
+{{- $webp1200 := printf "https://wsrv.nl/?url=%s&format=webp&q=82&w=1200" (urls.Parse $imgUrl).String -}}
+{{- $webp800  := printf "https://wsrv.nl/?url=%s&format=webp&q=82&w=800" (urls.Parse $imgUrl).String -}}
+{{- $webp480  := printf "https://wsrv.nl/?url=%s&format=webp&q=82&w=480" (urls.Parse $imgUrl).String -}}
+
+<picture>
+    <source srcset="{{ $webp480 }} 480w, {{ $webp800 }} 800w, {{ $webp1200 }} 1200w" sizes="(max-width: 768px) 100vw, 800px" type="image/webp">
+    <img src="{{ $imgUrl }}" alt="{{ .Text }}" {{ with .Title }}title="{{ . }}"{{ end }} loading="lazy" decoding="async" style="max-width:100%; height:auto; border-radius: var(--radius-sm, 6px);">
+</picture>

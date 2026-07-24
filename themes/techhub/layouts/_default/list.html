@@ -95,9 +95,14 @@
 
                     <article class="article-card" style="animation-delay: {{ mul $index 60 }}ms" data-tags="{{ delimit $postTopics " " }}">
                         {{ if $coverUrl }}
+                        {{ $coverAbs := $coverUrl | absURL }}
+                        {{ $webpCard := printf "https://wsrv.nl/?url=%s&format=webp&q=80&w=650" $coverAbs }}
                         <div class="card-cover">
                             <a href="{{ $post.Permalink }}" aria-label="Read {{ $post.Title }}">
-                                <img src="{{ $coverUrl }}" alt="{{ $post.Title }}" loading="lazy">
+                                <picture>
+                                    <source srcset="{{ $webpCard }}" type="image/webp">
+                                    <img src="{{ $coverUrl }}" alt="{{ $post.Title }}" loading="lazy" decoding="async" width="650" height="360">
+                                </picture>
                             </a>
                         </div>
                         {{ end }}
