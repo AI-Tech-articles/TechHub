@@ -2525,5 +2525,89 @@ body {
         font-size: 0.75rem;
         user-select: none;
     }
+// ═══════════════════════════════════════════
+// RESPONSIVE SCREEN AUTOFIT OPTIMIZATIONS
+// ═══════════════════════════════════════════
+@media (max-width: 768px) {
+    .container {
+        padding: 0 1rem;
+    }
+
+    .hero-title {
+        font-size: 1.8rem !important;
+        line-height: 1.25 !important;
+    }
+
+    .hero-description {
+        font-size: 0.95rem !important;
+    }
+
+    .article-info-card {
+        padding: 1rem;
+        margin: 1rem 0 1.5rem;
+    }
+
+    .info-card-main {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .info-card-meta-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.85rem;
+        width: 100%;
+    }
+
+    .post-content {
+        font-size: 0.98rem;
+        line-height: 1.75;
+
+        img, svg, iframe, video {
+            max-width: 100% !important;
+            height: auto !important;
+            border-radius: var(--radius-sm);
+        }
+
+        pre.shiki-pre, .highlight pre {
+            font-size: 0.8rem !important;
+            padding: 1rem 0.85rem !important;
+
+            .line::before {
+                width: 1.2rem;
+                margin-right: 0.6rem;
+            }
+        }
+    }
+
+    .code-header-bar {
+        padding: 0.4rem 0.75rem;
+    }
+
+    .tldr-block {
+        padding: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .info-card-meta-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .category-pills {
+        gap: 0.35rem;
+    }
+
+    .pill {
+        font-size: 0.65rem;
+        padding: 0.35rem 0.75rem;
+    }
+
+    .post-share-bar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
 }
 
