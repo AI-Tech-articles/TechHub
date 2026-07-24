@@ -4,7 +4,7 @@ licenselink = ""
 description = "Dark luxury theme for AI technology publications"
 homepage = "https://ai-tech-articles.github.io/TechHub"
 tags = ["blog", "dark", "tech", "minimal"]
-features = ["responsive", "rss", "seo", "mermaid"]
+features = ["responsive", "rss", "seo", "mermaid" , "aeo" , "geo"]
 min_version = "0.124.0"
 
 [author]
