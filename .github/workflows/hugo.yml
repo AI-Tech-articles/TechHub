@@ -1,4 +1,4 @@
-# Deploy Hugo site to GitHub Pages
+# Deploy Hugo site to GitHub Pages via gh-pages branch
 name: Deploy Hugo site to Pages
 
 on:
@@ -12,11 +12,8 @@ on:
   repository_dispatch:
     types: [publish_site, publish_article]
 
-
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: write
 
 concurrency:
   group: "pages"
@@ -31,9 +28,6 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     timeout-minutes: 15
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     env:
       HUGO_VERSION: 0.147.6
     steps:
@@ -51,10 +45,6 @@ jobs:
           submodules: recursive
           fetch-depth: 0
 
-      - name: Setup Pages
-        id: pages
-        uses: actions/configure-pages@v5
-
       - name: Build with Hugo
         env:
           HUGO_CACHEDIR: ${{ runner.temp }}/hugo_cache
@@ -65,13 +55,12 @@ jobs:
             --gc \
             --minify \
             --buildFuture \
-            --baseURL "${{ steps.pages.outputs.base_url }}/"
+            --baseURL "https://ai-tech-articles.github.io/TechHub/"
 
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v4
+      - name: Deploy to gh-pages branch
+        uses: peaceiris/actions-gh-pages@v4
         with:
-          path: ./public
-
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public
+          publish_branch: gh-pages
+          force_orphan: true
