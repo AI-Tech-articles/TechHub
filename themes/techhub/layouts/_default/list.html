@@ -87,10 +87,17 @@
 
                         <header class="article-header">
                             <div class="article-meta-row">
+                                {{ $displayDate := $post.Date.Format "January 02, 2006" }}
+                                {{ $datePrefixMatch := findRE `^\d{4}-\d{2}-\d{2}` $post.File.BaseFileName 1 }}
+                                {{ if $datePrefixMatch }}
+                                    {{ $dateStr := index $datePrefixMatch 0 }}
+                                    {{ $parsedTime := time $dateStr }}
+                                    {{ $displayDate = $parsedTime.Format "January 02, 2006" }}
+                                {{ end }}
                                 <span class="article-meta"
                                       {{ with $post.Params.transmission_id }}data-transmission-id="{{ . }}"{{ end }}>
                                     <svg class="meta-icon" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5"/><path d="M8 4v4l3 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-                                    {{ $post.Date.Format "January 02, 2006" }}
+                                    {{ $displayDate }}
                                 </span>
                                 {{ with $post.Params.reading_time }}
                                 <span class="article-reading-time">{{ . }} min read</span>
