@@ -12,3 +12,6 @@ Thumbs.db
 
 # Hugo lock
 .hugo_build.lock
+
+# Sub-repos
+AI-Tech-articles.github.io/
