@@ -1,5 +1,5 @@
 ---
-layout: default
+
 title: "Cerebras Incident Postmortem"
 date: 2026-07-24
 ---

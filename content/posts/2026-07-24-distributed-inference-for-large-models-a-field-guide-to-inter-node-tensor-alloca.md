@@ -1,5 +1,5 @@
 ---
-layout: default
+
 title: "Distributed Inference For Large Models A Field Guide To Inter Node Tensor Alloca"
 date: 2026-07-24
 ---

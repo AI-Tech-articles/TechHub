@@ -1,5 +1,5 @@
 ---
-layout: default
+
 title: "Tensor Parallelism For Large Model Inference What Actually Gets Coordinated"
 date: 2026-07-16
 ---

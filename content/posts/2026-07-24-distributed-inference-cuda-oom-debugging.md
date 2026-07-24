@@ -1,5 +1,5 @@
 ---
-layout: default
+
 title: "Distributed Inference Cuda Oom Debugging"
 date: 2026-07-24
 ---

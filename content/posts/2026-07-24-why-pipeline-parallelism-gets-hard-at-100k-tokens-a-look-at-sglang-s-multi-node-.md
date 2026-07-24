@@ -1,5 +1,5 @@
 ---
-layout: default
+
 title: "Why Pipeline Parallelism Gets Hard At 100K Tokens A Look At Sglang S Multi Node "
 date: 2026-07-24
 ---

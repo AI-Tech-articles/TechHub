@@ -1,5 +1,5 @@
 ---
-layout: default
+
 title: "Breaking The Scale Barrier Nextgen Ai Agentic Workflows Moe Production Deployments"
 date: 2026-07-24
 ---

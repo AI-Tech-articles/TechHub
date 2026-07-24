@@ -1,5 +1,5 @@
 ---
-layout: default
+
 title: "Kv Cache As A Portable Tiered Asset Coordinating Tensor Slices For Distributed I"
 date: 2026-07-16
 ---

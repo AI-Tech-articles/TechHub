@@ -1,5 +1,5 @@
 ---
-layout: default
+
 title: "Production Scaling Of Voygrs Maps Api For Autonomous Agents"
 date: 2026-07-16
 ---

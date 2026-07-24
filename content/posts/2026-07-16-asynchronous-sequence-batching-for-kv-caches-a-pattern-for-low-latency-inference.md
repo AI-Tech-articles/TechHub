@@ -1,5 +1,5 @@
 ---
-layout: default
+
 title: "Asynchronous Sequence Batching For Kv Caches A Pattern For Low Latency Inference"
 date: 2026-07-16
 ---

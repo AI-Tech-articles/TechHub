@@ -1,5 +1,5 @@
 ---
-layout: default
+
 title: "Low Latency Kv Caches Coordinate Your Tensor Slices Before You Cache"
 date: 2026-07-24
 ---

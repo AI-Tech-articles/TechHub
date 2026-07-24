@@ -1,5 +1,5 @@
 ---
-layout: default
+
 title: "Vllm Pagedattention Kv Cache Corruption A Debugging Nightmare"
 date: 2026-07-24
 ---

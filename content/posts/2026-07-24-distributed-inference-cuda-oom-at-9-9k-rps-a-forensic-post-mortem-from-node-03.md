@@ -1,5 +1,5 @@
 ---
-layout: default
+
 title: "Distributed Inference Cuda Oom At 9 9K Rps A Forensic Post Mortem From Node 03"
 date: 2026-07-24
 ---

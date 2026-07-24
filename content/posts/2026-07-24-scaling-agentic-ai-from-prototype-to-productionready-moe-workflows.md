@@ -1,5 +1,5 @@
 ---
-layout: default
+
 title: "Scaling Agentic Ai From Prototype To Productionready Moe Workflows"
 date: 2026-07-24
 ---

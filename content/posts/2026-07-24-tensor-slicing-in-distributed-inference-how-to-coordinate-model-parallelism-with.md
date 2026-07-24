@@ -1,5 +1,5 @@
 ---
-layout: default
+
 title: "Tensor Slicing In Distributed Inference How To Coordinate Model Parallelism With"
 date: 2026-07-24
 ---

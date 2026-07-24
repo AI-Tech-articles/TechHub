@@ -1,5 +1,5 @@
 ---
-layout: default
+
 title: "Scaling Agentic Ai The New Frontier Of Mixtureofexperts Production Deployments"
 date: 2026-07-24
 ---

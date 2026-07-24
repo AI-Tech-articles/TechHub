@@ -1,5 +1,5 @@
 ---
-layout: default
+
 title: "Rethinking Inter Node Kv Cache Allocation For High Throughput Inference"
 date: 2026-07-24
 ---

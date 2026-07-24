@@ -1,5 +1,5 @@
 ---
-layout: default
+
 title: "Fixing Inter Node Kv Cache Fragmentation In Distributed Llm Serving A Tensor All"
 date: 2026-07-16
 ---

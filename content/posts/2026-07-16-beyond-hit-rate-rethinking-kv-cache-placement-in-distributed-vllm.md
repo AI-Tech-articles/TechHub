@@ -1,5 +1,5 @@
 ---
-layout: default
+
 title: "Beyond Hit Rate Rethinking Kv Cache Placement In Distributed Vllm"
 date: 2026-07-16
 ---

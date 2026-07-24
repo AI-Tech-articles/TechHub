@@ -1,5 +1,5 @@
 ---
-layout: default
+
 title: "Slicing The Kv Cache A Block Based Pattern For Low Latency Inference"
 date: 2026-07-16
 ---

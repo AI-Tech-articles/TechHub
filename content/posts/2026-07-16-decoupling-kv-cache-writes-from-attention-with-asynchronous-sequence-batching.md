@@ -1,5 +1,5 @@
 ---
-layout: default
+
 title: "Decoupling Kv Cache Writes From Attention With Asynchronous Sequence Batching"
 date: 2026-07-16
 ---

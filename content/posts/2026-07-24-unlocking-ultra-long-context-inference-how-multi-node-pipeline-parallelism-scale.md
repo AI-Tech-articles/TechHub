@@ -1,5 +1,5 @@
 ---
-layout: default
+
 title: "Unlocking Ultra Long Context Inference How Multi Node Pipeline Parallelism Scale"
 date: 2026-07-24
 ---

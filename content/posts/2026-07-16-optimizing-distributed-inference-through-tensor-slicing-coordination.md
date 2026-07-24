@@ -1,5 +1,5 @@
 ---
-layout: default
+
 title: "Optimizing Distributed Inference Through Tensor Slicing Coordination"
 date: 2026-07-16
 ---

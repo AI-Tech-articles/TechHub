@@ -1,5 +1,5 @@
 ---
-layout: default
+
 title: "Designing A Paged Kernel Aware Kv Cache For Distributed Inference"
 date: 2026-07-24
 ---

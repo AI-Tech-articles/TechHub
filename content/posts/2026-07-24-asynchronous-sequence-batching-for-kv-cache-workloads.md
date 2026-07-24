@@ -1,5 +1,5 @@
 ---
-layout: default
+
 title: "Asynchronous Sequence Batching For Kv Cache Workloads"
 date: 2026-07-24
 ---

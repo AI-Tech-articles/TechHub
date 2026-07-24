@@ -1,5 +1,5 @@
 ---
-layout: default
+
 title: "Beyond Single Node Kv Caches Coordinate Tensor Slices For Distributed Llm Infere"
 date: 2026-07-24
 ---

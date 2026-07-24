@@ -1,5 +1,5 @@
 ---
-layout: default
+
 title: "Asynchronous Sequence Batching A Practical Pattern For Distributed Llm Inference"
 date: 2026-07-16
 ---

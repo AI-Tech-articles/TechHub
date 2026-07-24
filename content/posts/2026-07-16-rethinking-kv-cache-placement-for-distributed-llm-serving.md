@@ -1,5 +1,5 @@
 ---
-layout: default
+
 title: "Rethinking Kv Cache Placement For Distributed Llm Serving"
 date: 2026-07-16
 ---

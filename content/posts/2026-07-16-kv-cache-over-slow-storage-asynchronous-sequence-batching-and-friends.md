@@ -1,5 +1,5 @@
 ---
-layout: default
+
 title: "Kv Cache Over Slow Storage Asynchronous Sequence Batching And Friends"
 date: 2026-07-16
 ---

@@ -1,5 +1,5 @@
 ---
-layout: default
+
 title: "Scaling Ai Agentic Workflows Moe Production The Cuttingedge Blueprint"
 date: 2026-07-24
 ---

@@ -1,5 +1,5 @@
 ---
-layout: default
+
 title: "Nccl Timeout Failures In Multi Node Llama 3 Inference At Scale"
 date: 2026-07-16
 ---

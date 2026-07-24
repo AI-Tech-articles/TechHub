@@ -1,5 +1,5 @@
 ---
-layout: default
+
 title: "Designing A Tiered Kv Cache For Distributed Llm Inference"
 date: 2026-07-16
 ---

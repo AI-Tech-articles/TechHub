@@ -1,5 +1,5 @@
 ---
-layout: default
+
 title: "Unlocking Efficient Inter Node Kv Cache Allocation"
 date: 2026-07-16
 ---

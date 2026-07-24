@@ -1,5 +1,5 @@
 ---
-layout: default
+
 title: "Distributed Inference At Scale Make Batching And Partitioning Work Together"
 date: 2026-07-24
 ---

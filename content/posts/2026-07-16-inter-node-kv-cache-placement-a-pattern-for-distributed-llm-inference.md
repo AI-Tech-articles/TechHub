@@ -1,5 +1,5 @@
 ---
-layout: default
+
 title: "Inter Node Kv Cache Placement A Pattern For Distributed Llm Inference"
 date: 2026-07-16
 ---

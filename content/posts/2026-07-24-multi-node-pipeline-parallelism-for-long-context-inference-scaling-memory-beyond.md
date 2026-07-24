@@ -1,5 +1,5 @@
 ---
-layout: default
+
 title: "Multi Node Pipeline Parallelism For Long Context Inference Scaling Memory Beyond"
 date: 2026-07-24
 ---

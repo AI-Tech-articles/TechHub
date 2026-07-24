@@ -1,5 +1,5 @@
 ---
-layout: default
+
 title: "Pipeline Parallelism For Long Context Inference Coordinating Tensor Slices Acros"
 date: 2026-07-24
 ---

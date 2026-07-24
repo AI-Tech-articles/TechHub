@@ -1,5 +1,5 @@
 ---
-layout: default
+
 title: "Multi Node Pipeline Parallelism How To Reason About Inter Node Tensor Allocation"
 date: 2026-07-24
 ---

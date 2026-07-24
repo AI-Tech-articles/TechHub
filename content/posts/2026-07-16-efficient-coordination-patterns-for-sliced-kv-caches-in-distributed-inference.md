@@ -1,5 +1,5 @@
 ---
-layout: default
+
 title: "Efficient Coordination Patterns For Sliced Kv Caches In Distributed Inference"
 date: 2026-07-16
 ---

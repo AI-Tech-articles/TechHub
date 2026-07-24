@@ -1,5 +1,5 @@
 ---
-layout: default
+
 title: "Layer Wise Prefill A Practical Pattern For Low Latency Distributed Llm Inference"
 date: 2026-07-16
 ---

@@ -1,5 +1,5 @@
 ---
-layout: default
+
 title: "Asynchronous Sequence Batching For Distributed Inference A Production Fix"
 date: 2026-07-16
 ---

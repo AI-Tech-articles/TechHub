@@ -1,5 +1,5 @@
 ---
-layout: default
+
 title: "Filling Pipeline Bubbles With Asynchronous Sequence Batching"
 date: 2026-07-24
 ---

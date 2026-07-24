@@ -1,5 +1,5 @@
 ---
-layout: default
+
 title: "Distributed Inference At Scale Untangling Tensor Placement From Data Parallelism"
 date: 2026-07-24
 ---
