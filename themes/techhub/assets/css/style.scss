@@ -2597,12 +2597,16 @@ body {
     }
 
     .category-pills {
-        gap: 0.35rem;
+        gap: 0.5rem;
     }
 
     .pill {
-        font-size: 0.65rem;
-        padding: 0.35rem 0.75rem;
+        font-size: 0.75rem;
+        padding: 0.5rem 0.85rem;
+        min-height: 44px;
+        display: inline-flex;
+        align-items: center;
+        touch-action: manipulation;
     }
 
     .post-share-bar {
@@ -2610,5 +2614,18 @@ body {
         align-items: flex-start;
         gap: 0.75rem;
     }
+
+    .nav-link, .footer-link, .read-more, .copy-code-btn {
+        min-height: 44px;
+        display: inline-flex;
+        align-items: center;
+        touch-action: manipulation;
+    }
 }
+
+/* Hardware-Accelerated Mobile Touch Scrolling */
+pre.shiki-pre, .highlight pre, .table-of-contents, .category-pills {
+    -webkit-overflow-scrolling: touch;
+}
+
 

@@ -111,7 +111,7 @@
 
             {{ if $coverUrl }}
             <div class="post-cover-image">
-                <img src="{{ $coverUrl }}" alt="{{ .Title }}" itemprop="image">
+                <img src="{{ $coverUrl }}" alt="{{ .Title }}" itemprop="image" fetchpriority="high" decoding="async" loading="eager">
             </div>
             {{ end }}
         </div>
