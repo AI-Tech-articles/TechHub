@@ -1,6 +1,6 @@
 baseURL = 'https://ai-tech-articles.github.io/TechHub'
 languageCode = 'en-us'
-title = 'TechHub'
+title = 'llminfra.dev'
 theme = 'techhub'
 buildFuture = true
 buildDrafts = false

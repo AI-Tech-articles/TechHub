@@ -1,7 +1,7 @@
 <footer class="site-footer" role="contentinfo">
     <div class="container">
         <div class="footer-brand">
-            <span class="footer-logo">T</span>
+            <span class="footer-logo">L</span>
             <span class="footer-logo-text">{{ .Site.Title }}</span>
         </div>
         
@@ -44,8 +44,8 @@ function handleNewsletterSubmit(form) {
             body: JSON.stringify({
                 access_key: accessKey,
                 email: email,
-                subject: 'New TechHub Newsletter Subscriber',
-                from_name: 'TechHub Newsletter'
+                subject: 'New llminfra.dev Newsletter Subscriber',
+                from_name: 'llminfra.dev Newsletter'
             })
         }).catch(err => console.error('Web3Forms error:', err));
     }
