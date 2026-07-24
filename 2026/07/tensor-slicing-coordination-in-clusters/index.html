@@ -1,0 +1,111 @@
+<!doctype html><html lang=en><head><meta charset=UTF-8><meta name=viewport content="width=device-width,initial-scale=1"><meta http-equiv=X-UA-Compatible content="IE=edge"><title>Tensor Slicing Coordination in Clusters | TechHub</title><meta name=description content="Tensor Slicing Coordination in Clusters Introduction Higher-order tensors have been actively used in research since they have an inclination to successfully …"><meta name=author content="Saranga Thenuwara"><meta name=robots content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"><link rel=canonical href=https://ai-tech-articles.github.io/TechHub/2026/07/tensor-slicing-coordination-in-clusters/><meta name=keywords content="Artificial Intelligence,Large Language Models,LLM Inference Optimization,PagedAttention,KV Cache Tuning,Distributed Systems,Performance Engineering,Machine Learning Infrastructure,MoE Routing,Speculative Decoding"><meta name=theme-color content="#090912"><meta name=ai-content-declaration content="Technical Engineering Publications"><meta name=citation_title content="Tensor Slicing Coordination in Clusters"><meta name=citation_author content="Saranga Thenuwara"><meta name=citation_publication_date content="2026/07/23"><meta name=google-adsense-account content="ca-pub-6375003818418942"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6375003818418942" crossorigin=anonymous></script><meta property="og:site_name" content="TechHub"><meta property="og:title" content="Tensor Slicing Coordination in Clusters"><meta property="og:description" content="Tensor Slicing Coordination in Clusters Introduction Higher-order tensors have been actively used in research since they have an inclination to successfully preserve the complicated correlation structures of data. A tensor can be defined mathematically as multi-dimensional arrays. The tensor …"><meta property="og:url" content="https://ai-tech-articles.github.io/TechHub/2026/07/tensor-slicing-coordination-in-clusters/"><meta property="og:type" content="article"><meta property="og:locale" content="en_US"><meta property="og:image" content="https://ai-tech-articles.github.io/TechHub/images/default-og.png"><meta property="article:published_time" content="2026-07-23T00:00:00Z"><meta property="article:author" content="Saranga Thenuwara"><meta name=twitter:card content="summary_large_image"><meta name=twitter:title content="Tensor Slicing Coordination in Clusters"><meta name=twitter:description content="Tensor Slicing Coordination in Clusters Introduction Higher-order tensors have been actively used in research since they have an inclination to successfully preserve the complicated correlation structures of data. A tensor can be defined mathematically as multi-dimensional arrays. The tensor …"><meta name=twitter:image content="https://ai-tech-articles.github.io/TechHub/images/default-og.png"><link rel=preconnect href=https://fonts.googleapis.com><link rel=preconnect href=https://fonts.gstatic.com crossorigin><link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600&family=JetBrains+Mono:wght@400;500&display=swap" rel=stylesheet><link rel=icon type=image/svg+xml href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23d4af37'/%3E%3Cstop offset='100%25' stop-color='%23b8962d'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='18' fill='%23090912'/%3E%3Ctext x='50%25' y='55%25' dominant-baseline='middle' text-anchor='middle' font-family='Cinzel, serif' font-size='52' font-weight='700' fill='url(%23g)'%3ET%3C/text%3E%3C/svg%3E"><link rel=stylesheet href=https://ai-tech-articles.github.io/TechHub/css/style.min.css><link type=application/atom+xml rel=alternate href=https://ai-tech-articles.github.io/TechHub/feed.xml title=TechHub></head><body><header class=site-header role=banner><div class=container><a href=https://ai-tech-articles.github.io/TechHub/ class=site-title aria-label=Home><span class=site-logo><span class=logo-letter>T</span>
+</span><span class=site-name>TechHub</span></a><nav class=site-nav role=navigation aria-label="Main navigation"><a href=/TechHub/ class=nav-link>Articles</a>
+<a href=/TechHub/feed.xml class=nav-link>RSS</a></nav><button class=nav-toggle aria-label="Toggle menu" aria-expanded=false>
+<span class=hamburger></span></button></div></header><main class=site-main role=main><div class="container container-page-wrapper" style=margin-top:3rem;margin-bottom:4rem><article class=legal-page style="max-width:760px;margin:0 auto"><header class=page-header style="margin-bottom:2rem;border-bottom:1px solid var(--border-subtle);padding-bottom:1rem"><h1 class=page-title style=font-family:cinzel,serif;font-size:2.25rem;color:var(--accent-gold)>Tensor Slicing Coordination in Clusters</h1></header><div class=page-content style=color:var(--text-secondary);line-height:1.8;font-size:1.05rem><h1 id=tensor-slicing-coordination-in-clusters><strong>Tensor Slicing Coordination in Clusters</strong></h1><h3 id=introduction>Introduction</h3><p>Higher-order tensors have been actively used in research since they have an inclination to successfully preserve the complicated correlation structures of data. A tensor can be defined mathematically as multi-dimensional arrays. The tensor modeling used in this research context is described by Equation (1) with r = 1, which means that the signal tensor is of the form X = γw⊗u⊗v. Fixing one index of T and collecting the set of data entries defines a matrix or slice of the tensor.</p><h3 id=algebraic-expression-of-co-clusters>Algebraic Expression of Co-Clusters</h3><p>Given an <em>N</em>-mode tensor data $\underset{̲}{\mathbf{\mathit{T}}} \in \mathbb{R}^{T_{1} \times T_{2} \hdots \times T_{N}} ,$ a fiber of tensor is defined as by fixing every index but one and a 2D slice is defined by fixing all indices but two. The MSC method aims at finding, in the algebraic expression of co-clusters, the tensor of cluster centers for each client ℓ, denoted as $\mathcal{A}<em>{[\ell]}$, and the view weight tensor for each client ℓ, denoted as $\mathcal{V}</em>{[\ell]}$.</p><h3 id=tensor-slicing-coordination>Tensor Slicing Coordination</h3><p>Tensor slicing coordination is a crucial step in tensor clustering. It involves coordinating the slices of the tensor across different clients to achieve a consistent clustering result. The goal is to find a set of cluster centers that are shared across all clients, while also taking into account the local data distribution of each client.</p><h4 id=notations>Notations</h4><ul><li>$\mathcal{A}_{[\ell]}$ represents the tensor of cluster centers for client ℓ</li><li>$\mathcal{V}_{[\ell]}$ represents the view weight tensor for client ℓ</li><li>$\mathcal{R}<em>{tensor}$ and $\mathcal{R}</em>{view}$ are tensorized regularization terms</li></ul><h4 id=tensor-slicing-coordination-algorithm>Tensor Slicing Coordination Algorithm</h4><p>The tensor slicing coordination algorithm can be summarized as follows:</p><ol><li><strong>Initialization</strong>: Initialize the tensor of cluster centers $\mathcal{A}<em>{[\ell]}$ and the view weight tensor $\mathcal{V}</em>{[\ell]}$ for each client ℓ.</li><li><strong>Client Update</strong>: For each client ℓ, update the local cluster centers and view weights using the following equations:</li></ol><p>$$
+\mathcal{A}<em>{[\ell]} \leftarrow \arg\min</em>{\mathcal{A}<em>{[\ell]}} \left| \underset{̲}{\mathbf{\mathit{T}}} - \mathcal{A}</em>{[\ell]} \times \mathcal{V}<em>{[\ell]} \right|<em>F^2 + \mathcal{R}</em>{tensor} + \mathcal{R}</em>{view}
+$$</p><p>$$
+\mathcal{V}<em>{[\ell]} \leftarrow \arg\min</em>{\mathcal{V}<em>{[\ell]}} \left| \underset{̲}{\mathbf{\mathit{T}}} - \mathcal{A}</em>{[\ell]} \times \mathcal{V}<em>{[\ell]} \right|<em>F^2 + \mathcal{R}</em>{tensor} + \mathcal{R}</em>{view}
+$$</p><ol start=3><li><strong>Server Update</strong>: Update the global cluster centers using the following equation:</li></ol><p>$$
+\mathcal{A} \leftarrow \frac{1}{L} \sum_{\ell=1}^L \mathcal{A}_{[\ell]}
+$$</p><ol start=4><li><strong>Convergence</strong>: Repeat steps 2 and 3 until convergence.</li></ol><h3 id=example-code>Example Code</h3><div class=highlight><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>import</span> <span class=nn>numpy</span> <span class=k>as</span> <span class=nn>np</span>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>tensorly.decomposition</span> <span class=kn>import</span> <span class=n>parafac</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>tensor_slicing_coordination</span><span class=p>(</span><span class=n>T</span><span class=p>,</span> <span class=n>L</span><span class=p>,</span> <span class=n>num_clusters</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;&#34;&#34;
+</span></span></span><span class=line><span class=cl><span class=s2>    Tensor slicing coordination algorithm
+</span></span></span><span class=line><span class=cl><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>    Parameters:
+</span></span></span><span class=line><span class=cl><span class=s2>    T (numpy array): Tensor data
+</span></span></span><span class=line><span class=cl><span class=s2>    L (int): Number of clients
+</span></span></span><span class=line><span class=cl><span class=s2>    num_clusters (int): Number of clusters
+</span></span></span><span class=line><span class=cl><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>    Returns:
+</span></span></span><span class=line><span class=cl><span class=s2>    A (numpy array): Global cluster centers
+</span></span></span><span class=line><span class=cl><span class=s2>    &#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=c1># Initialize local cluster centers and view weights</span>
+</span></span><span class=line><span class=cl>    <span class=n>A_local</span> <span class=o>=</span> <span class=n>np</span><span class=o>.</span><span class=n>random</span><span class=o>.</span><span class=n>rand</span><span class=p>(</span><span class=n>L</span><span class=p>,</span> <span class=n>num_clusters</span><span class=p>,</span> <span class=n>T</span><span class=o>.</span><span class=n>shape</span><span class=p>[</span><span class=mi>1</span><span class=p>])</span>
+</span></span><span class=line><span class=cl>    <span class=n>V_local</span> <span class=o>=</span> <span class=n>np</span><span class=o>.</span><span class=n>random</span><span class=o>.</span><span class=n>rand</span><span class=p>(</span><span class=n>L</span><span class=p>,</span> <span class=n>num_clusters</span><span class=p>,</span> <span class=n>T</span><span class=o>.</span><span class=n>shape</span><span class=p>[</span><span class=mi>2</span><span class=p>])</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># Client update</span>
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=n>ell</span> <span class=ow>in</span> <span class=nb>range</span><span class=p>(</span><span class=n>L</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=n>A_local</span><span class=p>[</span><span class=n>ell</span><span class=p>]</span> <span class=o>=</span> <span class=n>parafac</span><span class=p>(</span><span class=n>T</span><span class=p>[</span><span class=n>ell</span><span class=p>],</span> <span class=n>num_clusters</span><span class=p>,</span> <span class=n>init</span><span class=o>=</span><span class=s1>&#39;random&#39;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=n>V_local</span><span class=p>[</span><span class=n>ell</span><span class=p>]</span> <span class=o>=</span> <span class=n>np</span><span class=o>.</span><span class=n>random</span><span class=o>.</span><span class=n>rand</span><span class=p>(</span><span class=n>num_clusters</span><span class=p>,</span> <span class=n>T</span><span class=o>.</span><span class=n>shape</span><span class=p>[</span><span class=mi>2</span><span class=p>])</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># Server update</span>
+</span></span><span class=line><span class=cl>    <span class=n>A</span> <span class=o>=</span> <span class=n>np</span><span class=o>.</span><span class=n>mean</span><span class=p>(</span><span class=n>A_local</span><span class=p>,</span> <span class=n>axis</span><span class=o>=</span><span class=mi>0</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>A</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Example usage</span>
+</span></span><span class=line><span class=cl><span class=n>T</span> <span class=o>=</span> <span class=n>np</span><span class=o>.</span><span class=n>random</span><span class=o>.</span><span class=n>rand</span><span class=p>(</span><span class=mi>10</span><span class=p>,</span> <span class=mi>20</span><span class=p>,</span> <span class=mi>30</span><span class=p>)</span>  <span class=c1># Tensor data</span>
+</span></span><span class=line><span class=cl><span class=n>L</span> <span class=o>=</span> <span class=mi>5</span>  <span class=c1># Number of clients</span>
+</span></span><span class=line><span class=cl><span class=n>num_clusters</span> <span class=o>=</span> <span class=mi>3</span>  <span class=c1># Number of clusters</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>A</span> <span class=o>=</span> <span class=n>tensor_slicing_coordination</span><span class=p>(</span><span class=n>T</span><span class=p>,</span> <span class=n>L</span><span class=p>,</span> <span class=n>num_clusters</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=nb>print</span><span class=p>(</span><span class=n>A</span><span class=p>)</span>
+</span></span></code></pre></div><h3 id=diagrams>Diagrams</h3><p>The following diagram illustrates the tensor slicing coordination algorithm:</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>                      +---------------+
+</span></span><span class=line><span class=cl>                      |  Server      |
+</span></span><span class=line><span class=cl>                      +---------------+
+</span></span><span class=line><span class=cl>                             |
+</span></span><span class=line><span class=cl>                             |
+</span></span><span class=line><span class=cl>                             v
+</span></span><span class=line><span class=cl>                      +---------------+
+</span></span><span class=line><span class=cl>                      |  Client 1    |
+</span></span><span class=line><span class=cl>                      |  ( Update     |
+</span></span><span class=line><span class=cl>                      |   local cluster|
+</span></span><span class=line><span class=cl>                      |   centers and  |
+</span></span><span class=line><span class=cl>                      |   view weights) |
+</span></span><span class=line><span class=cl>                      +---------------+
+</span></span><span class=line><span class=cl>                             |
+</span></span><span class=line><span class=cl>                             |
+</span></span><span class=line><span class=cl>                             v
+</span></span><span class=line><span class=cl>                      +---------------+
+</span></span><span class=line><span class=cl>                      |  Client 2    |
+</span></span><span class=line><span class=cl>                      |  ( Update     |
+</span></span><span class=line><span class=cl>                      |   local cluster|
+</span></span><span class=line><span class=cl>                      |   centers and  |
+</span></span><span class=line><span class=cl>                      |   view weights) |
+</span></span><span class=line><span class=cl>                      +---------------+
+</span></span><span class=line><span class=cl>                             .
+</span></span><span class=line><span class=cl>                             .
+</span></span><span class=line><span class=cl>                             .
+</span></span><span class=line><span class=cl>                             v
+</span></span><span class=line><span class=cl>                      +---------------+
+</span></span><span class=line><span class=cl>                      |  Client L    |
+</span></span><span class=line><span class=cl>                      |  ( Update     |
+</span></span><span class=line><span class=cl>                      |   local cluster|
+</span></span><span class=line><span class=cl>                      |   centers and  |
+</span></span><span class=line><span class=cl>                      |   view weights) |
+</span></span><span class=line><span class=cl>                      +---------------+
+</span></span><span class=line><span class=cl>                             |
+</span></span><span class=line><span class=cl>                             |
+</span></span><span class=line><span class=cl>                             v
+</span></span><span class=line><span class=cl>                      +---------------+
+</span></span><span class=line><span class=cl>                      |  Server      |
+</span></span><span class=line><span class=cl>                      |  (Update global|
+</span></span><span class=line><span class=cl>                      |   cluster centers) |
+</span></span><span class=line><span class=cl>                      +---------------+
+</span></span></code></pre></div><p>In this diagram, each client updates its local cluster centers and view weights using the tensor slicing coordination algorithm. The server then updates the global cluster centers using the local cluster centers from each client.</p><h3 id=conclusion>Conclusion</h3><p>Tensor slicing coordination is a crucial step in tensor clustering. The algorithm presented in this draft provides a framework for coordinating the slices of the tensor across different clients to achieve a consistent clustering result. The example code and diagrams illustrate the algorithm and provide a concrete example of its usage. Future work will focus on implementing the algorithm on real-world datasets and evaluating its performance.</p></div></article></div></main><footer class=site-footer role=contentinfo><div class=container><div class=footer-brand><span class=footer-logo>T</span>
+<span class=footer-logo-text>TechHub</span></div><nav class=footer-nav aria-label="Footer legal links"><a href=/TechHub/privacy-policy/ class=footer-link>Privacy Policy</a>
+<span class=footer-sep>&bull;</span>
+<a href=/TechHub/terms/ class=footer-link>Terms of Service</a>
+<span class=footer-sep>&bull;</span>
+<a href=/TechHub/contact/ class=footer-link>Contact</a></nav><p class=footer-text>&copy; 2026 Saranga Thenuwara. All rights reserved.</p><p class=footer-meta>Premium AI & Technology Research</p></div></footer><script>function handleNewsletterSubmit(e){const n=e.querySelector('input[type="email"]'),t=n?n.value:"",s="ae816da1-2d34-4d34-bbd3-4f10b5b9e103";t&&(e.innerHTML=`
+            <div style="background: rgba(212, 175, 55, 0.08); border: 1px solid var(--accent-gold); border-radius: var(--radius-sm); padding: 1rem; text-align: center; color: var(--accent-gold); font-size: 0.9rem; margin-top: 0.5rem; animation: fadeIn 0.3s ease;">
+                ✓ <strong>Thank you for subscribing!</strong><br><span style="font-size: 0.8rem; color: var(--text-muted);">${t} has been added to our research list.</span>
+            </div>
+        `,fetch("https://api.web3forms.com/submit",{method:"POST",headers:{"Content-Type":"application/json",Accept:"application/json"},body:JSON.stringify({access_key:s,email:t,subject:"New TechHub Newsletter Subscriber",from_name:"TechHub Newsletter"})}).catch(e=>console.error("Web3Forms error:",e)))}</script><script type=module>
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'dark',
+            themeVariables: {
+                primaryColor: '#12121a',
+                primaryTextColor: '#e8e8f0',
+                primaryBorderColor: '#d4af37',
+                lineColor: '#8a8a9a',
+                secondaryColor: '#0d0d14',
+                tertiaryColor: '#16161d'
+            }
+        });
+    </script><script>(function(){const e=document.querySelector(".nav-toggle"),t=document.querySelector(".site-nav");if(!e||!t)return;e.addEventListener("click",function(){const e=this.getAttribute("aria-expanded")==="true";this.setAttribute("aria-expanded",String(!e)),t.classList.toggle("is-open"),this.classList.toggle("is-active")})})()</script></body></html>
