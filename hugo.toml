@@ -5,6 +5,17 @@ theme = 'techhub'
 buildFuture = true
 buildDrafts = false
 
+# Minify config — skip HTML minification so the strict XML parser
+# doesn't choke on bare & in article content (unsafe goldmark mode).
+# CSS and JS are still minified for performance.
+[minify]
+  disableHTML = true
+  disableCSS  = false
+  disableJS   = false
+  disableJSON = false
+  disableSVG  = false
+  disableXML  = false
+
 [params]
   author = 'Saranga Thenuwara'
   description = 'Premium AI and Technology Research Articles Deep dives into LLM inference, distributed systems, and production grade AI infrastructure.'
