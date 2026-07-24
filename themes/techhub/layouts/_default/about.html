@@ -1,0 +1,171 @@
+{{ define "main" }}
+<div class="about-page">
+
+    <!-- Hero Banner -->
+    <section class="about-hero">
+        <div class="container">
+            <div class="about-hero-badge">Engineering Publication</div>
+            <h1 class="about-hero-title">About <span class="about-hero-accent">llminfra.dev</span></h1>
+            <p class="about-hero-sub">The independent engineering journal for practitioners building, deploying, and scaling AI systems in production.</p>
+        </div>
+        <div class="about-hero-glow"></div>
+    </section>
+
+    <div class="container">
+
+        <!-- Mission Cards -->
+        <section class="about-mission" aria-label="Our Mission">
+            <div class="mission-grid">
+                <div class="mission-card">
+                    <div class="mission-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/></svg>
+                    </div>
+                    <h3 class="mission-card-title">Deep Technical Dives</h3>
+                    <p class="mission-card-text">No shallow overviews. Every article dissects real infrastructure code, real failure modes, and real architectural trade-offs drawn from production systems.</p>
+                </div>
+                <div class="mission-card">
+                    <div class="mission-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+                    </div>
+                    <h3 class="mission-card-title">Production-First Focus</h3>
+                    <p class="mission-card-text">From KV-cache sharding to multi-node NCCL tuning — we write for engineers shipping AI systems at scale, not for benchmarks or demos.</p>
+                </div>
+                <div class="mission-card">
+                    <div class="mission-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                    </div>
+                    <h3 class="mission-card-title">Open &amp; Independent</h3>
+                    <p class="mission-card-text">No vendor affiliation, no pay-to-play coverage. All analysis is based on real-world engineering experience and publicly available research.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Coverage Topics -->
+        <section class="about-topics" aria-label="Topics We Cover">
+            <div class="section-header-row">
+                <h2 class="about-section-title">What We Cover</h2>
+                <div class="section-divider"></div>
+            </div>
+            <div class="topics-grid">
+                <div class="topic-pill-lg">
+                    <span class="topic-icon">⚡</span>
+                    <div>
+                        <strong>LLM Inference Optimization</strong>
+                        <p>PagedAttention, continuous batching, speculative decoding, quantization, and throughput engineering.</p>
+                    </div>
+                </div>
+                <div class="topic-pill-lg">
+                    <span class="topic-icon">🔗</span>
+                    <div>
+                        <strong>Distributed Systems</strong>
+                        <p>Tensor parallelism, pipeline parallelism, NCCL communication, multi-node coordination patterns.</p>
+                    </div>
+                </div>
+                <div class="topic-pill-lg">
+                    <span class="topic-icon">🧠</span>
+                    <div>
+                        <strong>KV Cache Engineering</strong>
+                        <p>Tiered KV caches, asynchronous sequence batching, inter-node tensor allocation strategies.</p>
+                    </div>
+                </div>
+                <div class="topic-pill-lg">
+                    <span class="topic-icon">🏗️</span>
+                    <div>
+                        <strong>ML Infrastructure</strong>
+                        <p>vLLM, SGLang, TensorRT-LLM, OpenVINO — deployment patterns, production postmortems, incident reports.</p>
+                    </div>
+                </div>
+                <div class="topic-pill-lg">
+                    <span class="topic-icon">🤖</span>
+                    <div>
+                        <strong>Agentic AI Systems</strong>
+                        <p>MoE routing, agentic workflow orchestration, real-time evaluation engines, and production blueprints.</p>
+                    </div>
+                </div>
+                <div class="topic-pill-lg">
+                    <span class="topic-icon">📊</span>
+                    <div>
+                        <strong>GPU &amp; Hardware</strong>
+                        <p>NVLink scheduling, CUDA OOM forensics, inter-node latency profiling, and hardware-software co-design.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Author Section -->
+        <section class="about-author" aria-label="About the Author">
+            <div class="section-header-row">
+                <h2 class="about-section-title">The Author</h2>
+                <div class="section-divider"></div>
+            </div>
+            <div class="author-profile-card">
+                <div class="author-profile-avatar">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                </div>
+                <div class="author-profile-content">
+                    <h3 class="author-profile-name">Saranga Thenuwara</h3>
+                    <div class="author-profile-role">AI Infrastructure Engineer &nbsp;·&nbsp; UAE</div>
+                    <p class="author-profile-bio">
+                        Saranga is an engineering director specializing in distributed LLM inference, GPU cluster optimization, and production-grade AI infrastructure. With experience spanning large-scale model deployment across vLLM, SGLang, and custom inference stacks, he writes to bridge the gap between academic AI research and the brutal realities of running LLMs at scale.
+                    </p>
+                    <p class="author-profile-bio">
+                        His work focuses on making high-performance AI infrastructure more accessible to engineering teams without the resources of hyperscale labs — practical patterns, real incident postmortems, and field-tested optimization techniques.
+                    </p>
+                    <div class="author-profile-links">
+                        <a href="https://github.com/AI-Tech-articles" class="author-link" target="_blank" rel="noopener">
+                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0 1 12 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/></svg>
+                            GitHub
+                        </a>
+                        <a href="https://linkedin.com/in/sthenuwara" class="author-link" target="_blank" rel="noopener">
+                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                            LinkedIn
+                        </a>
+                        <a href="mailto:tbmsaranga@gmail.com" class="author-link">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                            Email
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Stats Banner -->
+        <section class="about-stats" aria-label="Publication stats">
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <span class="stat-number">100+</span>
+                    <span class="stat-label">Technical Articles</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">2026</span>
+                    <span class="stat-label">Founded</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">LLM</span>
+                    <span class="stat-label">Infrastructure Focus</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">Free</span>
+                    <span class="stat-label">Always Open Access</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact CTA -->
+        <section class="about-cta" aria-label="Get in touch">
+            <div class="cta-box">
+                <h2 class="cta-title">Get in Touch</h2>
+                <p class="cta-text">Have a research collaboration idea, a war story to share, or want to discuss AI infrastructure? We'd love to hear from you.</p>
+                <div class="cta-actions">
+                    <a href="{{ "/contact/" | relURL }}" class="cta-btn cta-btn--primary">Contact Us</a>
+                    <a href="{{ "/feed.xml" | relURL }}" class="cta-btn cta-btn--ghost">
+                        <svg viewBox="0 0 24 24" fill="currentColor" style="width:15px;height:15px;margin-right:6px"><path d="M6.18 15.64a2.18 2.18 0 0 1 2.18 2.18C8.36 19.01 7.38 20 6.18 20C4.98 20 4 19.01 4 17.82a2.18 2.18 0 0 1 2.18-2.18M4 4.44A15.56 15.56 0 0 1 19.56 20h-2.83A12.73 12.73 0 0 0 4 7.27V4.44m0 5.66a9.9 9.9 0 0 1 9.9 9.9h-2.83A7.07 7.07 0 0 0 4 12.93V10.1z"/></svg>
+                        RSS Feed
+                    </a>
+                </div>
+            </div>
+        </section>
+
+    </div>
+</div>
+{{ end }}

@@ -55,6 +55,10 @@ buildDrafts = false
     url = '/'
     weight = 10
   [[menu.main]]
+    name = 'About'
+    url = '/about/'
+    weight = 15
+  [[menu.main]]
     name = 'RSS'
     url = '/feed.xml'
     weight = 20
