@@ -292,7 +292,31 @@ document.addEventListener("DOMContentLoaded", function() {
                 btn.querySelector('.copy-text').textContent = 'Error';
                 setTimeout(() => { btn.querySelector('.copy-text').textContent = 'Copy'; }, 2000);
             });
-        });
+        // Mouse Drag to Scroll logic for Code Blocks
+        const preEl = container.querySelector('pre') || (container.tagName === 'PRE' ? container : null);
+        if (preEl) {
+            let isDown = false;
+            let startX;
+            let scrollLeft;
+
+            preEl.addEventListener('mousedown', (e) => {
+                // Don't activate drag if user is highlighting text with mouse
+                if (window.getSelection().toString().length > 0) return;
+                isDown = true;
+                startX = e.pageX - preEl.offsetLeft;
+                scrollLeft = preEl.scrollLeft;
+            });
+            preEl.addEventListener('mouseleave', () => { isDown = false; });
+            preEl.addEventListener('mouseup', () => { isDown = false; });
+            preEl.addEventListener('mousemove', (e) => {
+                if (!isDown) return;
+                if (window.getSelection().toString().length > 0) { isDown = false; return; }
+                e.preventDefault();
+                const x = e.pageX - preEl.offsetLeft;
+                const walk = (x - startX) * 1.5;
+                preEl.scrollLeft = scrollLeft - walk;
+            });
+        }
     });
 
     // 0b. Mermaid diagram rendering

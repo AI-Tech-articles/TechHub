@@ -7,7 +7,7 @@ buildDrafts = false
 
 [params]
   author = 'Saranga Thenuwara'
-  description = 'Premium AI and Technology Research Articles Deep dives into LLM inference, distributed systems, and production-grade AI infrastructure.'
+  description = 'Premium AI and Technology Research Articles Deep dives into LLM inference, distributed systems, and production grade AI infrastructure.'
   images = ['images/default-og.png']
   web3forms_key = 'ae816da1-2d34-4d34-bbd3-4f10b5b9e103'
 
