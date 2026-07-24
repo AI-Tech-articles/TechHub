@@ -2,9 +2,20 @@
 <div class="home">
     <section class="hero">
         <div class="container">
-            <div class="hero-badge">AI Research &amp; Technology</div>
+            <div class="hero-badge">Engineering Intelligence</div>
             <h1 class="hero-title">{{ .Site.Title }}</h1>
-            <p class="hero-description">{{ .Site.Params.description }}</p>
+            <p class="hero-description">The engineering publication for building, deploying, and scaling AI systems. Deep dives into LLM infrastructure, distributed training, and production-grade ML.</p>
+
+            <!-- Category Filter Pills -->
+            <div class="category-pills" id="category-pills">
+                <button class="pill pill--active" data-filter="all">All Research</button>
+                <button class="pill" data-filter="LLM">LLM Systems</button>
+                <button class="pill" data-filter="Distributed">Distributed</button>
+                <button class="pill" data-filter="GPU">GPU Optimization</button>
+                <button class="pill" data-filter="MLOps">MLOps</button>
+                <button class="pill" data-filter="AI">AI Research</button>
+            </div>
+
             <div class="hero-glow"></div>
         </div>
     </section>
@@ -20,6 +31,12 @@
             <div id="search-results-section" style="display: none; margin-bottom: 2rem;">
                 <h2 class="section-title">Search Results</h2>
                 <div id="search-results-list"></div>
+            </div>
+
+            <!-- Section Header -->
+            <div class="articles-section-header">
+                <h2 class="articles-section-title">Latest Research</h2>
+                <span class="articles-section-count" id="articles-count"></span>
             </div>
 
             <!-- Main Article List (paginated to max 10 articles, newest first) -->
@@ -76,7 +93,7 @@
                         {{ end }}
                     {{ end }}
 
-                    <article class="article-card" style="animation-delay: {{ mul $index 60 }}ms">
+                    <article class="article-card" style="animation-delay: {{ mul $index 60 }}ms" data-tags="{{ delimit $postTopics " " }}">
                         {{ if $coverUrl }}
                         <div class="card-cover">
                             <a href="{{ $post.Permalink }}" aria-label="Read {{ $post.Title }}">
@@ -437,6 +454,36 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         });
     }, 2000);
+
+    // 6. Category Pill Filter
+    const pills = document.querySelectorAll('.pill');
+    const articleCards = document.querySelectorAll('.article-card');
+    const countEl = document.getElementById('articles-count');
+
+    function updateCount(visible) {
+        if (countEl) countEl.textContent = visible + ' article' + (visible !== 1 ? 's' : '');
+    }
+
+    updateCount(articleCards.length);
+
+    pills.forEach(pill => {
+        pill.addEventListener('click', () => {
+            pills.forEach(p => p.classList.remove('pill--active'));
+            pill.classList.add('pill--active');
+
+            const filter = pill.dataset.filter;
+            let visible = 0;
+
+            articleCards.forEach(card => {
+                const tags = (card.dataset.tags || '').toLowerCase();
+                const title = (card.querySelector('.article-title')?.textContent || '').toLowerCase();
+                const matches = filter === 'all' || tags.includes(filter.toLowerCase()) || title.includes(filter.toLowerCase());
+                card.style.display = matches ? '' : 'none';
+                if (matches) visible++;
+            });
+            updateCount(visible);
+        });
+    });
 });
 </script>
 {{ end }}

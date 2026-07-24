@@ -1,8 +1,18 @@
 {{ define "main" }}
-<!-- Reading Progress Bar -->
-<div class="reading-progress-container">
-    <div class="reading-progress-bar" id="progress-bar"></div>
-</div>
+
+{{ $readingTime := .WordCount | div 200 | int }}
+{{ if lt $readingTime 1 }}{{ $readingTime = 1 }}{{ end }}
+
+{{ $category := "AI Infrastructure" }}
+{{ with .Params.tags }}
+    {{ $firstTag := index . 0 }}
+    {{ if $firstTag }}{{ $category = $firstTag }}{{ end }}
+{{ end }}
+
+{{ $tldr := "" }}
+{{ $rawContent := .RawContent }}
+{{ $tldrMatch := findRE `(?i)\*\*TL;DR\*\*\s*\n((?:[-*]\s*.+\n?)+)` $rawContent 1 }}
+{{ if $tldrMatch }}{{ $tldr = index $tldrMatch 0 }}{{ end }}
 
 <article class="post" itemscope itemtype="https://schema.org/TechArticle">
     <!-- Cover Image Resolver Logic -->
@@ -32,11 +42,17 @@
         {{ end }}
     {{ end }}
 
-
-
     <header class="post-header">
         <div class="container">
-            <div class="post-badge">Article</div>
+            <!-- Category + Reading time badges -->
+            <div class="post-badges-row">
+                <span class="post-badge post-badge--category">{{ $category }}</span>
+                <span class="post-badge post-badge--readtime">
+                    <svg viewBox="0 0 16 16" fill="none" style="width:11px;height:11px;"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.4"/><path d="M8 5v3l2 1.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+                    {{ $readingTime }} min read
+                </span>
+            </div>
+
             <h1 class="post-title" itemprop="headline">{{ .Title }}</h1>
 
             <div class="post-meta">
@@ -63,11 +79,9 @@
                 </span>
             </div>
 
-
-
             {{ if $coverUrl }}
             <div class="post-cover-image">
-                <img src="{{ $coverUrl }}" alt="{{ .Title }}">
+                <img src="{{ $coverUrl }}" alt="{{ .Title }}" itemprop="image">
             </div>
             {{ end }}
         </div>
@@ -83,6 +97,18 @@
 
     <div class="main-layout container">
         <div class="main-content">
+
+            <!-- TL;DR Summary Block -->
+            {{ if $tldr }}
+            <div class="tldr-block">
+                <div class="tldr-label">
+                    <svg viewBox="0 0 16 16" fill="none" style="width:13px;height:13px;"><path d="M3 4h10M3 8h7M3 12h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                    TL;DR
+                </div>
+                <div class="tldr-content">{{ $tldr | markdownify }}</div>
+            </div>
+            {{ end }}
+
             <div class="post-content" itemprop="articleBody">
                 {{ .Content }}
             </div>
@@ -567,6 +593,69 @@ document.addEventListener("DOMContentLoaded", function() {
             .catch(err => console.error('Failed to load view count', err));
     }
 });
+</script>
+
+<script>
+// ── 5. Inline Glossary Tooltips for AI/ML Terms ──
+(function() {
+    const GLOSSARY = {
+        'KV Cache':        'Stores previous attention keys and values to avoid recomputation during autoregressive generation, reducing latency significantly.',
+        'PagedAttention':  'vLLM\'s memory management technique that stores KV cache in non-contiguous paged blocks, like virtual memory in an OS.',
+        'MoE':             'Mixture of Experts — a model architecture where only a subset of specialist sub-networks are activated per input, reducing compute cost.',
+        'NCCL':            'NVIDIA Collective Communications Library. Provides optimized multi-GPU/multi-node communication primitives like AllReduce and AllGather.',
+        'Tensor Parallelism': 'Splits individual weight matrices and their computations across multiple GPUs, enabling larger models than fit on one device.',
+        'Pipeline Parallelism': 'Distributes model layers across GPUs in a pipeline, allowing different GPUs to process different micro-batches concurrently.',
+        'Speculative Decoding': 'Uses a smaller draft model to generate candidate tokens, which a larger model verifies in parallel, boosting throughput.',
+        'FlashAttention':  'An IO-aware attention algorithm that computes attention in tiles, avoiding materializing the full N×N attention matrix in HBM.',
+        'LoRA':            'Low-Rank Adaptation — fine-tunes large models by training small rank-decomposition matrices, leaving original weights frozen.',
+        'Quantization':    'Reduces model weight precision (e.g., from FP32 to INT8/INT4) to save memory and accelerate inference with minimal accuracy loss.',
+        'vLLM':            'A high-throughput LLM inference server using PagedAttention for efficient KV cache management and continuous batching.',
+        'SGLang':          'Structured Generation Language — a framework for LLM programs that co-optimizes inference with structured output constraints.',
+    };
+
+    const postContent = document.querySelector('.post-content');
+    if (!postContent) return;
+
+    const injected = new Set();
+
+    function processTextNode(node) {
+        const parent = node.parentNode;
+        if (!parent) return;
+        if (['CODE', 'PRE', 'SCRIPT', 'STYLE', 'A', 'BUTTON'].includes(parent.tagName)) return;
+
+        let text = node.textContent;
+        let changed = false;
+
+        for (const [term, definition] of Object.entries(GLOSSARY)) {
+            if (injected.has(term)) continue;
+            const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const regex = new RegExp(`\\b(${escaped})\\b`);
+            if (regex.test(text)) {
+                const wrapper = document.createElement('span');
+                wrapper.innerHTML = text.replace(regex, `<span class="glossary-term">$1<span class="glossary-tooltip"><strong>${term}</strong>${definition}</span></span>`);
+                parent.replaceChild(wrapper, node);
+                injected.add(term);
+                changed = true;
+                break;
+            }
+        }
+    }
+
+    function walk(el) {
+        const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, {
+            acceptNode: n => {
+                const p = n.parentNode;
+                if (['CODE', 'PRE', 'SCRIPT', 'STYLE', 'A', 'BUTTON'].includes(p?.tagName)) return NodeFilter.FILTER_REJECT;
+                return n.textContent.trim().length > 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP;
+            }
+        });
+        const nodes = [];
+        while (walker.nextNode()) nodes.push(walker.currentNode);
+        nodes.forEach(processTextNode);
+    }
+
+    walk(postContent);
+})();
 </script>
 
 {{/* Advanced JSON-LD Structured Data for SEO, AEO & GEO */}}
