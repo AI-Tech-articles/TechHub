@@ -1,24 +1,14 @@
-<title>{{ if .IsHome }}{{ .Site.Title }} — Technical Research & Infrastructure Engineering{{ else }}{{ .Title }} | {{ .Site.Title }}{{ end }}</title>
+<!-- Google AdSense Verification -->
+<meta name="google-adsense-account" content="ca-pub-6375003818418942">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6375003818418942" crossorigin="anonymous"></script>
 
+<title>{{ if .IsHome }}{{ .Site.Title }} — Technical Research & Infrastructure Engineering{{ else }}{{ .Title }} | {{ .Site.Title }}{{ end }}</title>
 <meta name="description" content="{{ if .Summary }}{{ .Summary | plainify | truncate 160 }}{{ else }}{{ .Site.Params.description }}{{ end }}">
 <meta name="author" content="{{ .Params.author | default .Site.Params.author }}">
 <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
 <link rel="canonical" href="{{ .Permalink }}">
-
-<!-- SEO, AEO & GEO Semantic Target Keywords -->
 <meta name="keywords" content="{{ with .Params.tags }}{{ delimit . ", " }}{{ else }}Artificial Intelligence, Large Language Models, LLM Inference Optimization, PagedAttention, KV Cache Tuning, Distributed Systems, Performance Engineering, Machine Learning Infrastructure, MoE Routing, Speculative Decoding{{ end }}">
 <meta name="theme-color" content="#090912">
-
-<!-- AI Answer Engine & Generative Search Optimization (AEO/GEO) -->
-<meta name="ai-content-declaration" content="Technical Engineering Publications">
-<meta name="citation_title" content="{{ .Title }}">
-<meta name="citation_author" content="{{ .Params.author | default .Site.Params.author }}">
-<meta name="citation_publication_date" content="{{ .Date.Format "2006/01/02" }}">
-
-<!-- Google AdSense Verification -->
-<meta name="google-adsense-account" content="ca-pub-6375003818418942">
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6375003818418942"
-     crossorigin="anonymous"></script>
 
 <!-- Open Graph (Facebook / LinkedIn / AI Scrapers) -->
 <meta property="og:site_name" content="{{ .Site.Title }}">
