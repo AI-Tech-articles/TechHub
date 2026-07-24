@@ -1,5 +1,5 @@
 ---
-
+layout: default
 title: "Pipeline Parallelism At Scale Separating Stages Not Just Tasks"
 date: 2026-07-24
 ---

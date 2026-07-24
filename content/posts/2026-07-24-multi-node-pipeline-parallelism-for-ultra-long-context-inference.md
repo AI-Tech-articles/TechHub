@@ -1,5 +1,5 @@
 ---
-
+layout: default
 title: "Multi Node Pipeline Parallelism For Ultra Long Context Inference"
 date: 2026-07-24
 ---

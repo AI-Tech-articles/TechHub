@@ -1,5 +1,5 @@
 ---
-
+layout: default
 title: "Inter Node Tensor Allocation For Distributed Inference A Practical Guide"
 date: 2026-07-24
 ---

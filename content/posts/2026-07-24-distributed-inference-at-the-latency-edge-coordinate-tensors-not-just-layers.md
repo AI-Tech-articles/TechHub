@@ -1,5 +1,5 @@
 ---
-
+layout: default
 title: "Distributed Inference At The Latency Edge Coordinate Tensors Not Just Layers"
 date: 2026-07-24
 ---

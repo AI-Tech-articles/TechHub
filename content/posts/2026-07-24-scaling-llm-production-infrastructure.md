@@ -1,5 +1,5 @@
 ---
-
+layout: default
 title: "Scaling Llm Production Infrastructure"
 date: 2026-07-24
 ---

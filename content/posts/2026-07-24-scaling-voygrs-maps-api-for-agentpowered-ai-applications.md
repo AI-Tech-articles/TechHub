@@ -1,5 +1,5 @@
 ---
-
+layout: default
 title: "Scaling Voygrs Maps Api For Agentpowered Ai Applications"
 date: 2026-07-24
 ---

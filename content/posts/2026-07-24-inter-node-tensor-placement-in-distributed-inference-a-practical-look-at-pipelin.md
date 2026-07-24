@@ -1,5 +1,5 @@
 ---
-
+layout: default
 title: "Inter Node Tensor Placement In Distributed Inference A Practical Look At Pipelin"
 date: 2026-07-24
 ---

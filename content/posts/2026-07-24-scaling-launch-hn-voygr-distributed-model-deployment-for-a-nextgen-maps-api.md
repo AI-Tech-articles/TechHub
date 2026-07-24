@@ -1,5 +1,5 @@
 ---
-
+layout: default
 title: "Scaling Launch Hn Voygr Distributed Model Deployment For A Nextgen Maps Api"
 date: 2026-07-24
 ---

@@ -1,5 +1,5 @@
 ---
-
+layout: default
 title: "Vllm Vs Sglang Architectural Deepdive Kvcache Pinning And Distributed Inference At Scale"
 date: 2026-07-24
 ---

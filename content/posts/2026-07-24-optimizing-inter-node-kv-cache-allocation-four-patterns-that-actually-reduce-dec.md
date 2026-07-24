@@ -1,5 +1,5 @@
 ---
-
+layout: default
 title: "Optimizing Inter Node Kv Cache Allocation Four Patterns That Actually Reduce Dec"
 date: 2026-07-24
 ---

@@ -1,5 +1,5 @@
 ---
-
+layout: default
 title: "Production Scaling Deployment Of Voygr Maps Api"
 date: 2026-07-24
 ---

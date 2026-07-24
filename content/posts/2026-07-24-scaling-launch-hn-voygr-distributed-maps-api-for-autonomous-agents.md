@@ -1,5 +1,5 @@
 ---
-
+layout: default
 title: "Scaling Launch Hn Voygr Distributed Maps Api For Autonomous Agents"
 date: 2026-07-24
 ---

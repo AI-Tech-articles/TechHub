@@ -1,5 +1,5 @@
 ---
-
+layout: default
 title: "Multi Node Pipeline Parallelism For Low Latency Inference A Pragmatic Guide"
 date: 2026-07-24
 ---

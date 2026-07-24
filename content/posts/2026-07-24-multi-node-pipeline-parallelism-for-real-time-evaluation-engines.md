@@ -1,5 +1,5 @@
 ---
-
+layout: default
 title: "Multi Node Pipeline Parallelism For Real Time Evaluation Engines"
 date: 2026-07-24
 ---

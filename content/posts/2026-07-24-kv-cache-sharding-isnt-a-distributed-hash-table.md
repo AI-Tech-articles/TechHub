@@ -1,5 +1,5 @@
 ---
-
+layout: default
 title: "Kv Cache Sharding Isnt A Distributed Hash Table"
 date: 2026-07-24
 ---

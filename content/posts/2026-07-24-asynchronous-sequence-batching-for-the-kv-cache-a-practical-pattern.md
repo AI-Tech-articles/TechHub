@@ -1,5 +1,5 @@
 ---
-
+layout: default
 title: "Asynchronous Sequence Batching For The Kv Cache A Practical Pattern"
 date: 2026-07-24
 ---

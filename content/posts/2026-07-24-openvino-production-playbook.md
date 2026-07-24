@@ -1,5 +1,5 @@
 ---
-
+layout: default
 title: "Openvino Production Playbook"
 date: 2026-07-24
 ---

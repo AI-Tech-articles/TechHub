@@ -1,5 +1,5 @@
 ---
-
+layout: default
 title: "Can Asynchronous Sequence Batching Quiet The Kv Cache Bottleneck"
 date: 2026-07-24
 ---

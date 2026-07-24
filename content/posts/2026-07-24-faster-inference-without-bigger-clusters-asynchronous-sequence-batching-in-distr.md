@@ -1,5 +1,5 @@
 ---
-
+layout: default
 title: "Faster Inference Without Bigger Clusters Asynchronous Sequence Batching In Distr"
 date: 2026-07-24
 ---

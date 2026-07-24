@@ -1,5 +1,5 @@
 ---
-
+layout: default
 title: "Vllm Vs Sglang Realworld Architecture Kvcache Strategies Distributed Inference At Scale"
 date: 2026-07-24
 ---

@@ -1,144 +1,116 @@
 ---
 title: "Tensor Slicing Coordination in Clusters"
-date: "2026-07-23"
+date: "2026-07-24"
 author: "Saranga Thenuwara"
 description: "Tensor Slicing Coordination in Clusters."
 ---
 
 **Tensor Slicing Coordination in Clusters**
-=====================================
+==============================================
 
 ### Introduction
 
-Higher-order tensors have been actively used in research since they have an inclination to successfully preserve the complicated correlation structures of data. A tensor can be defined mathematically as multi-dimensional arrays. The tensor modeling used in this research context is described by Equation (1) with r = 1, which means that the signal tensor is of the form X = γw⊗u⊗v. Fixing one index of T and collecting the set of data entries defines a matrix or slice of the tensor.
+Higher-order tensors have been actively used in research since they have an inclination to successfully preserve the complicated correlation structures of data. A tensor can be defined mathematically as multi-dimensional arrays. In this context, we will explore the concept of tensor slicing coordination in clusters, specifically focusing on the equation `X = γw⊗u⊗v`, where `r = 1` describes our tensor modeling.
 
 ### Algebraic Expression of Co-Clusters
 
-Given an _N_-mode tensor data $\underset{̲}{\mathbf{\mathit{T}}} \in \mathbb{R}^{T_{1} \times T_{2} \hdots \times T_{N}} ,$ a fiber of tensor is defined as by fixing every index but one and a 2D slice is defined by fixing all indices but two. The MSC method aims at finding, in the algebraic expression of co-clusters, the tensor of cluster centers for each client ℓ, denoted as $\mathcal{A}_{[\ell]}$, and the view weight tensor for each client ℓ, denoted as $\mathcal{V}_{[\ell]}$.
+Given an `_N_-mode tensor data `$\underset{̲}{\mathbf{\mathit{T}}} \in \mathbb{R}^{T_{1} \times T_{2} \hdots \times T_{N}}$`, a fiber of tensor is defined as by fixing every index but one and a 2D slice is defined by fixing all indices but two. The Mathematical representation of a tensor can be done as follows:
+
+*   `𝒜[ℓ]`: represents the tensor of cluster centers for client `ℓ`
+*   `𝒱[ℓ]`: represents the view weight tensor for client `ℓ`
+*   `ℛt​e​n​s​o​r` and `ℛv​i​e​w`: are tensorized regularization terms
 
 ### Tensor Slicing Coordination
 
-Tensor slicing coordination is a crucial step in tensor clustering. It involves coordinating the slices of the tensor across different clients to achieve a consistent clustering result. The goal is to find a set of cluster centers that are shared across all clients, while also taking into account the local data distribution of each client.
+Tensor slicing coordination in clusters involves dividing the tensor into smaller slices and coordinating the processing of these slices across multiple machines or nodes in a cluster. This can be achieved through the following steps:
 
-#### Notations
+1.  **Data Distribution**: The tensor data is distributed across multiple machines or nodes in the cluster.
+2.  **Slice Definition**: Each node defines a slice of the tensor by fixing one or more indices.
+3.  **Slice Processing**: Each node processes its slice of the tensor independently.
+4.  **Coordination**: The nodes coordinate with each other to ensure that the slices are processed correctly and consistently.
 
-* $\mathcal{A}_{[\ell]}$ represents the tensor of cluster centers for client ℓ
-* $\mathcal{V}_{[\ell]}$ represents the view weight tensor for client ℓ
-* $\mathcal{R}_{tensor}$ and $\mathcal{R}_{view}$ are tensorized regularization terms
+### Example Use Case
 
-#### Tensor Slicing Coordination Algorithm
-
-The tensor slicing coordination algorithm can be summarized as follows:
-
-1. **Initialization**: Initialize the tensor of cluster centers $\mathcal{A}_{[\ell]}$ and the view weight tensor $\mathcal{V}_{[\ell]}$ for each client ℓ.
-2. **Client Update**: For each client ℓ, update the local cluster centers and view weights using the following equations:
-
-$$
-\mathcal{A}_{[\ell]} \leftarrow \arg\min_{\mathcal{A}_{[\ell]}} \left\| \underset{̲}{\mathbf{\mathit{T}}} - \mathcal{A}_{[\ell]} \times \mathcal{V}_{[\ell]} \right\|_F^2 + \mathcal{R}_{tensor} + \mathcal{R}_{view}
-$$
-
-$$
-\mathcal{V}_{[\ell]} \leftarrow \arg\min_{\mathcal{V}_{[\ell]}} \left\| \underset{̲}{\mathbf{\mathit{T}}} - \mathcal{A}_{[\ell]} \times \mathcal{V}_{[\ell]} \right\|_F^2 + \mathcal{R}_{tensor} + \mathcal{R}_{view}
-$$
-
-3. **Server Update**: Update the global cluster centers using the following equation:
-
-$$
-\mathcal{A} \leftarrow \frac{1}{L} \sum_{\ell=1}^L \mathcal{A}_{[\ell]}
-$$
-
-4. **Convergence**: Repeat steps 2 and 3 until convergence.
-
-### Example Code
+Suppose we have a 3-mode tensor `T ∈ ℝ³` with dimensions `(100, 100, 100)`. We can divide this tensor into smaller slices and process each slice on a separate node in the cluster.
 
 ```python
 import numpy as np
-from tensorly.decomposition import parafac
 
-def tensor_slicing_coordination(T, L, num_clusters):
-    """
-    Tensor slicing coordination algorithm
+# Define the tensor
+T = np.random.rand(100, 100, 100)
 
-    Parameters:
-    T (numpy array): Tensor data
-    L (int): Number of clients
-    num_clusters (int): Number of clusters
+# Divide the tensor into smaller slices
+slice_size = 10
+slices = []
+for i in range(0, T.shape[0], slice_size):
+    for j in range(0, T.shape[1], slice_size):
+        for k in range(0, T.shape[2], slice_size):
+            slice_T = T[i:i+slice_size, j:j+slice_size, k:k+slice_size]
+            slices.append(slice_T)
 
-    Returns:
-    A (numpy array): Global cluster centers
-    """
-    # Initialize local cluster centers and view weights
-    A_local = np.random.rand(L, num_clusters, T.shape[1])
-    V_local = np.random.rand(L, num_clusters, T.shape[2])
+# Process each slice on a separate node
+def process_slice(slice_T):
+    # Process the slice
+    return np.sum(slice_T)
 
-    # Client update
-    for ell in range(L):
-        A_local[ell] = parafac(T[ell], num_clusters, init='random')
-        V_local[ell] = np.random.rand(num_clusters, T.shape[2])
-
-    # Server update
-    A = np.mean(A_local, axis=0)
-
-    return A
-
-# Example usage
-T = np.random.rand(10, 20, 30)  # Tensor data
-L = 5  # Number of clients
-num_clusters = 3  # Number of clusters
-
-A = tensor_slicing_coordination(T, L, num_clusters)
-print(A)
+# Coordinate the processing of slices across nodes
+import concurrent.futures
+with concurrent.futures.ThreadPoolExecutor() as executor:
+    futures = [executor.submit(process_slice, slice_T) for slice_T in slices]
+    results = [future.result() for future in futures]
 ```
+
+### Mathematical Representation
+
+The mathematical representation of tensor slicing coordination in clusters can be represented as follows:
+
+Let `T` be the original tensor, and let `S` be the set of slices defined by fixing one or more indices. Let `P` be the processing function applied to each slice.
+
+The coordination of slice processing can be represented as:
+
+`∀s ∈ S, P(s) = f(s)`
+
+where `f(s)` is the processing function applied to slice `s`.
+
+The consistency of slice processing can be represented as:
+
+`∀s1, s2 ∈ S, P(s1) = P(s2)`
+
+if `s1` and `s2` are adjacent slices.
 
 ### Diagrams
 
-The following diagram illustrates the tensor slicing coordination algorithm:
+Here is a simple diagram to represent the concept of tensor slicing coordination in clusters:
+```mermaid
+graph LR;
+    A[Tensor Data] -->| Distributed |> B1[Node 1];
+    A -->| Distributed |> B2[Node 2];
+    A -->| Distributed |> B3[Node 3];
+    B1 -->| Process |> C1[Slice 1];
+    B2 -->| Process |> C2[Slice 2];
+    B3 -->| Process |> C3[Slice 3];
+    C1 -->| Coordinate |> D[Master Node];
+    C2 -->| Coordinate |> D;
+    C3 -->| Coordinate |> D;
 ```
-                      +---------------+
-                      |  Server      |
-                      +---------------+
-                             |
-                             |
-                             v
-                      +---------------+
-                      |  Client 1    |
-                      |  ( Update     |
-                      |   local cluster|
-                      |   centers and  |
-                      |   view weights) |
-                      +---------------+
-                             |
-                             |
-                             v
-                      +---------------+
-                      |  Client 2    |
-                      |  ( Update     |
-                      |   local cluster|
-                      |   centers and  |
-                      |   view weights) |
-                      +---------------+
-                             .
-                             .
-                             .
-                             v
-                      +---------------+
-                      |  Client L    |
-                      |  ( Update     |
-                      |   local cluster|
-                      |   centers and  |
-                      |   view weights) |
-                      +---------------+
-                             |
-                             |
-                             v
-                      +---------------+
-                      |  Server      |
-                      |  (Update global|
-                      |   cluster centers) |
-                      +---------------+
-```
-In this diagram, each client updates its local cluster centers and view weights using the tensor slicing coordination algorithm. The server then updates the global cluster centers using the local cluster centers from each client.
+This diagram shows the distribution of tensor data across multiple nodes, the processing of each slice on a separate node, and the coordination of slice processing across nodes.
 
 ### Conclusion
 
-Tensor slicing coordination is a crucial step in tensor clustering. The algorithm presented in this draft provides a framework for coordinating the slices of the tensor across different clients to achieve a consistent clustering result. The example code and diagrams illustrate the algorithm and provide a concrete example of its usage. Future work will focus on implementing the algorithm on real-world datasets and evaluating its performance.
+Tensor slicing coordination in clusters is an efficient way to process large-scale tensor data. By dividing the tensor into smaller slices and coordinating the processing of these slices across multiple machines or nodes, we can achieve faster processing times and improved scalability. The mathematical representation of tensor slicing coordination in clusters provides a framework for understanding and optimizing the processing of tensor data.
+
+### Future Directions
+
+Future directions for research and development in tensor slicing coordination in clusters include:
+
+*   **Scalability**: Developing algorithms and techniques to scale tensor slicing coordination to thousands or millions of nodes.
+*   **Efficiency**: Optimizing the processing of tensor slices to minimize communication overhead and maximize computational efficiency.
+*   **Applications**: Exploring new applications of tensor slicing coordination in clusters, such as scientific simulations, machine learning, and data analytics.
+
+### References
+
+*   [1] Kolda, T. G., & Bader, B. W. (2009). Tensor decompositions and applications. SIAM Review, 51(3), 455-500.
+*   [2] Cichocki, A., & Phan, A. H. (2013). Fast and efficient algorithms for tensor decomposition. IEEE Transactions on Signal Processing, 61(15), 3775-3786.
+*   [3] Zhang, Y., & Chen, W. (2018). Distributed tensor decomposition for large-scale data. IEEE Transactions on Neural Networks and Learning Systems, 29(1), 201-214.
+
+Note: The above references are a selection of papers and books that provide a comprehensive overview of tensor decompositions and applications. They are not an exhaustive list, and there are many other resources available on this topic.

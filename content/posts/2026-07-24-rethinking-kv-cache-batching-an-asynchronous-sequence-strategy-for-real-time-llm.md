@@ -1,5 +1,5 @@
 ---
-
+layout: default
 title: "Rethinking Kv Cache Batching An Asynchronous Sequence Strategy For Real Time Llm"
 date: 2026-07-24
 ---
