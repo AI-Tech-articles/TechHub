@@ -697,3 +697,121 @@ document.addEventListener("DOMContentLoaded", function() {
 }
 </script>
 {{ end }}
+
+{{/* Shiki Premium Syntax Highlighting (runs as ES module after DOMContentLoaded) */}}
+<script type="module">
+import { createHighlighter } from 'https://esm.sh/shiki@1.26.2';
+
+(async () => {
+    // Wait for our header-bar injector (DOMContentLoaded) to run first
+    await new Promise(r => {
+        if (document.readyState !== 'loading') setTimeout(r, 50);
+        else document.addEventListener('DOMContentLoaded', () => setTimeout(r, 50));
+    });
+
+    const postContent = document.querySelector('.post-content');
+    if (!postContent) return;
+
+    const codeBlocks = postContent.querySelectorAll('pre code');
+    if (!codeBlocks.length) return;
+
+    // Map each code element to its detected language
+    const langMap = new Map();
+    const langSet = new Set();
+
+    codeBlocks.forEach(code => {
+        const allClasses = [
+            code.className,
+            code.closest('pre')?.className || '',
+            code.closest('.highlight')?.className || ''
+        ].join(' ');
+        const m = allClasses.match(/language-([a-zA-Z0-9_+\-#]+)/i);
+        const lang = m ? m[1].toLowerCase() : 'text';
+        langMap.set(code, lang);
+        if (!['mermaid', 'diagram', 'text'].includes(lang)) langSet.add(lang);
+    });
+
+    const wantedLangs = [...langSet];
+    if (!wantedLangs.length) return;
+
+    // Shiki language aliases for common shorthand names
+    const aliasMap = { 'sh': 'bash', 'zsh': 'bash', 'shell': 'bash',
+                       'js': 'javascript', 'ts': 'typescript',
+                       'py': 'python', 'tf': 'hcl', 'yml': 'yaml' };
+
+    const resolvedLangs = [...new Set(wantedLangs.map(l => aliasMap[l] || l))];
+
+    let highlighter;
+    try {
+        highlighter = await createHighlighter({
+            themes: ['github-dark-dimmed'],
+            langs: resolvedLangs,
+        });
+    } catch (e) {
+        console.warn('[TechHub] Shiki failed to init:', e.message);
+        return;
+    }
+
+    codeBlocks.forEach(code => {
+        const rawLang = langMap.get(code) || 'text';
+        const lang    = aliasMap[rawLang] || rawLang;
+
+        if (['mermaid', 'diagram'].includes(rawLang)) return;
+        if (!resolvedLangs.includes(lang)) return;
+
+        const rawCode = code.innerText; // plain text, not HTML
+        const container = code.closest('.highlight') || code.closest('pre');
+        if (!container) return;
+
+        const existingPre = code.closest('pre');
+        if (!existingPre) return;
+
+        let html;
+        try {
+            html = highlighter.codeToHtml(rawCode, {
+                lang,
+                theme: 'github-dark-dimmed',
+            });
+        } catch (_) { return; }
+
+        // Parse Shiki's output and extract the <pre>
+        const tmp = document.createElement('div');
+        tmp.innerHTML = html;
+        const newPre = tmp.querySelector('pre');
+        if (!newPre) return;
+
+        // Shiki sets inline background — make it transparent so our dark container shows
+        newPre.style.setProperty('background', 'transparent', 'important');
+        newPre.style.setProperty('background-color', 'transparent', 'important');
+        newPre.style.margin   = '0';
+        newPre.style.padding  = '1.25rem 1.5rem';
+        newPre.style.overflow = 'auto';
+        newPre.style.fontSize = '0.875rem';
+        newPre.style.lineHeight = '1.7';
+        newPre.style.cursor   = 'grab';
+        newPre.style.fontFamily = "'JetBrains Mono', 'Fira Code', monospace";
+        newPre.classList.add('shiki-pre');
+
+        // Re-wire scrollbar + drag-to-scroll
+        newPre.style.scrollbarWidth = 'thin';
+        newPre.style.scrollbarColor = 'rgba(212,175,55,0.35) transparent';
+
+        let isDown = false, startX = 0, scrollLeft = 0;
+        newPre.addEventListener('mousedown', e => {
+            if (window.getSelection().toString().length) return;
+            isDown = true; startX = e.pageX - newPre.offsetLeft; scrollLeft = newPre.scrollLeft;
+        });
+        ['mouseleave', 'mouseup'].forEach(ev => newPre.addEventListener(ev, () => isDown = false));
+        newPre.addEventListener('mousemove', e => {
+            if (!isDown || window.getSelection().toString().length) { isDown = false; return; }
+            e.preventDefault();
+            newPre.scrollLeft = scrollLeft - (e.pageX - newPre.offsetLeft - startX) * 1.5;
+        });
+        newPre.addEventListener('mouseup', () => newPre.style.cursor = 'grab');
+        newPre.addEventListener('mousedown', () => newPre.style.cursor = 'grabbing');
+
+        // Swap old pre with Shiki pre (preserving the .code-header-bar which is a sibling, not inside pre)
+        existingPre.replaceWith(newPre);
+    });
+})();
+</script>

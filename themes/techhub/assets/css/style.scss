@@ -1816,6 +1816,65 @@ body {
     .n, .nv, .p { color: #e2e8f0 !important; }
 }
 
+// ── Shiki Premium Syntax Highlighting output styles ──
+// Shiki replaces Chroma <pre> at runtime with github-dark-dimmed output.
+// These styles ensure Shiki's <pre class="shiki-pre"> integrates with our container.
+.post-content pre.shiki-pre,
+.post-content .highlight pre.shiki-pre {
+    margin: 0 !important;
+    padding: 1.25rem 1.5rem !important;
+    border: none !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    background-color: transparent !important;
+    overflow-x: auto;
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    font-size: 0.875rem;
+    line-height: 1.7;
+    cursor: grab;
+
+    &:active { cursor: grabbing; }
+
+    // Shiki line spans - display each line as a block
+    .line {
+        display: block;
+        min-width: max-content;
+    }
+
+    // Highlighted lines (using // [!code highlight] or // [!code ++] markers)
+    .line.highlighted {
+        background: rgba(212, 175, 55, 0.08);
+        border-left: 2px solid var(--accent-gold);
+        margin: 0 -1.5rem;
+        padding: 0 1.5rem 0 calc(1.5rem - 2px);
+    }
+
+    .line.diff.add {
+        background: rgba(74, 222, 128, 0.07);
+        border-left: 2px solid #4ade80;
+    }
+
+    .line.diff.remove {
+        background: rgba(248, 113, 113, 0.07);
+        border-left: 2px solid #f87171;
+        opacity: 0.7;
+    }
+
+    // Scrollbar
+    scrollbar-width: thin;
+    scrollbar-color: rgba(212, 175, 55, 0.35) transparent;
+
+    &::-webkit-scrollbar { height: 6px; width: 6px; }
+    &::-webkit-scrollbar-track { background: transparent; }
+    &::-webkit-scrollbar-thumb {
+        background: rgba(212, 175, 55, 0.35);
+        border-radius: 99px;
+    }
+    &::-webkit-scrollbar-thumb:hover {
+        background: rgba(212, 175, 55, 0.6);
+    }
+}
+
 // ── Mermaid diagrams (rendered by CDN) ──
 .post-content .mermaid {
     text-align: center;
