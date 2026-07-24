@@ -73,6 +73,9 @@
         </div>
     </header>
 
+    <!-- Reading Progress Bar -->
+    <div id="reading-progress-bar"></div>
+
     <!-- Top Post Banner Ad -->
     <div class="container header-ad-container">
         {{ partial "ad-slot.html" (dict "position" "desktop-inline") }}
@@ -160,6 +163,25 @@
                 </div>
             </nav>
 
+            <!-- Related Articles -->
+            {{ $related := .Site.RegularPages.Related . | first 3 }}
+            {{ if $related }}
+            <div class="related-articles">
+                <h3 class="related-articles-title">Related Research</h3>
+                <div class="related-grid">
+                    {{ range $related }}
+                    {{ $relDateMatch := findRE `^\d{4}-\d{2}-\d{2}` .File.BaseFileName 1 }}
+                    {{ $relDate := .Date.Format "Jan 02, 2006" }}
+                    {{ if $relDateMatch }}{{ $relDate = (time (index $relDateMatch 0)).Format "Jan 02, 2006" }}{{ end }}
+                    <a href="{{ .Permalink }}" class="related-card">
+                        <div class="related-card-date">{{ $relDate }}</div>
+                        <div class="related-card-title">{{ .Title }}</div>
+                    </a>
+                    {{ end }}
+                </div>
+            </div>
+            {{ end }}
+
             <footer class="post-footer">
                 <a href="{{ "" | relURL }}" class="back-link">
                     <svg class="arrow-icon" viewBox="0 0 16 16" fill="none"><path d="M13 8H3M7 4L3 8l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -170,6 +192,15 @@
 
         <!-- Post Page Sidebar -->
         <aside class="sidebar">
+            <!-- Sticky Table of Contents -->
+            <div class="toc-widget" id="toc-widget" style="display:none;">
+                <div class="toc-title">
+                    <svg viewBox="0 0 16 16" fill="none" style="width:12px;height:12px;"><path d="M2 4h12M2 8h8M2 12h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                    Contents
+                </div>
+                <ul class="toc-list" id="toc-list"></ul>
+            </div>
+
             <!-- Newsletter Widget (Lead Capture) -->
             <div class="sidebar-widget widget-newsletter">
                 <h3 class="widget-title">Join Newsletter</h3>
@@ -236,6 +267,83 @@
 document.addEventListener("DOMContentLoaded", function() {
     const postBody = document.querySelector('.post-content');
     if (!postBody) return;
+
+    // ── 1. Reading Progress Bar ──
+    const progressBar = document.getElementById('reading-progress-bar');
+    if (progressBar) {
+        const updateProgress = () => {
+            const article = document.querySelector('article') || document.body;
+            const totalHeight = article.scrollHeight - window.innerHeight;
+            const progress = totalHeight > 0 ? (window.scrollY / totalHeight) * 100 : 0;
+            progressBar.style.width = Math.min(100, Math.max(0, progress)) + '%';
+        };
+        window.addEventListener('scroll', updateProgress, { passive: true });
+        updateProgress();
+    }
+
+    // ── 2. Auto-Generated Sticky Table of Contents ──
+    const tocWidget = document.getElementById('toc-widget');
+    const tocList   = document.getElementById('toc-list');
+    if (tocWidget && tocList) {
+        const headings = Array.from(postBody.querySelectorAll('h2, h3'));
+        if (headings.length >= 2) {
+            headings.forEach((h, i) => {
+                if (!h.id) h.id = 'toc-' + i;
+                const li = document.createElement('li');
+                li.className = 'toc-item' + (h.tagName === 'H3' ? ' toc-h3' : '');
+                li.dataset.tocTarget = h.id;
+                const a = document.createElement('a');
+                a.href = '#' + h.id;
+                a.textContent = h.textContent;
+                a.addEventListener('click', e => {
+                    e.preventDefault();
+                    h.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                });
+                li.appendChild(a);
+                tocList.appendChild(li);
+            });
+
+            tocWidget.style.display = '';
+
+            // IntersectionObserver for active section highlighting
+            const observer = new IntersectionObserver(entries => {
+                entries.forEach(entry => {
+                    const li = tocList.querySelector(`[data-toc-target="${entry.target.id}"]`);
+                    if (li) li.classList.toggle('toc-active', entry.isIntersecting);
+                });
+            }, { rootMargin: '-10% 0px -80% 0px', threshold: 0 });
+
+            headings.forEach(h => observer.observe(h));
+        }
+    }
+
+    // ── 3. Callout Box Transformer (blockquotes starting with [!TYPE]) ──
+    const calloutIcons = {
+        NOTE:      `<svg class="callout-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="10" cy="10" r="8"/><path d="M10 9v5M10 7h.01" stroke-linecap="round"/></svg>`,
+        TIP:       `<svg class="callout-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 2a6 6 0 0 1 4 10.47V14H6v-1.53A6 6 0 0 1 10 2zM7 16h6M8 18h4" stroke-linecap="round"/></svg>`,
+        WARNING:   `<svg class="callout-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 3L2 17h16L10 3z" stroke-linecap="round" stroke-linejoin="round"/><path d="M10 9v4M10 15h.01" stroke-linecap="round"/></svg>`,
+        IMPORTANT: `<svg class="callout-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="10" cy="10" r="8"/><path d="M10 6v6M10 14h.01" stroke-linecap="round"/></svg>`,
+    };
+
+    postBody.querySelectorAll('blockquote').forEach(bq => {
+        const firstP = bq.querySelector('p:first-child');
+        if (!firstP) return;
+        const match = firstP.textContent.trim().match(/^\[!(NOTE|TIP|WARNING|IMPORTANT)\]/i);
+        if (!match) return;
+        const type = match[1].toUpperCase();
+        const label = type.charAt(0) + type.slice(1).toLowerCase();
+        firstP.innerHTML = firstP.innerHTML.replace(/^\[!(NOTE|TIP|WARNING|IMPORTANT)\]\s*/i, '');
+
+        const callout = document.createElement('div');
+        callout.className = `callout callout--${type.toLowerCase()}`;
+        callout.innerHTML = `
+            ${calloutIcons[type]}
+            <div class="callout-body">
+                <strong>${label}</strong>
+            </div>`;
+        callout.querySelector('.callout-body').append(...bq.childNodes);
+        bq.replaceWith(callout);
+    });
 
     // 0. Professional Code Block & Diagram Enhancement
     const allCodeBlocks = postBody.querySelectorAll('pre, .highlight');

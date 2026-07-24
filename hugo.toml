@@ -47,3 +47,20 @@ buildDrafts = false
     name = 'RSS'
     url = '/feed.xml'
     weight = 20
+
+[related]
+  includeNewer = true
+  threshold    = 60
+  toLower      = true
+
+  [[related.indices]]
+    name   = "tags"
+    weight = 100
+
+  [[related.indices]]
+    name   = "keywords"
+    weight = 50
+
+  [[related.indices]]
+    name   = "date"
+    weight = 10
