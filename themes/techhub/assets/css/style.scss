@@ -2391,3 +2391,139 @@ body {
     }
 }
 
+// ═══════════════════════════════════════════
+// ARTICLE INFORMATION CARD
+// ═══════════════════════════════════════════
+.article-info-card {
+    background: #11111a;
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    border-radius: var(--radius-md);
+    padding: 1.25rem 1.5rem;
+    margin: 1.5rem 0 2rem;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+}
+
+.info-card-main {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1.25rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.info-card-author {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+
+    .author-avatar {
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        background: rgba(212, 175, 55, 0.1);
+        border: 1px solid rgba(212, 175, 55, 0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--accent-gold);
+        svg { width: 22px; height: 22px; }
+    }
+
+    .author-details {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .author-name {
+        font-weight: 700;
+        font-size: 0.95rem;
+        color: var(--text-primary);
+    }
+
+    .author-role {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+    }
+}
+
+.info-card-meta-grid {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+
+    .meta-item {
+        display: flex;
+        flex-direction: column;
+        gap: 0.2rem;
+    }
+
+    .meta-label {
+        font-size: 0.68rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--text-muted);
+        font-family: 'JetBrains Mono', monospace;
+    }
+
+    .meta-val {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--text-primary);
+
+        &.badge-cat {
+            color: var(--accent-gold);
+        }
+    }
+}
+
+.info-card-tags {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding-top: 0.85rem;
+    flex-wrap: wrap;
+
+    .tags-label {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--text-muted);
+        font-family: 'JetBrains Mono', monospace;
+    }
+
+    .tags-list {
+        display: flex;
+        gap: 0.4rem;
+        flex-wrap: wrap;
+    }
+
+    .info-tag-pill {
+        font-size: 0.7rem;
+        font-family: 'JetBrains Mono', monospace;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        padding: 0.2rem 0.55rem;
+        border-radius: 4px;
+        color: var(--text-secondary);
+    }
+}
+
+// ── Line Numbers for Code Blocks ──
+.post-content pre.shiki-pre {
+    counter-reset: step;
+    counter-increment: step 0;
+
+    .line::before {
+        content: counter(step);
+        counter-increment: step;
+        width: 1.8rem;
+        margin-right: 1.2rem;
+        display: inline-block;
+        text-align: right;
+        color: rgba(255, 255, 255, 0.25);
+        font-size: 0.75rem;
+        user-select: none;
+    }
+}
+

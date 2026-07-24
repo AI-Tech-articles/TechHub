@@ -44,39 +44,61 @@
 
     <header class="post-header">
         <div class="container">
-            <!-- Category + Reading time badges -->
-            <div class="post-badges-row">
-                <span class="post-badge post-badge--category">{{ $category }}</span>
-                <span class="post-badge post-badge--readtime">
-                    <svg viewBox="0 0 16 16" fill="none" style="width:11px;height:11px;"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.4"/><path d="M8 5v3l2 1.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
-                    {{ $readingTime }} min read
-                </span>
-            </div>
+            <!-- Professional Article Information Card -->
+            <div class="article-info-card">
+                <div class="info-card-main">
+                    <div class="info-card-author" itemprop="author" itemscope itemtype="https://schema.org/Person">
+                        <div class="author-avatar">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                        </div>
+                        <div class="author-details">
+                            <span class="author-name" itemprop="name">{{ .Params.author | default .Site.Params.author }}</span>
+                            <span class="author-role">AI Infrastructure Specialist</span>
+                        </div>
+                    </div>
+                    <div class="info-card-meta-grid">
+                        <div class="meta-item">
+                            <span class="meta-label">Category</span>
+                            <span class="meta-val badge-cat">{{ $category }}</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label">Reading Time</span>
+                            <span class="meta-val">{{ $readingTime }} min read</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label">Published</span>
+                            <time class="meta-val" datetime="{{ .Date.Format "2006-01-02T15:04:05Z07:00" }}" itemprop="datePublished">{{ $displayDate }}</time>
+                        </div>
+                        <div class="meta-item" id="views-container" style="display: none;">
+                            <span class="meta-label">Views</span>
+                            <span class="meta-val" id="views-count">0</span>
+                        </div>
+                    </div>
+                </div>
 
-            <h1 class="post-title" itemprop="headline">{{ .Title }}</h1>
+                {{ $rawTopics := slice }}
+                {{ $raw := .RawContent }}
+                {{ $topicsMatch := findRE `(?s)(?:##|###) Topics\s*[\r\n]+[\s\r\n]*([^\r\n]+)` $raw 1 }}
+                {{ if $topicsMatch }}
+                    {{ $match := index $topicsMatch 0 }}
+                    {{ $topicsLine := replaceRE `(?s)^.*?(?:##|###) Topics\s*` "" $match }}
+                    {{ $topicsLine = trim $topicsLine " \n\r" }}
+                    {{ range (split $topicsLine "·") }}
+                        {{ $t := trim . " \n\r" }}
+                        {{ if $t }}{{ $rawTopics = $rawTopics | append $t }}{{ end }}
+                    {{ end }}
+                {{ end }}
 
-            <div class="post-meta">
-                {{ $displayDate := .Date.Format "January 02, 2006" }}
-                {{ $datePrefixMatch := findRE `^\d{4}-\d{2}-\d{2}` .File.BaseFileName 1 }}
-                {{ if $datePrefixMatch }}
-                    {{ $dateStr := index $datePrefixMatch 0 }}
-                    {{ $parsedTime := time $dateStr }}
-                    {{ $displayDate = $parsedTime.Format "January 02, 2006" }}
+                {{ if $rawTopics }}
+                <div class="info-card-tags">
+                    <span class="tags-label">Tags:</span>
+                    <div class="tags-list">
+                        {{ range $rawTopics }}
+                        <span class="info-tag-pill">{{ . }}</span>
+                        {{ end }}
+                    </div>
+                </div>
                 {{ end }}
-                <time datetime="{{ .Date.Format "2006-01-02T15:04:05Z07:00" }}" itemprop="datePublished">
-                    <svg class="meta-icon" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5"/><path d="M8 4v4l3 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-                    {{ $displayDate }}
-                </time>
-                {{ with .Params.author }}
-                <span class="post-author" itemprop="author">
-                    <svg class="meta-icon" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5" r="3" stroke="currentColor" stroke-width="1.5"/><path d="M2 14c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-                    <span itemprop="name">{{ . }}</span>
-                </span>
-                {{ end }}
-                <span class="post-views" id="views-container" style="display: none; align-items: center; gap: 0.4rem;">
-                    <svg class="meta-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width: 14px; height: 14px;"><path d="M1 8s3-7 7-7 7 7 7 7-3 7-7 7-7-7-7-7z"/><circle cx="8" cy="8" r="3"/></svg>
-                    <span id="views-count">0</span> views
-                </span>
             </div>
 
             {{ if $coverUrl }}
