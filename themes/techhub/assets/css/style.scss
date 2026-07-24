@@ -1532,25 +1532,41 @@ body {
         height: 42px;
     }
 
+    .code-header-bar {
+        padding: 0.45rem 0.75rem;
+    }
+
     .code-lang-badge {
-        right: 2.75rem;
         font-size: 0.6rem;
-        padding: 0.2rem 0.5rem;
+        padding: 0.15rem 0.45rem;
     }
 
     .copy-code-btn {
-        font-size: 0.65rem;
-        padding: 0.25rem 0.5rem;
+        font-size: 0.7rem;
+        padding: 0.25rem 0.55rem;
+        min-height: 36px;
+    }
+
+    .post-content .highlight pre,
+    .post-content pre {
+        padding: 1rem;
+        font-size: 0.8rem;
+        line-height: 1.6;
     }
 }
 
 @media (max-width: 480px) {
+    .container {
+        padding: 0 0.75rem;
+    }
+
     .hero-title {
-        font-size: 1.6rem;
+        font-size: 1.55rem;
     }
 
     .article-card {
         padding: 1rem;
+        border-radius: var(--radius-sm);
     }
 
     .card-cover {
@@ -1562,7 +1578,8 @@ body {
     }
 
     .post-title {
-        font-size: 1.4rem;
+        font-size: 1.35rem;
+        word-break: break-word;
     }
 
     .article-meta-row {
@@ -1573,10 +1590,20 @@ body {
     .pagination-btn {
         padding: 0.5rem 0.85rem;
         font-size: 0.8rem;
+        min-height: 44px;
     }
 
     .pagination-info {
         font-size: 0.75rem;
+    }
+
+    .post-content table {
+        font-size: 0.8rem;
+    }
+
+    .post-content th,
+    .post-content td {
+        padding: 0.5rem 0.65rem;
     }
 }
 
