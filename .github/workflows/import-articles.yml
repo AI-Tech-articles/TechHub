@@ -1,6 +1,8 @@
 name: Publish Latest Articles to TechHub
 
 on:
+  schedule:
+    - cron: '0 0 * * *' # Daily article sync at 00:00 UTC
   workflow_dispatch: # Allows manual trigger from GitHub UI
   repository_dispatch:
     types: [publish_article] # Allows the generator repo to trigger this workflow via API
