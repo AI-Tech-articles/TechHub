@@ -42,7 +42,9 @@
             <!-- Main Article List (paginated to max 10 articles, newest first) -->
             <div id="main-articles-list">
                 {{ $posts := where site.RegularPages "Section" "posts" }}
-                {{ $paginator := .Paginate ($posts.ByDate.Reverse) 10 }}
+                {{ $postsSortedByFile := sort $posts ".File.BaseFileName" "desc" }}
+                {{ $postsSorted := sort $postsSortedByFile ".Date" "desc" }}
+                {{ $paginator := .Paginate $postsSorted 10 }}
                 {{ range $index, $post := $paginator.Pages }}
 
                     {{ if eq $index 0 }}

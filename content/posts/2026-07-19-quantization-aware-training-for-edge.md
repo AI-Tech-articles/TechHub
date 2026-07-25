@@ -1,6 +1,6 @@
 ---
 title: "Quantization-Aware Training for Edge"
-date: "2026-07-18"
+date: "2026-07-19"
 author: "Saranga Thenuwara"
 description: "Quantization-Aware Training for Edge."
 ---

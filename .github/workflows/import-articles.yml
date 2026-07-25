@@ -103,13 +103,19 @@ jobs:
                     content
                 )
 
-                # Ensure valid front matter
+                # Ensure valid front matter with current date
                 title = filename.replace('.md', '').replace('-', ' ').title()
                 if not content.strip().startswith('---'):
-                    front_matter = f'---\ntitle: \"{title}\"\ndate: {current_date}T00:00:00+05:30\ndraft: false\n---\n\n'
+                    front_matter = f'---\ntitle: \"{title}\"\ndate: {current_date}\ndraft: false\n---\n\n'
                     content = front_matter + content
                 else:
-                    # If front matter exists, ensure draft is false
+                    # Update or insert frontmatter date to match current_date
+                    if re.search(r'^date:\s*.*$', content, flags=re.MULTILINE):
+                        content = re.sub(r'^date:\s*.*$', f'date: {current_date}', content, flags=re.MULTILINE)
+                    else:
+                        content = content.replace('---\n', f'---\ndate: {current_date}\n', 1)
+
+                    # Ensure draft is false
                     if 'draft: true' in content:
                         content = content.replace('draft: true', 'draft: false')
                     elif 'draft:' not in content:

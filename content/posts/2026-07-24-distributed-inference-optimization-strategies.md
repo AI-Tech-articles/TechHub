@@ -1,6 +1,6 @@
 ---
 title: "Distributed Inference Optimization Strategies"
-date: "2026-07-23"
+date: "2026-07-24"
 author: "Saranga Thenuwara"
 description: "Distributed Inference Optimization Strategies."
 ---
