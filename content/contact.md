@@ -5,14 +5,18 @@ draft: false
 layout: "page"
 ---
 
-## Contact Us
+## Contact Me
 
-If you have any questions, research collaborations, advertising inquiries, or feedback regarding the publication, feel free to reach out to us. 
+If you have any questions, research collaboration ideas, advertising inquiries, or feedback regarding llminfra.dev, please feel free to reach out.
 
-We aim to respond to all professional inquiries within 48 hours.
+I aim to respond to all professional inquiries within 48 hours.
 
-### Get in Touch
-- **Email**: tbmsaranga@gmail.com
-- **GitHub**: [AI-Tech-articles](https://github.com/AI-Tech-articles)
-- **LinkedIn**: [Saranga Thenuwara](linkedin.com/in/sthenuwara)
-- **Location**: UAE
+### Direct Reach
+
+Send an email to tbmsaranga@gmail.com
+
+Find my work on [GitHub](https://github.com/AI-Tech-articles)
+
+Connect on [LinkedIn](https://linkedin.com/in/sthenuwara)
+
+Based in the UAE
